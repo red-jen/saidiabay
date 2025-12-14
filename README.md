@@ -133,13 +133,26 @@ npm run dev
 
 ### Creating an Admin Account
 
-To create the first admin account, use the registration endpoint or insert directly into the database:
+To create the first admin account, use the registration endpoint:
 
 ```bash
 curl -X POST http://localhost:5000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@saidiabay.com","password":"yourpassword","name":"Admin"}'
 ```
+
+**Note:** The first registered user automatically becomes an admin. Subsequent registrations will be regular users for security.
+
+### Seeding Sample Data
+
+To quickly populate your database with sample properties:
+
+```bash
+cd backend
+npm run seed
+```
+
+This will create 6 sample properties with various types and features.
 
 ## API Endpoints
 
