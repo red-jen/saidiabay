@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import pool from '../config/database';
 import { UserModel } from '../models/User';
 
 export const register = async (req: Request, res: Response) => {
@@ -11,7 +12,12 @@ export const register = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    const user = await UserModel.create({ email, password, name, role: 'admin' });
+    // Only create admin if no users exist (first user), otherwise create regular user
+    const existingUsers = await pool.query('SELECT COUNT(*) FROM users');
+    const userCount = parseInt(existingUsers.rows[0].count);
+    const role = userCount === 0 ? 'admin' : 'user';
+    
+    const user = await UserModel.create({ email, password, name, role });
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },

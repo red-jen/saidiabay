@@ -3,13 +3,17 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getProperties, deleteProperty } from '@/lib/api';
+import { useForm } from 'react-hook-form';
+import { getProperties, deleteProperty, createProperty } from '@/lib/api';
 import { Property } from '@/types';
 
 export default function AdminPropertiesPage() {
   const router = useRouter();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<Property>();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -44,6 +48,21 @@ export default function AdminPropertiesPage() {
     }
   };
 
+  const onSubmit = async (data: Property) => {
+    try {
+      setSubmitting(true);
+      const newProperty = await createProperty(data);
+      setProperties([newProperty, ...properties]);
+      setShowModal(false);
+      reset();
+    } catch (error) {
+      console.error('Failed to create property:', error);
+      alert('Failed to create property');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -65,7 +84,10 @@ export default function AdminPropertiesPage() {
               >
                 Dashboard
               </Link>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+              <button 
+                onClick={() => setShowModal(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              >
                 Add Property
               </button>
             </div>
@@ -77,7 +99,10 @@ export default function AdminPropertiesPage() {
         {properties.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <p className="text-gray-600 mb-4">No properties found</p>
-            <button className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
+            <button 
+              onClick={() => setShowModal(true)}
+              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+            >
               Add Your First Property
             </button>
           </div>
@@ -161,6 +186,161 @@ export default function AdminPropertiesPage() {
           </div>
         )}
       </div>
+
+      {/* Add Property Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">Add New Property</h2>
+              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-gray-700">
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-1">Title *</label>
+                  <input
+                    {...register('title', { required: 'Title is required' })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                  {errors.title && <p className="text-red-600 text-xs mt-1">{errors.title.message}</p>}
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-1">Description</label>
+                  <textarea
+                    {...register('description')}
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Type *</label>
+                  <select
+                    {...register('type', { required: 'Type is required' })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  >
+                    <option value="">Select type</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="villa">Villa</option>
+                    <option value="house">House</option>
+                    <option value="studio">Studio</option>
+                  </select>
+                  {errors.type && <p className="text-red-600 text-xs mt-1">{errors.type.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Price *</label>
+                  <input
+                    {...register('price', { required: 'Price is required', valueAsNumber: true })}
+                    type="number"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                  {errors.price && <p className="text-red-600 text-xs mt-1">{errors.price.message}</p>}
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-1">Address *</label>
+                  <input
+                    {...register('address', { required: 'Address is required' })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                  {errors.address && <p className="text-red-600 text-xs mt-1">{errors.address.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">City *</label>
+                  <input
+                    {...register('city', { required: 'City is required' })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                  {errors.city && <p className="text-red-600 text-xs mt-1">{errors.city.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Country *</label>
+                  <input
+                    {...register('country', { required: 'Country is required' })}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                  {errors.country && <p className="text-red-600 text-xs mt-1">{errors.country.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Bedrooms</label>
+                  <input
+                    {...register('bedrooms', { valueAsNumber: true })}
+                    type="number"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Bathrooms</label>
+                  <input
+                    {...register('bathrooms', { valueAsNumber: true })}
+                    type="number"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Area (m²)</label>
+                  <input
+                    {...register('area', { valueAsNumber: true })}
+                    type="number"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Status</label>
+                  <select
+                    {...register('status')}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  >
+                    <option value="available">Available</option>
+                    <option value="rented">Rented</option>
+                    <option value="sold">Sold</option>
+                  </select>
+                </div>
+
+                <div className="col-span-2">
+                  <label className="flex items-center">
+                    <input
+                      {...register('is_featured')}
+                      type="checkbox"
+                      className="mr-2"
+                    />
+                    <span className="text-sm font-medium">Featured Property</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+                >
+                  {submitting ? 'Creating...' : 'Create Property'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
