@@ -54,11 +54,18 @@ export const authApi = {
 
 // Properties API
 export const propertiesApi = {
-  getAll: (params?: Record<string, any>) =>
-    api.get('/properties', { params }),
-  getById: (id: string) => api.get(`/properties/${id}`),
-  getFeatured: (limit?: number) =>
-    api.get('/properties/featured', { params: { limit } }),
+  getAll: async (params?: Record<string, any>) => {
+    const response = await api.get('/properties', { params });
+    return response.data;
+  },
+  getById: async (id: string) => {
+    const response = await api.get(`/properties/${id}`);
+    return response.data;
+  },
+  getFeatured: async (limit?: number) => {
+    const response = await api.get('/properties/featured', { params: { limit } });
+    return response.data;
+  },
   create: (data: any) => api.post('/properties', data),
   update: (id: string, data: any) => api.put(`/properties/${id}`, data),
   delete: (id: string) => api.delete(`/properties/${id}`),
@@ -87,6 +94,14 @@ export const reservationsApi = {
 export const blogApi = {
   getAll: (params?: Record<string, any>) =>
     api.get('/blog', { params }),
+  getPosts: async (params?: Record<string, any>) => {
+    const response = await api.get('/blog', { params });
+    return response.data;
+  },
+  getPost: async (slug: string) => {
+    const response = await api.get(`/blog/${slug}`);
+    return response.data;
+  },
   getById: (id: string) => api.get(`/blog/${id}`),
   getRecent: (limit?: number) =>
     api.get('/blog/recent', { params: { limit } }),

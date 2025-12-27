@@ -1,68 +1,59 @@
 import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
+import dynamic from 'next/dynamic';
 import './globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const poppins = Poppins({
+// Dynamic import to avoid SSR issues
+const ComparisonBar = dynamic(
+  () => import('@/components/properties/ComparisonBar'),
+  { ssr: false }
+);
+
+const inter = Inter({
   subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const poppins = Poppins({
   weight: ['400', '500', '600', '700', '800'],
+  subsets: ['latin'],
   variable: '--font-poppins',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
-    default: 'SaidiaBay Real Estate - Find Your Dream Property',
-    template: '%s | SaidiaBay Real Estate',
+    default: 'Saidia Bay Real Estate - Premium Properties for Rent & Sale',
+    template: '%s | Saidia Bay Real Estate',
   },
   description:
-    'Discover premium apartments, villas, and properties for rent and sale in Saidia Bay. Professional real estate platform with easy pre-reservation system.',
+    'Discover premium apartments, villas, and real estate properties for rent and sale in Saidia Bay, Morocco. Your trusted partner in finding the perfect property.',
   keywords: [
-    'real estate',
     'Saidia Bay',
+    'real estate',
+    'properties',
     'apartments',
     'villas',
-    'property rental',
-    'property sale',
-    'Morocco real estate',
+    'rent',
+    'sale',
+    'Morocco',
+    'Saidia',
   ],
-  authors: [{ name: 'SaidiaBay' }],
+  authors: [{ name: 'Saidia Bay Real Estate' }],
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://saidiabay.com',
-    siteName: 'SaidiaBay Real Estate',
-    title: 'SaidiaBay Real Estate - Find Your Dream Property',
+    siteName: 'Saidia Bay Real Estate',
+    title: 'Saidia Bay Real Estate - Premium Properties for Rent & Sale',
     description:
-      'Discover premium apartments, villas, and properties for rent and sale in Saidia Bay.',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'SaidiaBay Real Estate',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'SaidiaBay Real Estate',
-    description:
-      'Discover premium apartments, villas, and properties for rent and sale in Saidia Bay.',
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
+      'Discover premium apartments, villas, and real estate properties for rent and sale in Saidia Bay, Morocco.',
   },
 };
 
@@ -73,15 +64,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
-      <body className="min-h-screen flex flex-col">
+      <body className="font-sans antialiased">
         <Header />
-        <main className="flex-grow">{children}</main>
+        <main className="min-h-screen">{children}</main>
         <Footer />
+        <ComparisonBar />
         <ToastContainer
           position="top-right"
           autoClose={5000}
           hideProgressBar={false}
-          newestOnTop
+          newestOnTop={false}
           closeOnClick
           rtl={false}
           pauseOnFocusLoss

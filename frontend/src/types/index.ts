@@ -104,3 +104,19 @@ export interface ApiResponse<T> {
   message?: string;
   data: T;
 }
+
+export interface PropertyFilters {
+  type?: string;
+  listingType?: string;
+  status?: string;
+  city?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  bedrooms?: number;
+  search?: string;
+  featured?: boolean;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+}

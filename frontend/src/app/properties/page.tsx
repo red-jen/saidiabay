@@ -1,9 +1,8 @@
 import { Metadata } from 'next';
 import PropertyList from '@/components/properties/PropertyList';
-import PropertyFilters from '@/components/properties/PropertyFilters';
 
 export const metadata: Metadata = {
-  title: 'Properties',
+  title: 'Properties - Saidia Bay Real Estate',
   description: 'Browse our extensive collection of apartments, villas, and real estate properties for rent and sale in Saidia Bay.',
 };
 
@@ -19,17 +18,7 @@ export default function PropertiesPage() {
           </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <aside className="lg:w-72 flex-shrink-0">
-            <PropertyFilters />
-          </aside>
-
-          {/* Property Grid */}
-          <main className="flex-1">
-            <PropertyList />
-          </main>
-        </div>
+        <PropertyList />
       </div>
     </div>
   );

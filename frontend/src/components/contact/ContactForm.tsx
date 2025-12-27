@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { FiUser, FiMail, FiPhone, FiMessageSquare, FiSend } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
 const ContactForm = () => {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -11,21 +13,19 @@ const ContactForm = () => {
     subject: '',
     message: '',
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setLoading(true);
 
     try {
-      // TODO: Implement API call
+      // TODO: Implement contact API endpoint
+      // For now, just simulate success
       await new Promise((resolve) => setTimeout(resolve, 1000));
+
       toast.success('Message sent successfully! We will get back to you soon.');
+
+      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -36,113 +36,126 @@ const ContactForm = () => {
     } catch (error) {
       toast.error('Failed to send message. Please try again.');
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Name */}
-        <div>
-          <label htmlFor="name" className="label">
-            Full Name *
-          </label>
+      {/* Name */}
+      <div>
+        <label className="label">Full Name</label>
+        <div className="relative">
           <input
             type="text"
-            id="name"
             name="name"
+            required
             value={formData.name}
             onChange={handleChange}
-            required
-            className="input"
             placeholder="John Doe"
+            className="input pl-10"
           />
-        </div>
-
-        {/* Email */}
-        <div>
-          <label htmlFor="email" className="label">
-            Email Address *
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="input"
-            placeholder="john@example.com"
-          />
+          <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Phone */}
-        <div>
-          <label htmlFor="phone" className="label">
-            Phone Number
-          </label>
+      {/* Email */}
+      <div>
+        <label className="label">Email Address</label>
+        <div className="relative">
+          <input
+            type="email"
+            name="email"
+            required
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="your@email.com"
+            className="input pl-10"
+          />
+          <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
+        </div>
+      </div>
+
+      {/* Phone */}
+      <div>
+        <label className="label">Phone Number</label>
+        <div className="relative">
           <input
             type="tel"
-            id="phone"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="input"
             placeholder="+212 6 00 00 00 00"
+            className="input pl-10"
           />
+          <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
         </div>
+      </div>
 
-        {/* Subject */}
-        <div>
-          <label htmlFor="subject" className="label">
-            Subject *
-          </label>
-          <select
-            id="subject"
-            name="subject"
-            value={formData.subject}
-            onChange={handleChange}
-            required
-            className="input"
-          >
-            <option value="">Select a subject</option>
-            <option value="property-inquiry">Property Inquiry</option>
-            <option value="schedule-viewing">Schedule a Viewing</option>
-            <option value="sell-property">Sell My Property</option>
-            <option value="rental-inquiry">Rental Inquiry</option>
-            <option value="general">General Question</option>
-          </select>
-        </div>
+      {/* Subject */}
+      <div>
+        <label className="label">Subject</label>
+        <select
+          name="subject"
+          required
+          value={formData.subject}
+          onChange={handleChange}
+          className="input"
+        >
+          <option value="">Select a subject</option>
+          <option value="property-inquiry">Property Inquiry</option>
+          <option value="rental-request">Rental Request</option>
+          <option value="purchase-inquiry">Purchase Inquiry</option>
+          <option value="general-question">General Question</option>
+          <option value="support">Support</option>
+          <option value="other">Other</option>
+        </select>
       </div>
 
       {/* Message */}
       <div>
-        <label htmlFor="message" className="label">
-          Message *
-        </label>
-        <textarea
-          id="message"
-          name="message"
-          value={formData.message}
-          onChange={handleChange}
-          required
-          rows={5}
-          className="input resize-none"
-          placeholder="Tell us about your inquiry..."
-        />
+        <label className="label">Message</label>
+        <div className="relative">
+          <textarea
+            name="message"
+            required
+            value={formData.message}
+            onChange={handleChange}
+            rows={6}
+            placeholder="Tell us how we can help you..."
+            className="input resize-none"
+          />
+        </div>
       </div>
 
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={isSubmitting}
-        className="btn-primary w-full md:w-auto"
+        disabled={loading}
+        className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isSubmitting ? 'Sending...' : 'Send Message'}
+        {loading ? (
+          'Sending...'
+        ) : (
+          <>
+            <FiSend className="mr-2" />
+            Send Message
+          </>
+        )}
       </button>
+
+      <p className="text-sm text-secondary-500 text-center">
+        We typically respond within 24 hours
+      </p>
     </form>
   );
 };

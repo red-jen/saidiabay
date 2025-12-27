@@ -1,20 +1,10 @@
-import Link from 'next/link';
-import { FiMapPin, FiBed, FiMaximize, FiHeart } from 'react-icons/fi';
+'use client';
 
-interface Property {
-  id: string;
-  title: string;
-  slug: string;
-  price: number;
-  type: string;
-  listingType: string;
-  location: string;
-  bedrooms: number;
-  bathrooms: number;
-  area: number;
-  images: string[];
-  isFeatured?: boolean;
-}
+import Link from 'next/link';
+import Image from 'next/image';
+import { FiStar, FiMapPin } from 'react-icons/fi';
+import { Property } from '@/types';
+import FavoriteButton from './FavoriteButton';
 
 interface PropertyCardProps {
   property: Property;
@@ -23,80 +13,103 @@ interface PropertyCardProps {
 const PropertyCard = ({ property }: PropertyCardProps) => {
   const formatPrice = (price: number, listingType: string) => {
     if (listingType === 'rent') {
-      return `$${price.toLocaleString()}/month`;
+      return (
+        <>
+          <span className="font-semibold">{price.toLocaleString()} DH</span>
+          <span className="text-secondary-500 font-normal"> / month</span>
+        </>
+      );
     }
-    return `$${price.toLocaleString()}`;
+    return <span className="font-semibold">{price.toLocaleString()} DH</span>;
+  };
+
+  const getTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      apartment: 'Apartment',
+      house: 'House',
+      villa: 'Villa',
+      studio: 'Studio',
+      commercial: 'Commercial',
+      land: 'Land',
+    };
+    return labels[type] || type;
   };
 
   return (
-    <div className="card group">
-      {/* Image */}
-      <div className="relative h-56 bg-secondary-200 overflow-hidden">
-        {/* Placeholder for image */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-          <span className="text-white/30 text-6xl font-bold">
-            {property.type.charAt(0).toUpperCase()}
-          </span>
-        </div>
-
-        {/* Badges */}
-        <div className="absolute top-4 left-4 flex gap-2">
-          <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-            property.listingType === 'rent'
-              ? 'bg-green-500 text-white'
-              : 'bg-blue-500 text-white'
-          }`}>
-            {property.listingType === 'rent' ? 'For Rent' : 'For Sale'}
-          </span>
-          {property.isFeatured && (
-            <span className="px-3 py-1 text-xs font-medium rounded-full bg-yellow-500 text-white">
-              Featured
-            </span>
+    <div className="group">
+      <Link href={`/properties/${property.slug || property.id}`}>
+        {/* Image Container - Airbnb style with rounded corners */}
+        <div className="img-container aspect-square mb-3 relative">
+          {property.images && property.images.length > 0 ? (
+            <Image
+              src={property.images[0]}
+              alt={property.title}
+              fill
+              className="object-cover rounded-xl img-zoom"
+            />
+          ) : (
+            <div className="w-full h-full bg-secondary-100 rounded-xl flex items-center justify-center">
+              <FiMapPin className="text-secondary-300" size={32} />
+            </div>
           )}
+
+          {/* Favorite Button */}
+          <div className="absolute top-3 right-3">
+            <FavoriteButton propertyId={property._id} />
+          </div>
+
+          {/* Badge */}
+          {property.isFeatured && (
+            <div className="absolute top-3 left-3">
+              <span className="bg-white px-2.5 py-1 rounded-md text-xs font-semibold text-secondary-900 shadow-sm">
+                Featured
+              </span>
+            </div>
+          )}
+
+          {/* Listing Type Tag */}
+          <div className="absolute bottom-3 left-3">
+            <span className={`px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm ${
+              property.listingType === 'rent' 
+                ? 'bg-primary-900 text-white' 
+                : 'bg-accent-500 text-white'
+            }`}>
+              {property.listingType === 'rent' ? 'For Rent' : 'For Sale'}
+            </span>
+          </div>
         </div>
 
-        {/* Favorite Button */}
-        <button className="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors">
-          <FiHeart className="text-secondary-600 hover:text-red-500" />
-        </button>
+        {/* Content */}
+        <div className="space-y-1">
+          {/* Location & Rating */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-secondary-900">
+              {property.location}
+            </span>
+            <div className="flex items-center gap-1">
+              <FiStar className="fill-secondary-900 text-secondary-900" size={14} />
+              <span className="text-sm font-medium">4.9</span>
+            </div>
+          </div>
 
-        {/* Price */}
-        <div className="absolute bottom-4 left-4">
-          <span className="bg-white px-4 py-2 rounded-lg font-bold text-secondary-800 shadow-lg">
-            {formatPrice(property.price, property.listingType)}
-          </span>
-        </div>
-      </div>
+          {/* Property Type */}
+          <p className="text-sm text-secondary-500">
+            {getTypeLabel(property.type)}
+            {property.bedrooms && ` · ${property.bedrooms} beds`}
+            {property.area && ` · ${property.area} m²`}
+          </p>
 
-      {/* Content */}
-      <div className="p-5">
-        <div className="flex items-center gap-2 text-secondary-500 text-sm mb-2">
-          <FiMapPin size={14} />
-          <span>{property.location}</span>
-        </div>
-
-        <Link href={`/properties/${property.slug}`}>
-          <h3 className="text-lg font-semibold text-secondary-800 mb-3 group-hover:text-primary-600 transition-colors">
+          {/* Title */}
+          <p className="text-sm text-secondary-500 line-clamp-1">
             {property.title}
-          </h3>
-        </Link>
+          </p>
 
-        {/* Features */}
-        <div className="flex items-center gap-4 text-secondary-600 text-sm border-t border-secondary-100 pt-4">
-          <div className="flex items-center gap-1">
-            <FiBed />
-            <span>{property.bedrooms} Beds</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span>🚿</span>
-            <span>{property.bathrooms} Baths</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <FiMaximize />
-            <span>{property.area} m²</span>
+          {/* Price */}
+          <div className="text-base pt-1">
+            {formatPrice(property.price, property.listingType)}
           </div>
         </div>
-      </div>
+      </Link>
     </div>
   );
 };

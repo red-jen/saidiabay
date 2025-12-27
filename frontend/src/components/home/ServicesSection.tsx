@@ -1,67 +1,70 @@
-import { FiHome, FiKey, FiDollarSign, FiFileText, FiTool, FiHeadphones } from 'react-icons/fi';
+import { FiHome, FiKey, FiDollarSign, FiMapPin } from 'react-icons/fi';
+import Link from 'next/link';
 
 const services = [
   {
     icon: FiHome,
-    title: 'Property Sales',
-    description: 'Find your dream property or sell your existing one with our expert guidance and market knowledge.',
+    title: 'Buy a property',
+    description: 'Find your dream home from our curated selection of premium properties.',
+    link: '/properties?listingType=sale',
+    cta: 'Browse homes',
   },
   {
     icon: FiKey,
-    title: 'Property Rentals',
-    description: 'Explore our extensive catalog of rental properties, from cozy studios to luxury villas.',
+    title: 'Rent a property',
+    description: 'Discover apartments, villas, and more for your next stay.',
+    link: '/properties?listingType=rent',
+    cta: 'Find rentals',
   },
   {
     icon: FiDollarSign,
-    title: 'Investment Advisory',
-    description: 'Get expert advice on real estate investments and maximize your returns in Saidia Bay.',
+    title: 'Sell your property',
+    description: 'List your property with us and reach thousands of potential buyers.',
+    link: '/contact',
+    cta: 'Get started',
   },
   {
-    icon: FiFileText,
-    title: 'Legal Assistance',
-    description: 'Navigate property transactions smoothly with our comprehensive legal support services.',
-  },
-  {
-    icon: FiTool,
-    title: 'Property Management',
-    description: 'Professional management services for property owners, including maintenance and tenant relations.',
-  },
-  {
-    icon: FiHeadphones,
-    title: '24/7 Support',
-    description: 'Our dedicated team is always available to answer your questions and provide assistance.',
+    icon: FiMapPin,
+    title: 'Property management',
+    description: 'Let us handle your property while you enjoy the returns.',
+    link: '/contact',
+    cta: 'Learn more',
   },
 ];
 
 const ServicesSection = () => {
   return (
-    <section className="section bg-secondary-50">
-      <div className="container mx-auto">
-        {/* Section Header */}
+    <section className="section">
+      <div className="container mx-auto px-4">
+        {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="section-title">Our Services</h2>
-          <p className="section-subtitle">
-            Comprehensive real estate services tailored to your needs
+          <h2 className="section-title">What we offer</h2>
+          <p className="section-subtitle mx-auto">
+            Everything you need for your real estate journey
           </p>
         </div>
 
         {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {services.map((service, index) => (
-            <div
+            <Link
               key={index}
-              className="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-shadow"
+              href={service.link}
+              className="group p-6 rounded-2xl border border-secondary-200 hover:border-secondary-300 hover:shadow-lg transition-all"
             >
-              <div className="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-6">
-                <service.icon className="text-primary-600" size={28} />
+              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary-900 transition-colors">
+                <service.icon className="text-primary-900 group-hover:text-white transition-colors" size={24} />
               </div>
-              <h3 className="text-xl font-semibold text-secondary-800 mb-3">
+              <h3 className="font-semibold text-secondary-900 mb-2">
                 {service.title}
               </h3>
-              <p className="text-secondary-600">
+              <p className="text-sm text-secondary-500 mb-4">
                 {service.description}
               </p>
-            </div>
+              <span className="text-sm font-medium text-primary-900 group-hover:underline">
+                {service.cta} →
+              </span>
+            </Link>
           ))}
         </div>
       </div>

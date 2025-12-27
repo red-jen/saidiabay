@@ -1,133 +1,197 @@
 'use client';
 
 import { useState } from 'react';
-import { FiSearch, FiFilter } from 'react-icons/fi';
+import { FiSliders, FiX } from 'react-icons/fi';
+import { PropertyFilters as Filters } from '@/types';
 
-const PropertyFilters = () => {
-  const [isOpen, setIsOpen] = useState(true);
+interface PropertyFiltersProps {
+  onFilterChange: (filters: Filters) => void;
+}
 
-  const propertyTypes = [
-    { value: 'apartment', label: 'Apartment' },
-    { value: 'villa', label: 'Villa' },
-    { value: 'house', label: 'House' },
-    { value: 'studio', label: 'Studio' },
-    { value: 'commercial', label: 'Commercial' },
-    { value: 'land', label: 'Land' },
-  ];
+const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [filters, setFilters] = useState<Filters>({
+    type: '',
+    listingType: '',
+    city: '',
+    minPrice: undefined,
+    maxPrice: undefined,
+    bedrooms: undefined,
+    search: '',
+  });
 
-  const listingTypes = [
-    { value: 'rent', label: 'For Rent' },
-    { value: 'sale', label: 'For Sale' },
-  ];
+  const handleFilterChange = (key: keyof Filters, value: any) => {
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    onFilterChange(newFilters);
+  };
+
+  const handleReset = () => {
+    const resetFilters: Filters = {
+      type: '',
+      listingType: '',
+      city: '',
+      minPrice: undefined,
+      maxPrice: undefined,
+      bedrooms: undefined,
+      search: '',
+    };
+    setFilters(resetFilters);
+    onFilterChange(resetFilters);
+  };
+
+  const activeFiltersCount = Object.values(filters).filter(v => v !== '' && v !== undefined).length;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-secondary-100 overflow-hidden">
-      {/* Header */}
+    <>
+      {/* Filter Toggle Button - Airbnb style */}
       <button
-        className="w-full p-4 flex items-center justify-between bg-secondary-50 lg:cursor-default"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen(true)}
+        className="flex items-center gap-2 px-4 py-3 border border-secondary-300 rounded-xl hover:border-secondary-900 transition-colors"
       >
-        <div className="flex items-center gap-2 font-semibold text-secondary-800">
-          <FiFilter />
-          <span>Filters</span>
-        </div>
-        <span className="lg:hidden text-secondary-500 text-sm">
-          {isOpen ? 'Hide' : 'Show'}
-        </span>
+        <FiSliders size={16} />
+        <span className="text-sm font-medium">Filters</span>
+        {activeFiltersCount > 0 && (
+          <span className="w-5 h-5 bg-secondary-900 text-white text-xs rounded-full flex items-center justify-center">
+            {activeFiltersCount}
+          </span>
+        )}
       </button>
 
-      {/* Filters Content */}
-      <div className={`p-4 space-y-6 ${isOpen ? 'block' : 'hidden lg:block'}`}>
-        {/* Search */}
-        <div>
-          <label className="label">Search</label>
-          <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
-            <input
-              type="text"
-              placeholder="Search properties..."
-              className="input pl-10"
-            />
+      {/* Filter Modal */}
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center">
+          <div className="bg-white w-full md:w-[600px] md:max-h-[90vh] rounded-t-3xl md:rounded-2xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-secondary-200">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 hover:bg-secondary-100 rounded-full transition-colors"
+              >
+                <FiX size={20} />
+              </button>
+              <span className="font-semibold">Filters</span>
+              <button
+                onClick={handleReset}
+                className="text-sm font-medium text-secondary-900 underline"
+              >
+                Clear all
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+              {/* Listing Type */}
+              <div>
+                <h3 className="font-semibold text-secondary-900 mb-4">Type of listing</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {['rent', 'sale'].map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => handleFilterChange('listingType', filters.listingType === type ? '' : type)}
+                      className={`p-4 border rounded-xl text-left transition-all ${
+                        filters.listingType === type 
+                          ? 'border-secondary-900 bg-secondary-50' 
+                          : 'border-secondary-300 hover:border-secondary-400'
+                      }`}
+                    >
+                      <span className="font-medium capitalize">{type === 'rent' ? 'For Rent' : 'For Sale'}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Property Type */}
+              <div>
+                <h3 className="font-semibold text-secondary-900 mb-4">Property type</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {['apartment', 'villa', 'house', 'studio', 'commercial', 'land'].map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => handleFilterChange('type', filters.type === type ? '' : type)}
+                      className={`p-3 border rounded-xl text-center transition-all text-sm ${
+                        filters.type === type 
+                          ? 'border-secondary-900 bg-secondary-50' 
+                          : 'border-secondary-300 hover:border-secondary-400'
+                      }`}
+                    >
+                      <span className="capitalize">{type}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price Range */}
+              <div>
+                <h3 className="font-semibold text-secondary-900 mb-4">Price range (DH)</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-secondary-500 mb-1 block">Minimum</label>
+                    <input
+                      type="number"
+                      placeholder="No min"
+                      className="input"
+                      value={filters.minPrice || ''}
+                      onChange={(e) =>
+                        handleFilterChange('minPrice', e.target.value ? Number(e.target.value) : undefined)
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-secondary-500 mb-1 block">Maximum</label>
+                    <input
+                      type="number"
+                      placeholder="No max"
+                      className="input"
+                      value={filters.maxPrice || ''}
+                      onChange={(e) =>
+                        handleFilterChange('maxPrice', e.target.value ? Number(e.target.value) : undefined)
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Bedrooms */}
+              <div>
+                <h3 className="font-semibold text-secondary-900 mb-4">Bedrooms</h3>
+                <div className="flex gap-2">
+                  {['Any', 1, 2, 3, 4, '5+'].map((num) => (
+                    <button
+                      key={num}
+                      onClick={() => handleFilterChange('bedrooms', num === 'Any' ? undefined : (num === '5+' ? 5 : num))}
+                      className={`flex-1 py-3 border rounded-xl text-center transition-all text-sm ${
+                        (num === 'Any' && !filters.bedrooms) || filters.bedrooms === (num === '5+' ? 5 : num)
+                          ? 'border-secondary-900 bg-secondary-50' 
+                          : 'border-secondary-300 hover:border-secondary-400'
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-secondary-200 flex items-center justify-between">
+              <button
+                onClick={handleReset}
+                className="text-sm font-medium underline"
+              >
+                Clear all
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="btn-primary"
+              >
+                Show results
+              </button>
+            </div>
           </div>
         </div>
-
-        {/* Listing Type */}
-        <div>
-          <label className="label">Listing Type</label>
-          <select className="input">
-            <option value="">All</option>
-            {listingTypes.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Property Type */}
-        <div>
-          <label className="label">Property Type</label>
-          <select className="input">
-            <option value="">All Types</option>
-            {propertyTypes.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Price Range */}
-        <div>
-          <label className="label">Price Range</label>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              placeholder="Min"
-              className="input"
-            />
-            <input
-              type="number"
-              placeholder="Max"
-              className="input"
-            />
-          </div>
-        </div>
-
-        {/* Bedrooms */}
-        <div>
-          <label className="label">Bedrooms</label>
-          <select className="input">
-            <option value="">Any</option>
-            <option value="1">1+</option>
-            <option value="2">2+</option>
-            <option value="3">3+</option>
-            <option value="4">4+</option>
-            <option value="5">5+</option>
-          </select>
-        </div>
-
-        {/* Location */}
-        <div>
-          <label className="label">Location</label>
-          <input
-            type="text"
-            placeholder="City or area..."
-            className="input"
-          />
-        </div>
-
-        {/* Apply Button */}
-        <button className="btn-primary w-full">
-          Apply Filters
-        </button>
-
-        {/* Reset */}
-        <button className="btn-secondary w-full">
-          Reset Filters
-        </button>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 
