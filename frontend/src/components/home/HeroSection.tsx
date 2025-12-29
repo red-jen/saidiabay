@@ -1,260 +1,300 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FiSearch, FiMapPin, FiHome, FiCalendar, FiArrowRight, FiPlay } from 'react-icons/fi';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, EffectFade, Pagination } from 'swiper/modules';
-import { adsApi } from '@/lib/api';
-import { Ad } from '@/types';
+import { FiSearch, FiMapPin, FiHome, FiCalendar, FiUsers, FiChevronDown } from 'react-icons/fi';
+import gsap from 'gsap';
 
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/effect-fade';
-import 'swiper/css/pagination';
+const propertyTypes = [
+  { id: 'all', label: 'All Types', icon: '🏠' },
+  { id: 'villa', label: 'Villas', icon: '🏡' },
+  { id: 'apartment', label: 'Apartments', icon: '🏢' },
+  { id: 'house', label: 'Houses', icon: '🏘️' },
+  { id: 'studio', label: 'Studios', icon: '🛏️' },
+];
 
 const HeroSection = () => {
   const router = useRouter();
-  const [ads, setAds] = useState<Ad[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeType, setActiveType] = useState('all');
   const [searchParams, setSearchParams] = useState({
-    city: '',
-    type: '',
+    location: '',
     listingType: '',
   });
-
-  // Premium fallback slides with high-end imagery
-  const defaultSlides = [
-    {
-      id: 'default-1',
-      title: 'Discover Waterfront Living',
-      description: 'Exclusive beachfront properties with breathtaking Mediterranean views',
-      imageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop',
-      linkUrl: '/properties?type=villa',
-    },
-    {
-      id: 'default-2',
-      title: 'Modern Urban Elegance',
-      description: 'Sophisticated apartments in the heart of Saidia Bay',
-      imageUrl: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053&auto=format&fit=crop',
-      linkUrl: '/properties?type=apartment',
-    },
-    {
-      id: 'default-3',
-      title: 'Your Private Sanctuary',
-      description: 'Luxury estates with world-class amenities and privacy',
-      imageUrl: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop',
-      linkUrl: '/properties',
-    },
-  ];
+  
+  const heroRef = useRef<HTMLDivElement>(null);
+  const headlineRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const searchBoxRef = useRef<HTMLDivElement>(null);
+  const filtersRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchAds = async () => {
-      try {
-        const response = await adsApi.getActive('hero');
-        if (response.data.data && response.data.data.length > 0) {
-          setAds(response.data.data);
-        }
-      } catch (error) {
-        console.error('Error fetching ads:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const ctx = gsap.context(() => {
+      // Main timeline
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      
+      // Animate hero content
+      tl.fromTo(
+        headlineRef.current,
+        { opacity: 0, y: 60 },
+        { opacity: 1, y: 0, duration: 1 }
+      )
+      .fromTo(
+        subtitleRef.current,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.8 },
+        '-=0.6'
+      )
+      .fromTo(
+        searchBoxRef.current,
+        { opacity: 0, y: 50, scale: 0.95 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.8 },
+        '-=0.5'
+      )
+      .fromTo(
+        filtersRef.current?.children || [],
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
+        '-=0.4'
+      )
+      .fromTo(
+        statsRef.current?.children || [],
+        { opacity: 0, scale: 0.8 },
+        { opacity: 1, scale: 1, duration: 0.5, stagger: 0.1 },
+        '-=0.3'
+      );
 
-    fetchAds();
+      // Parallax effect on scroll
+      gsap.to(imageRef.current, {
+        yPercent: 20,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+    }, heroRef);
+
+    return () => ctx.revert();
   }, []);
 
-  const slides = ads.length > 0 ? ads : defaultSlides;
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = () => {
     const params = new URLSearchParams();
-    if (searchParams.city) params.set('city', searchParams.city);
-    if (searchParams.type) params.set('type', searchParams.type);
-    if (searchParams.listingType) params.set('listingType', searchParams.listingType);
+    if (searchParams.location) params.append('location', searchParams.location);
+    if (searchParams.listingType) params.append('listingType', searchParams.listingType);
+    if (activeType !== 'all') params.append('type', activeType);
     router.push(`/properties?${params.toString()}`);
   };
 
   return (
-    <section className="relative h-screen min-h-[700px] w-full bg-secondary-900 overflow-hidden">
-      {/* Immersive Background Slider */}
-      <Swiper
-        modules={[Autoplay, EffectFade, Pagination]}
-        effect="fade"
-        speed={2000}
-        autoplay={{
-          delay: 7000,
-          disableOnInteraction: false,
-        }}
-        pagination={{
-          clickable: true,
-          el: '.hero-pagination',
-        }}
-        loop={true}
-        className="h-full w-full"
-      >
-        {slides.map((slide, index) => (
-          <SwiperSlide key={slide.id || index} className="relative h-full w-full">
-            {/* Background Image */}
-            <div className="absolute inset-0">
-              <Image
-                src={slide.imageUrl}
-                alt={slide.title || 'Luxury Property'}
-                fill
-                className="object-cover"
-                priority={index === 0}
-                quality={90}
-              />
-              {/* Cinematic Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-secondary-900 via-secondary-900/60 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-r from-secondary-900/40 via-transparent to-secondary-900/40" />
-            </div>
+    <section ref={heroRef} className="relative min-h-screen pt-32 lg:pt-40 pb-20 overflow-hidden">
+      {/* Background */}
+      <div ref={imageRef} className="absolute inset-0 -z-10">
+        <Image
+          src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1920&q=80"
+          alt="Luxury Property"
+          fill
+          priority
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-white/90 to-white/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-transparent" />
+      </div>
 
-            {/* Content */}
-            <div className="absolute inset-0 flex items-center">
-              <div className="container mx-auto px-4 md:px-6 lg:px-8">
-                <div className="max-w-5xl">
-                  {/* Small Label */}
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full mb-6 animate-fade-in">
-                    <span className="w-2 h-2 bg-accent-500 rounded-full animate-pulse" />
-                    <span className="text-white text-sm font-medium tracking-wide">
-                      Premium Real Estate
-                    </span>
-                  </div>
+      <div className="container mx-auto px-4 lg:px-6">
+        <div className="max-w-4xl">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-100 rounded-full mb-6 animate-fade-in">
+            <span className="w-2 h-2 bg-accent-500 rounded-full animate-pulse" />
+            <span className="text-sm font-medium text-accent-800">
+              Morocco's Premier Real Estate Platform
+            </span>
+          </div>
 
-                  {/* Main Headline - Editorial Style */}
-                  <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-[1.1] mb-6 animate-fade-in-up">
-                    {slide.title || 'Discover Your Perfect Home'}
-                  </h1>
-
-                  {/* Subtitle */}
-                  <p className="text-lg md:text-xl lg:text-2xl text-white/90 font-light max-w-2xl mb-8 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                    {slide.description || 'Explore our curated collection of exceptional properties'}
-                  </p>
-
-                  {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                    <button 
-                      onClick={() => router.push((slide as any).linkUrl || '/properties')}
-                      className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-secondary-900 rounded-lg font-semibold hover:bg-white/95 transition-all shadow-xl hover:shadow-2xl hover:scale-105"
-                    >
-                      <span>Explore Properties</span>
-                      <FiArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
-                    </button>
-                    
-                    <button 
-                      onClick={() => router.push('/contact')}
-                      className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-md text-white border-2 border-white/30 rounded-lg font-semibold hover:bg-white/20 transition-all"
-                    >
-                      <span>Schedule Viewing</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-
-      {/* Custom Pagination */}
-      <div className="hero-pagination absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2" />
-
-      {/* Floating Search Bar */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 px-4 pb-8 md:pb-12">
-        <div className="container mx-auto max-w-6xl">
-          <form 
-            onSubmit={handleSearch}
-            className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl p-3 md:p-4 border border-white/20"
+          {/* Headline */}
+          <h1 
+            ref={headlineRef}
+            className="text-5xl sm:text-6xl lg:text-7xl font-heading font-bold text-secondary-900 leading-tight mb-6"
           >
-            <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr_1fr_auto] gap-3 items-center">
+            Find Your Best
+            <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-900 via-primary-700 to-accent-600">
+              Dream Property
+            </span>
+          </h1>
+
+          {/* Subtitle */}
+          <p 
+            ref={subtitleRef}
+            className="text-lg lg:text-xl text-secondary-600 max-w-2xl mb-10"
+          >
+            Discover luxury villas, modern apartments, and exclusive properties in Saidia Bay. 
+            Your perfect Mediterranean home awaits.
+          </p>
+
+          {/* Search Box */}
+          <div 
+            ref={searchBoxRef}
+            className="bg-white rounded-2xl shadow-luxury-lg p-3 mb-8"
+          >
+            <div className="grid md:grid-cols-4 gap-3">
               {/* Location */}
-              <div className="group">
-                <div className="flex items-center gap-3 px-4 py-3 bg-secondary-50/50 rounded-xl hover:bg-white border border-transparent hover:border-secondary-200 hover:shadow-md transition-all">
-                  <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <FiMapPin className="text-primary-900" size={18} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <label className="block text-xs font-bold text-secondary-500 uppercase tracking-wider mb-0.5">
-                      Location
-                    </label>
+              <div className="relative">
+                <div className="flex items-center gap-3 px-4 py-3 bg-secondary-50 rounded-xl hover:bg-secondary-100 transition-colors cursor-pointer">
+                  <FiMapPin className="w-5 h-5 text-primary-600" />
+                  <div className="flex-1">
+                    <p className="text-xs text-secondary-500 uppercase tracking-wide">Location</p>
                     <input
                       type="text"
-                      placeholder="City, neighborhood..."
-                      className="w-full bg-transparent outline-none text-secondary-900 placeholder:text-secondary-400 font-medium text-sm"
-                      value={searchParams.city}
-                      onChange={(e) => setSearchParams({ ...searchParams, city: e.target.value })}
+                      placeholder="Where do you want?"
+                      value={searchParams.location}
+                      onChange={(e) => setSearchParams({ ...searchParams, location: e.target.value })}
+                      className="w-full bg-transparent text-sm font-medium text-secondary-900 placeholder:text-secondary-400 focus:outline-none"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Property Type */}
-              <div className="group">
-                <div className="flex items-center gap-3 px-4 py-3 bg-secondary-50/50 rounded-xl hover:bg-white border border-transparent hover:border-secondary-200 hover:shadow-md transition-all">
-                  <div className="w-10 h-10 bg-accent-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <FiHome className="text-accent-700" size={18} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <label className="block text-xs font-bold text-secondary-500 uppercase tracking-wider mb-0.5">
-                      Type
-                    </label>
+              <div className="relative">
+                <div className="flex items-center gap-3 px-4 py-3 bg-secondary-50 rounded-xl hover:bg-secondary-100 transition-colors cursor-pointer">
+                  <FiHome className="w-5 h-5 text-primary-600" />
+                  <div className="flex-1">
+                    <p className="text-xs text-secondary-500 uppercase tracking-wide">Type</p>
                     <select
-                      className="w-full bg-transparent outline-none text-secondary-900 font-medium cursor-pointer appearance-none text-sm"
-                      value={searchParams.type}
-                      onChange={(e) => setSearchParams({ ...searchParams, type: e.target.value })}
+                      value={activeType}
+                      onChange={(e) => setActiveType(e.target.value)}
+                      className="w-full bg-transparent text-sm font-medium text-secondary-900 focus:outline-none appearance-none cursor-pointer"
                     >
-                      <option value="">All Types</option>
-                      <option value="apartment">Apartment</option>
-                      <option value="villa">Villa</option>
-                      <option value="house">House</option>
-                      <option value="studio">Studio</option>
+                      {propertyTypes.map((type) => (
+                        <option key={type.id} value={type.id}>
+                          {type.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
+                  <FiChevronDown className="w-4 h-4 text-secondary-400" />
                 </div>
               </div>
 
-              {/* Purpose */}
-              <div className="group">
-                <div className="flex items-center gap-3 px-4 py-3 bg-secondary-50/50 rounded-xl hover:bg-white border border-transparent hover:border-secondary-200 hover:shadow-md transition-all">
-                  <div className="w-10 h-10 bg-success-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <FiCalendar className="text-success-700" size={18} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <label className="block text-xs font-bold text-secondary-500 uppercase tracking-wider mb-0.5">
-                      Purpose
-                    </label>
+              {/* Listing Type */}
+              <div className="relative">
+                <div className="flex items-center gap-3 px-4 py-3 bg-secondary-50 rounded-xl hover:bg-secondary-100 transition-colors cursor-pointer">
+                  <FiCalendar className="w-5 h-5 text-primary-600" />
+                  <div className="flex-1">
+                    <p className="text-xs text-secondary-500 uppercase tracking-wide">For</p>
                     <select
-                      className="w-full bg-transparent outline-none text-secondary-900 font-medium cursor-pointer appearance-none text-sm"
                       value={searchParams.listingType}
                       onChange={(e) => setSearchParams({ ...searchParams, listingType: e.target.value })}
+                      className="w-full bg-transparent text-sm font-medium text-secondary-900 focus:outline-none appearance-none cursor-pointer"
                     >
-                      <option value="">Rent or Buy</option>
-                      <option value="rent">For Rent</option>
-                      <option value="sale">For Sale</option>
+                      <option value="">Rent or Sale</option>
+                      <option value="LOCATION">For Rent</option>
+                      <option value="VENTE">For Sale</option>
                     </select>
                   </div>
+                  <FiChevronDown className="w-4 h-4 text-secondary-400" />
                 </div>
               </div>
 
               {/* Search Button */}
               <button
-                type="submit"
-                className="h-full min-h-[70px] md:min-h-[auto] bg-primary-900 hover:bg-primary-800 text-white rounded-xl px-6 md:px-8 font-semibold transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2 group"
+                onClick={handleSearch}
+                className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary-900 to-primary-700 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
-                <FiSearch size={20} className="group-hover:rotate-90 transition-transform duration-300" />
-                <span className="hidden md:inline">Search</span>
+                <FiSearch className="w-5 h-5" />
+                <span>Search</span>
               </button>
             </div>
-          </form>
+          </div>
+
+          {/* Quick Filters */}
+          <div ref={filtersRef} className="flex flex-wrap gap-2 mb-12">
+            {propertyTypes.map((type) => (
+              <button
+                key={type.id}
+                onClick={() => setActiveType(type.id)}
+                className={`
+                  flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all
+                  ${activeType === type.id
+                    ? 'bg-primary-900 text-white shadow-md'
+                    : 'bg-white/80 text-secondary-700 hover:bg-white hover:shadow-md backdrop-blur-sm'
+                  }
+                `}
+              >
+                <span>{type.icon}</span>
+                <span>{type.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Stats */}
+          <div ref={statsRef} className="grid grid-cols-3 gap-6 max-w-lg">
+            <div className="text-center">
+              <div className="text-3xl lg:text-4xl font-heading font-bold text-primary-900 mb-1">
+                500+
+              </div>
+              <div className="text-sm text-secondary-600">Properties</div>
+            </div>
+            <div className="text-center border-x border-secondary-200">
+              <div className="text-3xl lg:text-4xl font-heading font-bold text-primary-900 mb-1">
+                1.2K+
+              </div>
+              <div className="text-sm text-secondary-600">Happy Clients</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl lg:text-4xl font-heading font-bold text-primary-900 mb-1">
+                10+
+              </div>
+              <div className="text-sm text-secondary-600">Years Experience</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating Cards - Right Side */}
+      <div className="hidden xl:block absolute right-12 top-1/2 -translate-y-1/2 space-y-4">
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-4 shadow-luxury animate-float">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full overflow-hidden">
+              <Image
+                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100"
+                alt="Client"
+                width={48}
+                height={48}
+                className="object-cover"
+              />
+            </div>
+            <div>
+              <p className="font-semibold text-secondary-900">Sarah M.</p>
+              <p className="text-xs text-secondary-500">Just bought a villa</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-4 shadow-luxury animate-float" style={{ animationDelay: '1s' }}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center">
+              <span className="text-xl">🎉</span>
+            </div>
+            <div>
+              <p className="font-semibold text-success-700">+25 Properties</p>
+              <p className="text-xs text-secondary-500">Added this week</p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 hidden md:flex flex-col items-center gap-2 text-white/60 animate-bounce">
-        <span className="text-xs uppercase tracking-widest">Scroll</span>
-        <div className="w-px h-8 bg-white/30" />
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+        <span className="text-xs text-secondary-500 uppercase tracking-wider">Scroll</span>
+        <div className="w-6 h-10 border-2 border-secondary-300 rounded-full flex items-start justify-center p-1.5">
+          <div className="w-1.5 h-3 bg-secondary-400 rounded-full animate-scroll" />
+        </div>
       </div>
     </section>
   );

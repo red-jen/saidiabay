@@ -24,7 +24,7 @@
 @layer components {
   /* Premium buttons */
   .btn {
-    @apply inline-flex items-center justify-center px-6 py-3 font-medium text-sm rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98];
+    @apply inline-flex items-center justify-center px-6 py-3 font-medium text-sm rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98];
   }
 
   .btn-primary {
@@ -49,7 +49,7 @@
 
   /* Badges */
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
 
   .badge-rent {
@@ -78,7 +78,7 @@
 
   /* Inputs */
   .input {
-    @apply w-full px-4 py-3 border border-secondary-300 rounded-lg bg-white text-secondary-900 placeholder:text-secondary-400 focus:outline-none focus:border-secondary-900 focus:ring-1 focus:ring-secondary-900 transition-all;
+    @apply w-full px-4 py-3 border border-secondary-200 rounded-xl bg-white text-secondary-900 placeholder:text-secondary-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all;
   }
 
   .input-lg {
@@ -91,7 +91,7 @@
 
   /* Cards */
   .card {
-    @apply bg-white rounded-xl overflow-hidden transition-all duration-300;
+    @apply bg-white rounded-2xl overflow-hidden transition-all duration-300;
   }
 
   .card:hover {
@@ -100,25 +100,25 @@
 
   /* Sections */
   .section {
-    @apply py-12 md:py-16 lg:py-20;
+    @apply py-16 md:py-20 lg:py-24;
   }
 
   .section-title {
-    @apply text-2xl md:text-3xl font-heading font-semibold text-secondary-900 mb-2;
+    @apply text-3xl md:text-4xl font-heading font-bold text-secondary-900 mb-3;
   }
 
   .section-subtitle {
-    @apply text-base text-secondary-500 max-w-2xl;
+    @apply text-lg text-secondary-600 max-w-2xl;
   }
 
   /* Search box */
   .search-box {
-    @apply bg-white rounded-full border border-secondary-200 shadow-lg hover:shadow-xl transition-shadow;
+    @apply bg-white rounded-2xl border border-secondary-200 shadow-lg hover:shadow-xl transition-shadow;
   }
 
   /* Price display */
   .price-display {
-    @apply text-lg font-semibold text-secondary-900;
+    @apply text-xl font-bold text-primary-900;
   }
 
   /* Divider */
@@ -154,7 +154,12 @@
 
   /* Skeleton loading */
   .skeleton {
-    @apply bg-secondary-200 animate-pulse rounded-lg;
+    @apply bg-secondary-200 animate-pulse rounded-xl;
+  }
+
+  /* Text gradient */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-900 to-accent-600;
   }
 
   /* Animations */
@@ -164,6 +169,14 @@
 
   .animate-fade-in-up {
     animation: fadeInUp 0.8s ease-out;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-scroll {
+    animation: scroll 2s ease-in-out infinite;
   }
 
   @keyframes fadeIn {
@@ -185,6 +198,30 @@
       transform: translateY(0);
     }
   }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    50% {
+      transform: translateY(8px);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 }
 
 /* Swiper Custom Styles */
@@ -200,8 +237,85 @@
 .swiper-pagination-bullet {
   background: white !important;
   opacity: 0.5 !important;
+  width: 8px !important;
+  height: 8px !important;
 }
 
 .swiper-pagination-bullet-active {
   opacity: 1 !important;
+  width: 24px !important;
+  border-radius: 4px !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Selection */
+::selection {
+  background: rgba(212, 165, 116, 0.3);
+  color: inherit;
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid #102a43;
+  outline-offset: 2px;
+}
+
+/* Prose styles for blog */
+.prose {
+  --tw-prose-body: #222222;
+  --tw-prose-headings: #222222;
+  --tw-prose-links: #102a43;
+  --tw-prose-bold: #222222;
+  --tw-prose-counters: #7e7e7e;
+  --tw-prose-bullets: #7e7e7e;
+  --tw-prose-hr: #e1e1e1;
+  --tw-prose-quotes: #222222;
+  --tw-prose-quote-borders: #d4a574;
+}
+
+.prose h2 {
+  @apply text-2xl font-heading font-bold mt-12 mb-4;
+}
+
+.prose h3 {
+  @apply text-xl font-heading font-semibold mt-8 mb-3;
+}
+
+.prose p {
+  @apply mb-4 leading-relaxed;
+}
+
+.prose ul {
+  @apply list-disc pl-5 mb-4;
+}
+
+.prose li {
+  @apply mb-2;
+}
+
+.prose a {
+  @apply text-primary-700 underline hover:text-primary-900 transition-colors;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-accent-500 pl-4 italic my-6;
 }
