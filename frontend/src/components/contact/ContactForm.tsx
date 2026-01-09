@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FiUser, FiMail, FiPhone, FiMessageSquare, FiSend } from 'react-icons/fi';
+import { LuUser, LuMail, LuPhone, LuSend } from 'react-icons/lu';
 import { toast } from 'react-toastify';
 
 const ContactForm = () => {
@@ -62,15 +62,15 @@ const ContactForm = () => {
             value={formData.name}
             onChange={handleChange}
             placeholder="John Doe"
-            className="input pl-10"
+            className="input pl-10 rounded-2xl py-4 bg-secondary-50 border-transparent focus:bg-white focus:border-secondary-200 focus:shadow-lg transition-all"
           />
-          <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
+          <LuUser className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
         </div>
       </div>
 
       {/* Email */}
       <div>
-        <label className="label">Email Address</label>
+        <label className="label ml-2">Email Address</label>
         <div className="relative">
           <input
             type="email"
@@ -79,15 +79,15 @@ const ContactForm = () => {
             value={formData.email}
             onChange={handleChange}
             placeholder="your@email.com"
-            className="input pl-10"
+            className="input pl-10 rounded-2xl py-4 bg-secondary-50 border-transparent focus:bg-white focus:border-secondary-200 focus:shadow-lg transition-all"
           />
-          <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
+          <LuMail className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
         </div>
       </div>
 
       {/* Phone */}
       <div>
-        <label className="label">Phone Number</label>
+        <label className="label ml-2">Phone Number</label>
         <div className="relative">
           <input
             type="tel"
@@ -95,21 +95,21 @@ const ContactForm = () => {
             value={formData.phone}
             onChange={handleChange}
             placeholder="+212 6 00 00 00 00"
-            className="input pl-10"
+            className="input pl-10 rounded-2xl py-4 bg-secondary-50 border-transparent focus:bg-white focus:border-secondary-200 focus:shadow-lg transition-all"
           />
-          <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
+          <LuPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
         </div>
       </div>
 
       {/* Subject */}
       <div>
-        <label className="label">Subject</label>
+        <label className="label ml-2">Subject</label>
         <select
           name="subject"
           required
           value={formData.subject}
           onChange={handleChange}
-          className="input"
+          className="input rounded-2xl py-4 bg-secondary-50 border-transparent focus:bg-white focus:border-secondary-200 focus:shadow-lg transition-all appearance-none"
         >
           <option value="">Select a subject</option>
           <option value="property-inquiry">Property Inquiry</option>
@@ -123,7 +123,7 @@ const ContactForm = () => {
 
       {/* Message */}
       <div>
-        <label className="label">Message</label>
+        <label className="label ml-2">Message</label>
         <div className="relative">
           <textarea
             name="message"
@@ -132,7 +132,7 @@ const ContactForm = () => {
             onChange={handleChange}
             rows={6}
             placeholder="Tell us how we can help you..."
-            className="input resize-none"
+            className="input resize-none rounded-2xl py-4 bg-secondary-50 border-transparent focus:bg-white focus:border-secondary-200 focus:shadow-lg transition-all"
           />
         </div>
       </div>
@@ -141,13 +141,13 @@ const ContactForm = () => {
       <button
         type="submit"
         disabled={loading}
-        className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+        className="btn bg-secondary-900 text-white hover:bg-black w-full rounded-full py-4 text-lg font-bold shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
       >
         {loading ? (
           'Sending...'
         ) : (
           <>
-            <FiSend className="mr-2" />
+            <LuSend className="mr-2" />
             Send Message
           </>
         )}

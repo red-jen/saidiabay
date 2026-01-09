@@ -17,8 +17,8 @@ gsap.registerPlugin(ScrollTrigger);
 const tabs = [
   { id: 'all', label: 'All Properties' },
   { id: 'featured', label: 'Featured' },
-  { id: 'LOCATION', label: 'For Rent' },
-  { id: 'VENTE', label: 'For Sale' },
+  { id: 'rent', label: 'For Rent' },
+  { id: 'sale', label: 'For Sale' },
 ];
 
 export default function FeaturedProperties() {
@@ -26,7 +26,7 @@ export default function FeaturedProperties() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
-  
+
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -98,13 +98,13 @@ export default function FeaturedProperties() {
     try {
       setLoading(true);
       const params: Record<string, any> = { limit: 8 };
-      
+
       if (activeTab === 'featured') {
         params.featured = true;
-      } else if (activeTab === 'LOCATION' || activeTab === 'VENTE') {
+      } else if (activeTab === 'rent' || activeTab === 'sale') {
         params.listingType = activeTab;
       }
-      
+
       const data = await propertiesApi.getAll(params);
       setProperties(data.properties || []);
     } catch (error) {
@@ -187,7 +187,7 @@ export default function FeaturedProperties() {
           <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {properties.map((property) => (
               <Link
-                key={property._id}
+                key={property.id}
                 href={`/properties/${property.slug}`}
                 className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-luxury transition-all duration-500"
               >
@@ -199,10 +199,10 @@ export default function FeaturedProperties() {
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  
+
                   {/* Overlays */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  
+
                   {/* Badges */}
                   <div className="absolute top-4 left-4 flex gap-2">
                     {property.isFeatured && (
@@ -210,23 +210,21 @@ export default function FeaturedProperties() {
                         Featured
                       </span>
                     )}
-                    <span className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${
-                      property.listingType === 'VENTE' ? 'bg-primary-900' : 'bg-success-500'
-                    }`}>
-                      {property.listingType === 'VENTE' ? 'For Sale' : 'For Rent'}
+                    <span className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${property.listingType === 'sale' ? 'bg-primary-900' : 'bg-success-500'
+                      }`}>
+                      {property.listingType === 'sale' ? 'For Sale' : 'For Rent'}
                     </span>
                   </div>
 
                   {/* Favorite Button */}
                   <button
-                    onClick={(e) => handleFavorite(e, property._id)}
-                    className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all ${
-                      mounted && isFavorite(property._id)
+                    onClick={(e) => handleFavorite(e, property.id)}
+                    className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all ${mounted && isFavorite(property.id)
                         ? 'bg-danger-500 text-white'
                         : 'bg-white/90 text-secondary-600 hover:bg-white hover:text-danger-500'
-                    }`}
+                      }`}
                   >
-                    <FiHeart className={`w-4 h-4 ${mounted && isFavorite(property._id) ? 'fill-current' : ''}`} />
+                    <FiHeart className={`w-4 h-4 ${mounted && isFavorite(property.id) ? 'fill-current' : ''}`} />
                   </button>
 
                   {/* Rating */}
@@ -277,7 +275,7 @@ export default function FeaturedProperties() {
                       <span className="text-xl font-bold text-primary-900">
                         {property.price?.toLocaleString()} DH
                       </span>
-                      {property.listingType === 'LOCATION' && (
+                      {property.listingType === 'rent' && (
                         <span className="text-secondary-500 text-sm"> /month</span>
                       )}
                     </div>

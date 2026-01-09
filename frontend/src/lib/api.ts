@@ -78,8 +78,10 @@ export const propertiesApi = {
 export const reservationsApi = {
   getAll: (params?: Record<string, any>) =>
     api.get('/reservations', { params }),
-  getMyReservations: (params?: Record<string, any>) =>
-    api.get('/reservations/my-reservations', { params }),
+  getMyReservations: async (params?: Record<string, any>) => {
+    const response = await api.get('/reservations/my-reservations', { params });
+    return response.data;
+  },
   getById: (id: string) => api.get(`/reservations/${id}`),
   create: (data: any) => api.post('/reservations', data),
   confirm: (id: string) => api.patch(`/reservations/${id}/confirm`),

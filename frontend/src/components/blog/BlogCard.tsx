@@ -35,10 +35,10 @@ export default function BlogCard({ post }: BlogCardProps) {
 
       {/* Content */}
       <div className="p-6">
-        {/* Category */}
-        {post.category && (
-          <span className="inline-block px-3 py-1 mb-3 text-xs font-medium text-accent-700 bg-accent-100 rounded-full">
-            {post.category}
+        {/* Category (Tag) */}
+        {post.tags && post.tags.length > 0 && (
+          <span className="inline-block px-3 py-1 mb-3 text-xs font-medium text-accent-700 bg-accent-100 rounded-full capitalize">
+            {post.tags[0].replace(/-/g, ' ')}
           </span>
         )}
 

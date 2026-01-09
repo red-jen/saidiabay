@@ -55,7 +55,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
 
           {/* Favorite Button */}
           <div className="absolute top-3 right-3">
-            <FavoriteButton propertyId={property._id} />
+            <FavoriteButton propertyId={property.id} />
           </div>
 
           {/* Badge */}
@@ -69,11 +69,10 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
 
           {/* Listing Type Tag */}
           <div className="absolute bottom-3 left-3">
-            <span className={`px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm ${
-              property.listingType === 'rent' 
-                ? 'bg-primary-900 text-white' 
+            <span className={`px-2.5 py-1 rounded-md text-xs font-semibold shadow-sm ${property.listingType === 'rent'
+                ? 'bg-primary-900 text-white'
                 : 'bg-accent-500 text-white'
-            }`}>
+              }`}>
               {property.listingType === 'rent' ? 'For Rent' : 'For Sale'}
             </span>
           </div>

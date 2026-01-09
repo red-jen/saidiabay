@@ -1,0 +1,29 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "properties": "Properties",
+    "rentals": "Rentals",
+    "forSale": "For Sale",
+    "blog": "Blog",
+    "about": "About",
+    "contact": "Contact",
+    "search": "Search...",
+    "favorites": "Favorites",
+    "dashboard": "Dashboard",
+    "admin": "Admin Panel",
+    "logout": "Logout",
+    "login": "Log in",
+    "signup": "Sign up",
+    "browseProperties": "Browse Properties",
+    "account": "Account"
+  },
+  "Header": {
+    "location": "Saidia Bay, Morocco",
+    "hours": "Mon - Sat: 9:00 AM - 7:00 PM"
+  },
+  "Components": {
+      "LanguageSwitcher": {
+          "label": "Language"
+      }
+  }
+}

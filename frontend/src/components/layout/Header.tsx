@@ -1,6 +1,7 @@
 'use client';
 
-import Link from 'next/link';
+import { Link, usePathname, useRouter } from '@/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from 'react';
 import { FiMenu, FiX, FiUser, FiHeart, FiBarChart2, FiLogOut, FiSettings, FiSearch, FiGlobe, FiChevronDown } from 'react-icons/fi';
 import { useAuthStore } from '@/store/authStore';
@@ -11,7 +12,9 @@ import gsap from 'gsap';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isTransparent, setIsTransparent] = useState(false);
   const [mounted, setMounted] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
@@ -22,46 +25,59 @@ const Header = () => {
   const { favorites } = useFavoritesStore();
   const { comparisonIds } = useComparisonStore();
 
+  const pathname = usePathname();
+  const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations('Navigation');
+  const isHeroPage = ['/', '/contact', '/about'].includes(pathname);
+
   useEffect(() => {
     setMounted(true);
-    
+
     // GSAP animation on mount
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-    
+
     tl.fromTo(
       logoRef.current,
       { opacity: 0, x: -30 },
       { opacity: 1, x: 0, duration: 0.6 }
     )
-    .fromTo(
-      navRef.current?.children || [],
-      { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 },
-      '-=0.3'
-    )
-    .fromTo(
-      actionsRef.current,
-      { opacity: 0, x: 30 },
-      { opacity: 1, x: 0, duration: 0.6 },
-      '-=0.4'
-    );
-    
+      .fromTo(
+        navRef.current?.children || [],
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 },
+        '-=0.3'
+      )
+      .fromTo(
+        actionsRef.current,
+        { opacity: 0, x: 30 },
+        { opacity: 1, x: 0, duration: 0.6 },
+        '-=0.4'
+      );
+
     const handleScroll = () => {
       const scrolled = window.scrollY > 20;
       setIsScrolled(scrolled);
-      
+
       if (headerRef.current) {
+        // If it's a hero page, start transparent and become white on scroll
+        // If it's NOT a hero page, always stay white
+        const shouldBeTransparent = isHeroPage && !scrolled;
+
         gsap.to(headerRef.current, {
           boxShadow: scrolled ? '0 4px 30px rgba(0,0,0,0.1)' : 'none',
-          backgroundColor: scrolled ? 'rgba(255,255,255,0.98)' : 'rgba(255,255,255,1)',
+          backgroundColor: shouldBeTransparent ? 'transparent' : 'rgba(255,255,255,0.98)',
           duration: 0.3,
         });
       }
     };
-    
+
+    // Initial check
+    handleScroll();
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isHeroPage]); // Re-run effect when path changes
 
   // Get values safely for SSR
   const favCount = mounted ? favorites.length : 0;
@@ -69,12 +85,13 @@ const Header = () => {
   const currentUser = mounted ? user : null;
 
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/properties', label: 'Properties' },
-    { href: '/properties?listingType=LOCATION', label: 'Rentals' },
-    { href: '/properties?listingType=VENTE', label: 'For Sale' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/contact', label: 'Contact' },
+    { href: '/', label: t('home') },
+    { href: '/properties', label: t('properties') },
+    { href: '/properties?listingType=LOCATION', label: t('rentals') },
+    { href: '/properties?listingType=VENTE', label: t('forSale') },
+    { href: '/blog', label: t('blog') },
+    { href: '/about', label: t('about') },
+    { href: '/contact', label: t('contact') },
   ];
 
   const handleLogout = () => {
@@ -82,8 +99,13 @@ const Header = () => {
     setIsUserMenuOpen(false);
   };
 
+  const changeLanguage = (newLocale: string) => {
+    router.replace(pathname, { locale: newLocale });
+    setIsLangMenuOpen(false);
+  };
+
   return (
-    <header 
+    <header
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-50 bg-white transition-all duration-300"
     >
@@ -95,11 +117,33 @@ const Header = () => {
             <span>📞 +212 XXX XXX XXX</span>
           </div>
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-1 hover:text-accent-400 transition-colors">
-              <FiGlobe className="w-3 h-3" />
-              <span>EN</span>
-              <FiChevronDown className="w-3 h-3" />
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                className="flex items-center gap-1 hover:text-accent-400 transition-colors"
+              >
+                <FiGlobe className="w-3 h-3" />
+                <span className="uppercase">{locale}</span>
+                <FiChevronDown className={`w-3 h-3 transition-transform duration-200 ${isLangMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isLangMenuOpen && (
+                <div className="absolute top-full right-0 mt-2 bg-white text-primary-900 rounded-lg shadow-lg py-1 z-50 min-w-[100px] border border-secondary-100 overflow-hidden">
+                  <button
+                    onClick={() => changeLanguage('en')}
+                    className={`flex items-center w-full text-left px-4 py-2 text-xs hover:bg-secondary-50 transition-colors ${locale === 'en' ? 'font-bold bg-secondary-50 text-accent-600' : 'text-secondary-700'}`}
+                  >
+                    🇺🇸 English
+                  </button>
+                  <button
+                    onClick={() => changeLanguage('fr')}
+                    className={`flex items-center w-full text-left px-4 py-2 text-xs hover:bg-secondary-50 transition-colors ${locale === 'fr' ? 'font-bold bg-secondary-50 text-accent-600' : 'text-secondary-700'}`}
+                  >
+                    🇫🇷 Français
+                  </button>
+                </div>
+              )}
+            </div>
             <span className="text-primary-400">|</span>
             <span>Mon - Sat: 9:00 AM - 7:00 PM</span>
           </div>
@@ -117,8 +161,8 @@ const Header = () => {
                 <div className="absolute inset-0 bg-accent-500 opacity-0 group-hover:opacity-20 transition-opacity" />
               </div>
               <div className="hidden sm:block">
-                <span className="font-display font-bold text-xl text-primary-900">Saidia</span>
-                <span className="font-display font-bold text-xl text-accent-600">Bay</span>
+                <span className={`font-display font-bold text-xl transition-colors duration-300 ${isTransparent ? 'text-white' : 'text-primary-900'}`}>Saidia</span>
+                <span className={`font-display font-bold text-xl transition-colors duration-300 ${isTransparent ? 'text-accent-300' : 'text-accent-600'}`}>Bay</span>
               </div>
             </Link>
           </div>
@@ -129,7 +173,7 @@ const Header = () => {
               <Link
                 key={link.href + index}
                 href={link.href}
-                className="relative px-4 py-2 text-sm font-medium text-secondary-700 hover:text-primary-900 transition-colors group"
+                className={`relative px-4 py-2 text-sm font-medium transition-colors group ${isTransparent ? 'text-white/90 hover:text-white' : 'text-secondary-700 hover:text-primary-900'}`}
               >
                 {link.label}
                 <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-accent-500 group-hover:w-4/5 transition-all duration-300" />
@@ -284,9 +328,8 @@ const Header = () => {
 
       {/* Mobile Navigation */}
       <div
-        className={`lg:hidden absolute top-full left-0 right-0 bg-white border-t border-secondary-100 shadow-lg transition-all duration-300 ${
-          isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-        }`}
+        className={`lg:hidden absolute top-full left-0 right-0 bg-white border-t border-secondary-100 shadow-lg transition-all duration-300 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+          }`}
       >
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col gap-1">

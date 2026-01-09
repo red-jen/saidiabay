@@ -1,0 +1,29 @@
+{
+  "Navigation": {
+    "home": "Accueil",
+    "properties": "Propriétés",
+    "rentals": "Locations",
+    "forSale": "À Vendre",
+    "blog": "Blog",
+    "about": "À Propos",
+    "contact": "Contact",
+    "search": "Rechercher...",
+    "favorites": "Favoris",
+    "dashboard": "Tableau de bord",
+    "admin": "Panneau Admin",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "signup": "S'inscrire",
+    "browseProperties": "Voir les propriétés",
+    "account": "Compte"
+  },
+  "Header": {
+    "location": "Saidia Bay, Maroc",
+    "hours": "Lun - Sam: 9:00 - 19:00"
+  },
+  "Components": {
+      "LanguageSwitcher": {
+          "label": "Langue"
+      }
+  }
+}

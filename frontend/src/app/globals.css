@@ -15,13 +15,19 @@
     @apply font-sans text-secondary-900 bg-white;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-heading font-semibold text-secondary-900;
     letter-spacing: -0.02em;
   }
 }
 
 @layer components {
+
   /* Premium buttons */
   .btn {
     @apply inline-flex items-center justify-center px-6 py-3 font-medium text-sm rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98];
@@ -142,6 +148,7 @@
 }
 
 @layer utilities {
+
   /* Image zoom */
   .img-zoom {
     @apply transition-transform duration-500 hover:scale-105;
@@ -170,6 +177,7 @@
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
@@ -180,6 +188,7 @@
       opacity: 0;
       transform: translateY(30px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
