@@ -12,36 +12,20 @@ gsap.registerPlugin(ScrollTrigger);
 export default function CTASection() {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         contentRef.current,
-        { opacity: 0, y: 50 },
+        { opacity: 0, y: 20 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
+          duration: 0.6,
+          ease: 'power2.out',
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top 70%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-
-      gsap.fromTo(
-        imageRef.current,
-        { opacity: 0, scale: 0.9 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.8,
-          delay: 0.2,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 70%',
+            start: 'top 75%',
             toggleActions: 'play none none reverse',
           },
         }
@@ -52,110 +36,57 @@ export default function CTASection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-20 lg:py-28">
-      <div className="container mx-auto px-4 lg:px-6">
-        <div className="relative bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 rounded-[2.5rem] overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-              }}
-            />
-          </div>
-
-          <div className="relative grid lg:grid-cols-2 gap-12 p-10 lg:p-16 items-center">
+    <section ref={sectionRef} className="py-16 lg:py-20 bg-white">
+      <div className="container mx-auto px-4 lg:px-8">
+        <div className="relative bg-secondary-900 rounded-2xl overflow-hidden">
+          <div className="grid lg:grid-cols-2 items-center">
             {/* Content */}
-            <div ref={contentRef}>
-              <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-6">
-                🏠 Start Your Journey Today
-              </span>
-
-              <h2 className="text-4xl lg:text-5xl font-heading font-bold text-white leading-tight mb-6">
-                Ready to Find Your
-                <br />
-                <span className="text-accent-400">Dream Property?</span>
+            <div ref={contentRef} className="p-8 lg:p-12">
+              <h2 className="text-2xl lg:text-3xl font-semibold text-white mb-4">
+                Ready to find your dream property?
               </h2>
-
-              <p className="text-lg text-white/80 mb-10 max-w-lg">
+              <p className="text-secondary-300 mb-8 max-w-md">
                 Whether you're buying, selling, or renting, our expert team is here to guide you every step of the way.
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                <Link 
-                  href="/properties" 
-                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-primary-900 rounded-xl font-semibold hover:bg-accent-50 transition-colors group"
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                <Link
+                  href="/properties"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-secondary-900 rounded-lg font-medium hover:bg-secondary-100 transition-colors"
                 >
-                  <span>Browse Properties</span>
-                  <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  Browse Properties
+                  <FiArrowRight className="w-4 h-4" />
                 </Link>
-                
-                <Link 
-                  href="/contact" 
-                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-xl font-semibold hover:bg-white/20 transition-colors"
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-white/30 text-white rounded-lg font-medium hover:bg-white/10 transition-colors"
                 >
-                  <FiPhone className="w-5 h-5" />
-                  <span>Contact Us</span>
+                  Contact Us
                 </Link>
               </div>
 
               {/* Contact Info */}
-              <div className="flex flex-wrap gap-6">
-                <a href="tel:+212XXXXXXXX" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors">
+              <div className="flex flex-wrap gap-6 text-sm">
+                <a href="tel:+212661234567" className="flex items-center gap-2 text-secondary-400 hover:text-white transition-colors">
                   <FiPhone className="w-4 h-4" />
-                  <span>+212 XXX XXX XXX</span>
+                  <span>+212 661 234 567</span>
                 </a>
-                <a href="mailto:info@saidiabay.com" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors">
+                <a href="mailto:contact@saidiabay.com" className="flex items-center gap-2 text-secondary-400 hover:text-white transition-colors">
                   <FiMail className="w-4 h-4" />
-                  <span>info@saidiabay.com</span>
+                  <span>contact@saidiabay.com</span>
                 </a>
               </div>
             </div>
 
             {/* Image */}
-            <div ref={imageRef} className="hidden lg:block relative">
-              <div className="relative w-full aspect-square max-w-md mx-auto">
-                {/* Main Image */}
-                <div className="absolute inset-0 rounded-3xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
-                  <Image
-                    src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600"
-                    alt="Luxury Home"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-
-                {/* Floating Stats */}
-                <div className="absolute -left-8 bottom-12 bg-white rounded-2xl shadow-luxury p-5 animate-float">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-success-100 rounded-xl flex items-center justify-center">
-                      <span className="text-2xl">🏠</span>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-heading font-bold text-primary-900">
-                        500+
-                      </div>
-                      <p className="text-secondary-600 text-sm">Properties Listed</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="absolute -right-4 top-12 bg-white rounded-2xl shadow-luxury p-5 animate-float" style={{ animationDelay: '1s' }}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center">
-                      <span className="text-2xl">⭐</span>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-heading font-bold text-primary-900">
-                        4.9
-                      </div>
-                      <p className="text-secondary-600 text-sm">Customer Rating</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="relative h-64 lg:h-full lg:min-h-[400px]">
+              <Image
+                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=85"
+                alt="Luxury Property"
+                fill
+                className="object-cover"
+              />
             </div>
           </div>
         </div>

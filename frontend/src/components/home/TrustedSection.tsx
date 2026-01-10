@@ -7,30 +7,25 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const partners = [
-  { name: 'Airbnb', logo: '🏠' },
-  { name: 'Booking', logo: '🌍' },
-  { name: 'Expedia', logo: '✈️' },
-  { name: 'TripAdvisor', logo: '🦉' },
-  { name: 'Hotels.com', logo: '🏨' },
-  { name: 'Vrbo', logo: '🏡' },
+  { name: 'coinbase', color: '#0052FF' },
+  { name: 'Airtable', color: '#18BFFF' },
+  { name: 'pendo', color: '#FF407B' },
+  { name: 'treehouse', color: '#57B846' },
 ];
 
 export default function TrustedSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const logosRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        logosRef.current?.children || [],
-        { opacity: 0, y: 30 },
+        sectionRef.current,
+        { opacity: 0 },
         {
           opacity: 1,
-          y: 0,
-          duration: 0.5,
-          stagger: 0.1,
+          duration: 0.6,
           scrollTrigger: {
-            trigger: logosRef.current,
+            trigger: sectionRef.current,
             start: 'top 90%',
             toggleActions: 'play none none reverse',
           },
@@ -42,24 +37,21 @@ export default function TrustedSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-16 border-y border-secondary-100">
-      <div className="container mx-auto px-4 lg:px-6">
-        <p className="text-center text-secondary-500 text-sm uppercase tracking-wider mb-8">
-          Trusted by Industry Leaders
-        </p>
-        <div
-          ref={logosRef}
-          className="flex flex-wrap items-center justify-center gap-8 md:gap-16"
-        >
+    <section ref={sectionRef} className="py-8 border-y border-secondary-100 bg-white">
+      <div className="container mx-auto px-4 lg:px-8">
+        <div className="flex items-center justify-center gap-8 lg:gap-16 flex-wrap">
           {partners.map((partner) => (
             <div
               key={partner.name}
-              className="flex items-center gap-2 text-secondary-400 hover:text-secondary-700 transition-colors cursor-pointer group"
+              className="flex items-center gap-2 text-secondary-400 hover:text-secondary-600 transition-colors cursor-pointer"
             >
-              <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">
-                {partner.logo}
-              </span>
-              <span className="text-lg font-semibold">{partner.name}</span>
+              <div
+                className="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold"
+                style={{ backgroundColor: partner.color }}
+              >
+                {partner.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-sm font-medium">{partner.name}</span>
             </div>
           ))}
         </div>
@@ -67,4 +59,3 @@ export default function TrustedSection() {
     </section>
   );
 }
-

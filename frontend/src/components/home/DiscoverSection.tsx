@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FiArrowRight } from 'react-icons/fi';
+import { FiArrowRight, FiHome, FiLayers, FiGrid, FiSquare } from 'react-icons/fi';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -13,69 +13,51 @@ const categories = [
   {
     id: 'villa',
     title: 'Villas',
-    count: '45+',
-    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600',
-    description: 'Luxurious private villas',
+    count: '12,904',
+    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&q=85',
+    icon: FiHome,
   },
   {
     id: 'apartment',
     title: 'Apartments',
-    count: '120+',
-    image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
-    description: 'Modern city apartments',
+    count: '10,627',
+    image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=85',
+    icon: FiLayers,
   },
   {
     id: 'house',
-    title: 'Houses',
-    count: '80+',
-    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-    description: 'Family-friendly homes',
+    title: 'Resorts',
+    count: '367',
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&q=85',
+    icon: FiGrid,
   },
   {
     id: 'studio',
-    title: 'Studios',
-    count: '65+',
-    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600',
-    description: 'Compact living spaces',
+    title: 'Cottages',
+    count: '263',
+    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=85',
+    icon: FiSquare,
   },
 ];
 
 export default function DiscoverSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Title animation
-      gsap.fromTo(
-        titleRef.current,
-        { opacity: 0, y: 50 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          scrollTrigger: {
-            trigger: titleRef.current,
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-
-      // Cards stagger animation
       gsap.fromTo(
         cardsRef.current?.children || [],
-        { opacity: 0, y: 60, scale: 0.9 },
+        { opacity: 0, y: 30 },
         {
           opacity: 1,
           y: 0,
-          scale: 1,
-          duration: 0.6,
-          stagger: 0.15,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: 'power2.out',
           scrollTrigger: {
             trigger: cardsRef.current,
-            start: 'top 80%',
+            start: 'top 85%',
             toggleActions: 'play none none reverse',
           },
         }
@@ -86,75 +68,55 @@ export default function DiscoverSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-20 lg:py-28 bg-secondary-50">
-      <div className="container mx-auto px-4 lg:px-6">
+    <section ref={sectionRef} className="py-16 lg:py-20 bg-white">
+      <div className="container mx-auto px-4 lg:px-8">
         {/* Header */}
-        <div ref={titleRef} className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
-          <div>
-            <p className="text-accent-600 font-semibold text-sm uppercase tracking-wider mb-2">
-              Explore
-            </p>
-            <h2 className="text-4xl lg:text-5xl font-heading font-bold text-secondary-900">
-              Discover by Category
-            </h2>
-            <p className="text-secondary-600 mt-3 max-w-lg">
-              Find the perfect property type that matches your lifestyle and preferences
-            </p>
-          </div>
-          <Link
-            href="/properties"
-            className="inline-flex items-center gap-2 text-primary-900 font-semibold hover:gap-4 transition-all group"
-          >
-            View All Properties
-            <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
+        <div className="mb-10">
+          <h2 className="text-2xl lg:text-3xl font-semibold text-secondary-900 mb-2">
+            Discover your destination
+          </h2>
+          <p className="text-secondary-500">
+            Explore our range of property types for every traveler's preference
+          </p>
         </div>
 
         {/* Category Cards */}
-        <div ref={cardsRef} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/properties?type=${category.id}`}
-              className="group relative h-80 rounded-2xl overflow-hidden cursor-pointer"
-            >
-              {/* Image */}
-              <Image
-                src={category.image}
-                alt={category.title}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              
-              {/* Content */}
-              <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                <div className="transform transition-transform duration-300 group-hover:translate-y-[-8px]">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium rounded-full">
+        <div ref={cardsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          {categories.map((category) => {
+            const Icon = category.icon;
+            return (
+              <Link
+                key={category.id}
+                href={`/properties?type=${category.id}`}
+                className="group block"
+              >
+                {/* Image */}
+                <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
+                  <Image
+                    src={category.image}
+                    alt={category.title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="flex items-start gap-2">
+                  <Icon className="w-5 h-5 text-secondary-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-semibold text-secondary-900 group-hover:text-primary-700 transition-colors">
+                      {category.title}
+                    </h3>
+                    <p className="text-sm text-secondary-500">
                       {category.count} available
-                    </span>
+                    </p>
                   </div>
-                  <h3 className="text-2xl font-heading font-bold text-white mb-1">
-                    {category.title}
-                  </h3>
-                  <p className="text-white/80 text-sm">
-                    {category.description}
-                  </p>
                 </div>
-                
-                {/* Arrow */}
-                <div className="absolute bottom-6 right-6 w-10 h-10 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                  <FiArrowRight className="w-5 h-5 text-primary-900" />
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 }
-
