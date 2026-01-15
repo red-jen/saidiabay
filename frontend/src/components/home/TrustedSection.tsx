@@ -45,7 +45,7 @@ export default function TrustedSection() {
     <section ref={sectionRef} className="py-16 border-y border-secondary-100">
       <div className="container mx-auto px-4 lg:px-6">
         <p className="text-center text-secondary-500 text-sm uppercase tracking-wider mb-8">
-          Trusted by Industry Leaders
+          Reconnu par les Leaders de l'Industrie
         </p>
         <div
           ref={logosRef}

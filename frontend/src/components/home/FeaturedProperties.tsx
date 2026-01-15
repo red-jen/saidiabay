@@ -15,10 +15,10 @@ import { useFavoritesStore } from '@/store/favoritesStore';
 gsap.registerPlugin(ScrollTrigger);
 
 const tabs = [
-  { id: 'all', label: 'All Properties' },
-  { id: 'featured', label: 'Featured' },
-  { id: 'LOCATION', label: 'For Rent' },
-  { id: 'VENTE', label: 'For Sale' },
+  { id: 'all', label: 'Toutes les propriétés' },
+  { id: 'featured', label: 'En Vedette' },
+  { id: 'LOCATION', label: 'À Louer' },
+  { id: 'VENTE', label: 'À Vendre' },
 ];
 
 export default function FeaturedProperties() {
@@ -26,7 +26,7 @@ export default function FeaturedProperties() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
-  
+
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -98,13 +98,13 @@ export default function FeaturedProperties() {
     try {
       setLoading(true);
       const params: Record<string, any> = { limit: 8 };
-      
+
       if (activeTab === 'featured') {
         params.featured = true;
       } else if (activeTab === 'LOCATION' || activeTab === 'VENTE') {
         params.listingType = activeTab;
       }
-      
+
       const data = await propertiesApi.getAll(params);
       setProperties(data.properties || []);
     } catch (error) {
@@ -132,20 +132,20 @@ export default function FeaturedProperties() {
         <div ref={titleRef} className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
           <div>
             <p className="text-accent-600 font-semibold text-sm uppercase tracking-wider mb-2">
-              Properties
+              Propriétés
             </p>
             <h2 className="text-4xl lg:text-5xl font-heading font-bold text-secondary-900">
-              Featured Properties
+              Propriétés en Vedette
             </h2>
             <p className="text-secondary-600 mt-3 max-w-lg">
-              Explore our handpicked selection of premium properties in the most desirable locations
+              Explorez notre sélection triée sur le volet de propriétés haut de gamme dans les meilleurs emplacements
             </p>
           </div>
           <Link
             href="/properties"
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary-900 text-white rounded-xl font-semibold hover:bg-primary-800 transition-colors"
           >
-            View All
+            Voir Tout
             <FiArrowRight className="w-5 h-5" />
           </Link>
         </div>
@@ -199,32 +199,30 @@ export default function FeaturedProperties() {
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  
+
                   {/* Overlays */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  
+
                   {/* Badges */}
                   <div className="absolute top-4 left-4 flex gap-2">
                     {property.isFeatured && (
                       <span className="px-3 py-1 bg-accent-500 text-white text-xs font-semibold rounded-full">
-                        Featured
+                        En Vedette
                       </span>
                     )}
-                    <span className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${
-                      property.listingType === 'VENTE' ? 'bg-primary-900' : 'bg-success-500'
-                    }`}>
-                      {property.listingType === 'VENTE' ? 'For Sale' : 'For Rent'}
+                    <span className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${property.listingType === 'VENTE' ? 'bg-primary-900' : 'bg-success-500'
+                      }`}>
+                      {property.listingType === 'VENTE' ? 'À Vendre' : 'À Louer'}
                     </span>
                   </div>
 
                   {/* Favorite Button */}
                   <button
                     onClick={(e) => handleFavorite(e, property._id)}
-                    className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all ${
-                      mounted && isFavorite(property._id)
+                    className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all ${mounted && isFavorite(property._id)
                         ? 'bg-danger-500 text-white'
                         : 'bg-white/90 text-secondary-600 hover:bg-white hover:text-danger-500'
-                    }`}
+                      }`}
                   >
                     <FiHeart className={`w-4 h-4 ${mounted && isFavorite(property._id) ? 'fill-current' : ''}`} />
                   </button>
@@ -254,13 +252,13 @@ export default function FeaturedProperties() {
                     {property.bedrooms && (
                       <div className="flex items-center gap-1">
                         <IoBedOutline className="w-4 h-4" />
-                        <span>{property.bedrooms} Beds</span>
+                        <span>{property.bedrooms} Lits</span>
                       </div>
                     )}
                     {property.bathrooms && (
                       <div className="flex items-center gap-1">
                         <LuBath className="w-4 h-4" />
-                        <span>{property.bathrooms} Baths</span>
+                        <span>{property.bathrooms} SDB</span>
                       </div>
                     )}
                     {property.area && (
@@ -278,11 +276,11 @@ export default function FeaturedProperties() {
                         {property.price?.toLocaleString()} DH
                       </span>
                       {property.listingType === 'LOCATION' && (
-                        <span className="text-secondary-500 text-sm"> /month</span>
+                        <span className="text-secondary-500 text-sm"> /mois</span>
                       )}
                     </div>
                     <span className="text-primary-700 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                      View Details →
+                      Voir Détails →
                     </span>
                   </div>
                 </div>
@@ -291,7 +289,7 @@ export default function FeaturedProperties() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <p className="text-secondary-600 text-lg">No properties found</p>
+            <p className="text-secondary-600 text-lg">Aucune propriété trouvée</p>
           </div>
         )}
       </div>

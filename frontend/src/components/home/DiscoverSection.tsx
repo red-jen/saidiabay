@@ -15,28 +15,28 @@ const categories = [
     title: 'Villas',
     count: '45+',
     image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600',
-    description: 'Luxurious private villas',
+    description: 'Villas privées luxueuses',
   },
   {
     id: 'apartment',
-    title: 'Apartments',
+    title: 'Appartements',
     count: '120+',
     image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
-    description: 'Modern city apartments',
+    description: 'Appartements urbains modernes',
   },
   {
     id: 'house',
-    title: 'Houses',
+    title: 'Maisons',
     count: '80+',
     image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-    description: 'Family-friendly homes',
+    description: 'Maisons familiales',
   },
   {
     id: 'studio',
     title: 'Studios',
     count: '65+',
     image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600',
-    description: 'Compact living spaces',
+    description: 'Espaces de vie compacts',
   },
 ];
 
@@ -92,20 +92,20 @@ export default function DiscoverSection() {
         <div ref={titleRef} className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
           <div>
             <p className="text-accent-600 font-semibold text-sm uppercase tracking-wider mb-2">
-              Explore
+              Explorer
             </p>
             <h2 className="text-4xl lg:text-5xl font-heading font-bold text-secondary-900">
-              Discover by Category
+              Découvrir par Catégorie
             </h2>
             <p className="text-secondary-600 mt-3 max-w-lg">
-              Find the perfect property type that matches your lifestyle and preferences
+              Trouvez le type de bien parfait correspondant à votre style de vie et vos préférences
             </p>
           </div>
           <Link
             href="/properties"
             className="inline-flex items-center gap-2 text-primary-900 font-semibold hover:gap-4 transition-all group"
           >
-            View All Properties
+            Voir Toutes les Propriétés
             <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -125,16 +125,16 @@ export default function DiscoverSection() {
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              
+
               {/* Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              
+
               {/* Content */}
               <div className="absolute inset-0 p-6 flex flex-col justify-end">
                 <div className="transform transition-transform duration-300 group-hover:translate-y-[-8px]">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="px-2 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium rounded-full">
-                      {category.count} available
+                      {category.count} disponibles
                     </span>
                   </div>
                   <h3 className="text-2xl font-heading font-bold text-white mb-1">
@@ -144,7 +144,7 @@ export default function DiscoverSection() {
                     {category.description}
                   </p>
                 </div>
-                
+
                 {/* Arrow */}
                 <div className="absolute bottom-6 right-6 w-10 h-10 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
                   <FiArrowRight className="w-5 h-5 text-primary-900" />

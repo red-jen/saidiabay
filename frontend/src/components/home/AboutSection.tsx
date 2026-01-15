@@ -10,18 +10,18 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const features = [
-  'Verified luxury properties',
-  'Expert market knowledge',
-  'Personalized service',
-  'Legal & financial support',
-  'Property management',
-  'Investment advisory',
+  'Propriétés de luxe vérifiées',
+  'Expertise du marché',
+  'Service personnalisé',
+  'Support juridique & financier',
+  'Gestion immobilière',
+  'Conseil en investissement',
 ];
 
 const stats = [
-  { icon: FiTrendingUp, value: '500+', label: 'Properties', color: 'bg-primary-100 text-primary-700' },
+  { icon: FiTrendingUp, value: '500+', label: 'Propriétés', color: 'bg-primary-100 text-primary-700' },
   { icon: FiUsers, value: '1.2K+', label: 'Clients', color: 'bg-accent-100 text-accent-700' },
-  { icon: FiAward, value: '10+', label: 'Years', color: 'bg-success-100 text-success-700' },
+  { icon: FiAward, value: '10+', label: 'Années', color: 'bg-success-100 text-success-700' },
 ];
 
 export default function AboutSection() {
@@ -81,7 +81,7 @@ export default function AboutSection() {
                 fill
                 className="object-cover"
               />
-              
+
               {/* Play Button */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <button className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-luxury hover:scale-110 transition-transform group">
@@ -96,7 +96,7 @@ export default function AboutSection() {
                 98%
               </div>
               <p className="text-secondary-600 text-sm">
-                Client Satisfaction Rate
+                Taux de Satisfaction Client
               </p>
             </div>
 
@@ -107,16 +107,16 @@ export default function AboutSection() {
           {/* Content */}
           <div ref={contentRef}>
             <p className="text-accent-600 font-semibold text-sm uppercase tracking-wider mb-3">
-              About Us
+              À Propos de Nous
             </p>
             <h2 className="text-4xl lg:text-5xl font-heading font-bold text-secondary-900 leading-tight mb-6">
-              Your Trusted Partner in 
-              <span className="text-primary-700"> Luxury Real Estate</span>
+              Votre Partenaire de Confiance en
+              <span className="text-primary-700"> Immobilier de Luxe</span>
             </h2>
 
             <p className="text-lg text-secondary-600 mb-8 leading-relaxed">
-              With over a decade of expertise in Saidia Bay's premium property market, we've helped 
-              thousands of clients discover their dream homes and make sound investment decisions.
+              Avec plus d'une décennie d'expertise sur le marché immobilier de Saidia Bay, nous avons aidé
+              des milliers de clients à trouver la maison de leurs rêves et à prendre des décisions d'investissement judicieuses.
             </p>
 
             {/* Features Grid */}
@@ -153,11 +153,11 @@ export default function AboutSection() {
 
             {/* CTA */}
             <div className="mt-10">
-              <Link 
-                href="/about" 
+              <Link
+                href="/about"
                 className="inline-flex items-center gap-2 text-primary-900 font-semibold hover:gap-4 transition-all"
               >
-                Learn More About Us
+                En Savoir Plus Sur Nous
                 <span className="text-xl">→</span>
               </Link>
             </div>

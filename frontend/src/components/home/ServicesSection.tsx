@@ -11,34 +11,34 @@ gsap.registerPlugin(ScrollTrigger);
 const services = [
   {
     icon: FiHome,
-    title: 'Buy a Property',
-    description: 'Find your dream home from our curated selection of premium properties in Saidia Bay.',
+    title: 'Acheter une Propriété',
+    description: 'Trouvez la maison de vos rêves parmi notre sélection de propriétés haut de gamme à Saidia Bay.',
     link: '/properties?listingType=VENTE',
-    cta: 'Browse homes',
+    cta: 'Parcourir les maisons',
     color: 'bg-primary-50 text-primary-600 group-hover:bg-primary-600 group-hover:text-white',
   },
   {
     icon: FiKey,
-    title: 'Rent a Property',
-    description: 'Discover apartments, villas, and more for your next vacation or long-term stay.',
+    title: 'Louer une Propriété',
+    description: 'Découvrez des appartements, villas et plus pour vos prochaines vacances ou long séjour.',
     link: '/properties?listingType=LOCATION',
-    cta: 'Find rentals',
+    cta: 'Trouver des locations',
     color: 'bg-accent-50 text-accent-600 group-hover:bg-accent-600 group-hover:text-white',
   },
   {
     icon: FiDollarSign,
-    title: 'Sell Your Property',
-    description: 'List your property with us and reach thousands of potential buyers worldwide.',
+    title: 'Vendre Votre Propriété',
+    description: 'Listez votre bien chez nous et atteignez des milliers d\'acheteurs potentiels dans le monde entier.',
     link: '/contact',
-    cta: 'Get started',
+    cta: 'Commencer',
     color: 'bg-success-50 text-success-600 group-hover:bg-success-600 group-hover:text-white',
   },
   {
     icon: FiMapPin,
-    title: 'Property Management',
-    description: 'Let us handle your property management while you enjoy the returns.',
+    title: 'Gestion Immobilière',
+    description: 'Laissez-nous gérer votre propriété pendant que vous profitez des rendements.',
     link: '/contact',
-    cta: 'Learn more',
+    cta: 'En savoir plus',
     color: 'bg-warning-50 text-warning-600 group-hover:bg-warning-600 group-hover:text-white',
   },
 ];
@@ -93,13 +93,13 @@ export default function ServicesSection() {
         {/* Header */}
         <div ref={titleRef} className="text-center max-w-2xl mx-auto mb-14">
           <p className="text-accent-600 font-semibold text-sm uppercase tracking-wider mb-3">
-            Our Services
+            Nos Services
           </p>
           <h2 className="text-4xl lg:text-5xl font-heading font-bold text-secondary-900 mb-4">
-            What We Offer
+            Ce Que Nous Offrons
           </h2>
           <p className="text-lg text-secondary-600">
-            Everything you need for your real estate journey in one place
+            Tout ce dont vous avez besoin pour votre parcours immobilier en un seul endroit
           </p>
         </div>
 
@@ -116,15 +116,15 @@ export default function ServicesSection() {
                 <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 ${service.color}`}>
                   <Icon className="w-7 h-7" />
                 </div>
-                
+
                 <h3 className="text-xl font-semibold text-secondary-900 mb-3 group-hover:text-primary-700 transition-colors">
                   {service.title}
                 </h3>
-                
+
                 <p className="text-secondary-600 mb-6 leading-relaxed">
                   {service.description}
                 </p>
-                
+
                 <span className="inline-flex items-center gap-2 text-primary-700 font-semibold group-hover:gap-3 transition-all">
                   {service.cta}
                   <FiArrowRight className="w-4 h-4" />

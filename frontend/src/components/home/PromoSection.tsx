@@ -12,22 +12,22 @@ gsap.registerPlugin(ScrollTrigger);
 const promos = [
   {
     id: 1,
-    title: 'Special Discount',
-    subtitle: 'For First-Time Buyers',
+    title: 'Remise Spéciale',
+    subtitle: 'Pour les Primo-Accédants',
     discount: '20%',
-    description: 'Get exclusive discount on your first property purchase',
+    description: 'Obtenez une remise exclusive sur votre premier achat immobilier',
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800',
-    cta: 'Learn More',
+    cta: 'En Savoir Plus',
     color: 'from-primary-900 to-primary-700',
   },
   {
     id: 2,
-    title: 'Rental Deals',
-    subtitle: 'Summer Season',
+    title: 'Offres de Location',
+    subtitle: 'Saison Estivale',
     discount: '30%',
-    description: 'Book now for summer vacation rentals',
+    description: 'Réservez maintenant pour vos locations de vacances d\'été',
     image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
-    cta: 'Book Now',
+    cta: 'Réserver',
     color: 'from-accent-700 to-accent-500',
   },
 ];
@@ -64,17 +64,17 @@ export default function PromoSection() {
         <div className="flex items-center justify-between mb-10">
           <div>
             <p className="text-accent-600 font-semibold text-sm uppercase tracking-wider mb-2">
-              Special Offers
+              Offres Spéciales
             </p>
             <h2 className="text-4xl lg:text-5xl font-heading font-bold text-secondary-900">
-              Get Exclusive Deals
+              Obtenez des Offres Exclusives
             </h2>
           </div>
           <Link
             href="/properties"
             className="hidden md:inline-flex items-center gap-2 text-primary-900 font-semibold hover:gap-4 transition-all"
           >
-            See All Offers
+            Voir Toutes les Offres
             <FiArrowRight className="w-5 h-5" />
           </Link>
         </div>
@@ -92,10 +92,10 @@ export default function PromoSection() {
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              
+
               {/* Gradient Overlay */}
               <div className={`absolute inset-0 bg-gradient-to-r ${promo.color} opacity-90`} />
-              
+
               {/* Content */}
               <div className="absolute inset-0 p-8 flex flex-col justify-between text-white">
                 <div>
@@ -109,15 +109,15 @@ export default function PromoSection() {
                     {promo.description}
                   </p>
                 </div>
-                
+
                 <div className="flex items-end justify-between">
                   <div>
                     <span className="text-6xl md:text-7xl font-heading font-bold">
                       {promo.discount}
                     </span>
-                    <span className="text-2xl font-semibold ml-1">OFF</span>
+                    <span className="text-2xl font-semibold ml-1">DE RÉDUCTION</span>
                   </div>
-                  
+
                   <Link
                     href="/properties"
                     className="flex items-center gap-2 px-5 py-2.5 bg-white text-primary-900 rounded-full font-semibold hover:gap-3 transition-all"

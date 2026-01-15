@@ -7,10 +7,10 @@ import { FiSearch, FiMapPin, FiHome, FiCalendar, FiUsers, FiChevronDown } from '
 import gsap from 'gsap';
 
 const propertyTypes = [
-  { id: 'all', label: 'All Types', icon: '🏠' },
+  { id: 'all', label: 'Tous types', icon: '🏠' },
   { id: 'villa', label: 'Villas', icon: '🏡' },
-  { id: 'apartment', label: 'Apartments', icon: '🏢' },
-  { id: 'house', label: 'Houses', icon: '🏘️' },
+  { id: 'apartment', label: 'Appartements', icon: '🏢' },
+  { id: 'house', label: 'Maisons', icon: '🏘️' },
   { id: 'studio', label: 'Studios', icon: '🛏️' },
 ];
 
@@ -21,7 +21,7 @@ const HeroSection = () => {
     location: '',
     listingType: '',
   });
-  
+
   const heroRef = useRef<HTMLDivElement>(null);
   const headlineRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
@@ -34,37 +34,37 @@ const HeroSection = () => {
     const ctx = gsap.context(() => {
       // Main timeline
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-      
+
       // Animate hero content
       tl.fromTo(
         headlineRef.current,
         { opacity: 0, y: 60 },
         { opacity: 1, y: 0, duration: 1 }
       )
-      .fromTo(
-        subtitleRef.current,
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 0.8 },
-        '-=0.6'
-      )
-      .fromTo(
-        searchBoxRef.current,
-        { opacity: 0, y: 50, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.8 },
-        '-=0.5'
-      )
-      .fromTo(
-        filtersRef.current?.children || [],
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
-        '-=0.4'
-      )
-      .fromTo(
-        statsRef.current?.children || [],
-        { opacity: 0, scale: 0.8 },
-        { opacity: 1, scale: 1, duration: 0.5, stagger: 0.1 },
-        '-=0.3'
-      );
+        .fromTo(
+          subtitleRef.current,
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, duration: 0.8 },
+          '-=0.6'
+        )
+        .fromTo(
+          searchBoxRef.current,
+          { opacity: 0, y: 50, scale: 0.95 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.8 },
+          '-=0.5'
+        )
+        .fromTo(
+          filtersRef.current?.children || [],
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08 },
+          '-=0.4'
+        )
+        .fromTo(
+          statsRef.current?.children || [],
+          { opacity: 0, scale: 0.8 },
+          { opacity: 1, scale: 1, duration: 0.5, stagger: 0.1 },
+          '-=0.3'
+        );
 
       // Parallax effect on scroll
       gsap.to(imageRef.current, {
@@ -116,28 +116,28 @@ const HeroSection = () => {
           </div>
 
           {/* Headline */}
-          <h1 
+          <h1
             ref={headlineRef}
             className="text-5xl sm:text-6xl lg:text-7xl font-heading font-bold text-secondary-900 leading-tight mb-6"
           >
-            Find Your Best
+            Trouvez Votre
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-900 via-primary-700 to-accent-600">
-              Dream Property
+              Propriété de Rêve
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p 
+          <p
             ref={subtitleRef}
             className="text-lg lg:text-xl text-secondary-600 max-w-2xl mb-10"
           >
-            Discover luxury villas, modern apartments, and exclusive properties in Saidia Bay. 
-            Your perfect Mediterranean home awaits.
+            Découvrez des villas de luxe, des appartements modernes et des propriétés exclusives à Saidia Bay.
+            Votre maison méditerranéenne idéale vous attend.
           </p>
 
           {/* Search Box */}
-          <div 
+          <div
             ref={searchBoxRef}
             className="bg-white rounded-2xl shadow-luxury-lg p-3 mb-8"
           >
@@ -147,10 +147,10 @@ const HeroSection = () => {
                 <div className="flex items-center gap-3 px-4 py-3 bg-secondary-50 rounded-xl hover:bg-secondary-100 transition-colors cursor-pointer">
                   <FiMapPin className="w-5 h-5 text-primary-600" />
                   <div className="flex-1">
-                    <p className="text-xs text-secondary-500 uppercase tracking-wide">Location</p>
+                    <p className="text-xs text-secondary-500 uppercase tracking-wide">Localisation</p>
                     <input
                       type="text"
-                      placeholder="Where do you want?"
+                      placeholder="Où souhaitez-vous habiter ?"
                       value={searchParams.location}
                       onChange={(e) => setSearchParams({ ...searchParams, location: e.target.value })}
                       className="w-full bg-transparent text-sm font-medium text-secondary-900 placeholder:text-secondary-400 focus:outline-none"
@@ -186,15 +186,15 @@ const HeroSection = () => {
                 <div className="flex items-center gap-3 px-4 py-3 bg-secondary-50 rounded-xl hover:bg-secondary-100 transition-colors cursor-pointer">
                   <FiCalendar className="w-5 h-5 text-primary-600" />
                   <div className="flex-1">
-                    <p className="text-xs text-secondary-500 uppercase tracking-wide">For</p>
+                    <p className="text-xs text-secondary-500 uppercase tracking-wide">Pour</p>
                     <select
                       value={searchParams.listingType}
                       onChange={(e) => setSearchParams({ ...searchParams, listingType: e.target.value })}
                       className="w-full bg-transparent text-sm font-medium text-secondary-900 focus:outline-none appearance-none cursor-pointer"
                     >
-                      <option value="">Rent or Sale</option>
-                      <option value="LOCATION">For Rent</option>
-                      <option value="VENTE">For Sale</option>
+                      <option value="">Louer ou Acheter</option>
+                      <option value="LOCATION">À Louer</option>
+                      <option value="VENTE">À Vendre</option>
                     </select>
                   </div>
                   <FiChevronDown className="w-4 h-4 text-secondary-400" />
@@ -207,7 +207,7 @@ const HeroSection = () => {
                 className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary-900 to-primary-700 text-white rounded-xl font-semibold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 <FiSearch className="w-5 h-5" />
-                <span>Search</span>
+                <span>Rechercher</span>
               </button>
             </div>
           </div>
@@ -238,19 +238,19 @@ const HeroSection = () => {
               <div className="text-3xl lg:text-4xl font-heading font-bold text-primary-900 mb-1">
                 500+
               </div>
-              <div className="text-sm text-secondary-600">Properties</div>
+              <div className="text-sm text-secondary-600">Propriétés</div>
             </div>
             <div className="text-center border-x border-secondary-200">
               <div className="text-3xl lg:text-4xl font-heading font-bold text-primary-900 mb-1">
                 1.2K+
               </div>
-              <div className="text-sm text-secondary-600">Happy Clients</div>
+              <div className="text-sm text-secondary-600">Clients Satisfaits</div>
             </div>
             <div className="text-center">
               <div className="text-3xl lg:text-4xl font-heading font-bold text-primary-900 mb-1">
                 10+
               </div>
-              <div className="text-sm text-secondary-600">Years Experience</div>
+              <div className="text-sm text-secondary-600">Années d'Expérience</div>
             </div>
           </div>
         </div>
@@ -271,19 +271,19 @@ const HeroSection = () => {
             </div>
             <div>
               <p className="font-semibold text-secondary-900">Sarah M.</p>
-              <p className="text-xs text-secondary-500">Just bought a villa</p>
+              <p className="text-xs text-secondary-500">Vient d'acheter une villa</p>
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white/90 backdrop-blur-xl rounded-2xl p-4 shadow-luxury animate-float" style={{ animationDelay: '1s' }}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-success-100 rounded-full flex items-center justify-center">
               <span className="text-xl">🎉</span>
             </div>
             <div>
-              <p className="font-semibold text-success-700">+25 Properties</p>
-              <p className="text-xs text-secondary-500">Added this week</p>
+              <p className="font-semibold text-success-700">+25 Propriétés</p>
+              <p className="text-xs text-secondary-500">Ajoutées cette semaine</p>
             </div>
           </div>
         </div>
@@ -291,7 +291,7 @@ const HeroSection = () => {
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-        <span className="text-xs text-secondary-500 uppercase tracking-wider">Scroll</span>
+        <span className="text-xs text-secondary-500 uppercase tracking-wider">Défiler</span>
         <div className="w-6 h-10 border-2 border-secondary-300 rounded-full flex items-start justify-center p-1.5">
           <div className="w-1.5 h-3 bg-secondary-400 rounded-full animate-scroll" />
         </div>

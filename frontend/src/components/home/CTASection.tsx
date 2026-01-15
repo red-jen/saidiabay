@@ -69,35 +69,35 @@ export default function CTASection() {
             {/* Content */}
             <div ref={contentRef}>
               <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-6">
-                🏠 Start Your Journey Today
+                🏠 Commencez Votre Voyage Aujourd'hui
               </span>
 
               <h2 className="text-4xl lg:text-5xl font-heading font-bold text-white leading-tight mb-6">
-                Ready to Find Your
+                Prêt à Trouver Votre
                 <br />
-                <span className="text-accent-400">Dream Property?</span>
+                <span className="text-accent-400">Propriété de Rêve ?</span>
               </h2>
 
               <p className="text-lg text-white/80 mb-10 max-w-lg">
-                Whether you're buying, selling, or renting, our expert team is here to guide you every step of the way.
+                Que vous achetiez, vendiez ou louiez, notre équipe d'experts est là pour vous guider à chaque étape.
               </p>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                <Link 
-                  href="/properties" 
+                <Link
+                  href="/properties"
                   className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-primary-900 rounded-xl font-semibold hover:bg-accent-50 transition-colors group"
                 >
-                  <span>Browse Properties</span>
+                  <span>Parcourir les Propriétés</span>
                   <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                
-                <Link 
-                  href="/contact" 
+
+                <Link
+                  href="/contact"
                   className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-xl font-semibold hover:bg-white/20 transition-colors"
                 >
                   <FiPhone className="w-5 h-5" />
-                  <span>Contact Us</span>
+                  <span>Contactez-nous</span>
                 </Link>
               </div>
 
@@ -137,7 +137,7 @@ export default function CTASection() {
                       <div className="text-2xl font-heading font-bold text-primary-900">
                         500+
                       </div>
-                      <p className="text-secondary-600 text-sm">Properties Listed</p>
+                      <p className="text-secondary-600 text-sm">Propriétés Listées</p>
                     </div>
                   </div>
                 </div>
@@ -151,7 +151,7 @@ export default function CTASection() {
                       <div className="text-2xl font-heading font-bold text-primary-900">
                         4.9
                       </div>
-                      <p className="text-secondary-600 text-sm">Customer Rating</p>
+                      <p className="text-secondary-600 text-sm">Note Client</p>
                     </div>
                   </div>
                 </div>
