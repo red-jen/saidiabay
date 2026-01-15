@@ -91,7 +91,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section ref={heroRef} className="relative min-h-screen pt-32 lg:pt-40 pb-20 overflow-hidden">
+    <section ref={heroRef} className="relative min-h-screen pt-28 lg:pt-32 pb-20 overflow-hidden">
       {/* Background */}
       <div ref={imageRef} className="absolute inset-0 -z-10">
         <Image

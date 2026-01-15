@@ -90,7 +90,7 @@ const Header = () => {
     >
       {/* Top Bar */}
       <div className="hidden lg:block bg-primary-900 text-white text-xs">
-        <div className="container mx-auto px-6 py-2 flex justify-between items-center">
+        <div className="container mx-auto px-6 py-1.5 flex justify-between items-center">
           <div className="flex items-center gap-6">
             <span>📍 Saidia Bay, Morocco</span>
             <span>📞 +212 XXX XXX XXX</span>
@@ -98,18 +98,18 @@ const Header = () => {
           <div className="flex items-center gap-4">
             <button className="flex items-center gap-1 hover:text-accent-400 transition-colors">
               <FiGlobe className="w-3 h-3" />
-              <span>EN</span>
+              <span>FR</span>
               <FiChevronDown className="w-3 h-3" />
             </button>
             <span className="text-primary-400">|</span>
-            <span>Mon - Sat: 9:00 AM - 7:00 PM</span>
+            <span>Lun - Sam: 9h00 - 19h00</span>
           </div>
         </div>
       </div>
 
       {/* Main Header */}
       <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div ref={logoRef} className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">

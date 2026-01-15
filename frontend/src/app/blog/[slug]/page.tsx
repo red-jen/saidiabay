@@ -119,7 +119,7 @@ export default function BlogPostPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-secondary-50 py-16">
+      <div className="min-h-screen bg-secondary-50 pt-28 lg:pt-32 pb-16">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto">
             <div className="skeleton h-8 w-32 mb-8" />
@@ -139,16 +139,16 @@ export default function BlogPostPage() {
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-secondary-50 py-16">
+      <div className="min-h-screen bg-secondary-50 pt-28 lg:pt-32 pb-16">
         <div className="container mx-auto text-center">
           <h1 className="text-4xl font-heading font-bold text-secondary-900 mb-4">
-            Post Not Found
+            Article non trouvé
           </h1>
           <p className="text-secondary-600 mb-8">
-            The blog post you're looking for doesn't exist or has been removed.
+            L'article de blog que vous recherchez n'existe pas ou a été supprimé.
           </p>
           <a href="/blog" className="btn-primary">
-            Back to Blog
+            Retour au Blog
           </a>
         </div>
       </div>
@@ -156,8 +156,8 @@ export default function BlogPostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-secondary-50">
-      <div className="section py-16">
+    <div className="min-h-screen bg-secondary-50 pt-28 lg:pt-32">
+      <div className="section pb-16">
         <div className="container mx-auto">
           <div className="grid lg:grid-cols-3 gap-12">
             {/* Main Content */}

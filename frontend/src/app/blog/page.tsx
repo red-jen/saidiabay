@@ -108,15 +108,15 @@ export default function BlogPage() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="min-h-screen bg-secondary-50 pt-28 lg:pt-32">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-primary-900 to-primary-700 text-white py-20">
         <div className="container mx-auto text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-6">
-            Real Estate Blog
+            Blog Immobilier
           </h1>
           <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-            Stay updated with the latest news, tips, and insights about real estate in Saidia Bay
+            Restez informé des dernières nouvelles, conseils et tendances de l'immobilier à Saidia Bay
           </p>
         </div>
       </div>
@@ -160,18 +160,17 @@ export default function BlogPage() {
                         disabled={page === 1}
                         className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Previous
+                        Précédent
                       </button>
                       <div className="flex items-center gap-2">
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                           <button
                             key={p}
                             onClick={() => setPage(p)}
-                            className={`w-10 h-10 rounded-lg font-medium transition-all ${
-                              p === page
+                            className={`w-10 h-10 rounded-lg font-medium transition-all ${p === page
                                 ? 'bg-primary-900 text-white'
                                 : 'bg-white text-secondary-700 hover:bg-secondary-50'
-                            }`}
+                              }`}
                           >
                             {p}
                           </button>
@@ -182,7 +181,7 @@ export default function BlogPage() {
                         disabled={page === totalPages}
                         className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Next
+                        Suivant
                       </button>
                     </div>
                   )}
@@ -190,7 +189,7 @@ export default function BlogPage() {
               ) : (
                 <div className="text-center py-12">
                   <p className="text-secondary-600 text-lg">
-                    No blog posts found in this category.
+                    Aucun article trouvé dans cette catégorie.
                   </p>
                 </div>
               )}
