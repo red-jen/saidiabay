@@ -24,32 +24,32 @@ const Header = () => {
 
   useEffect(() => {
     setMounted(true);
-    
+
     // GSAP animation on mount
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-    
+
     tl.fromTo(
       logoRef.current,
       { opacity: 0, x: -30 },
       { opacity: 1, x: 0, duration: 0.6 }
     )
-    .fromTo(
-      navRef.current?.children || [],
-      { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 },
-      '-=0.3'
-    )
-    .fromTo(
-      actionsRef.current,
-      { opacity: 0, x: 30 },
-      { opacity: 1, x: 0, duration: 0.6 },
-      '-=0.4'
-    );
-    
+      .fromTo(
+        navRef.current?.children || [],
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 },
+        '-=0.3'
+      )
+      .fromTo(
+        actionsRef.current,
+        { opacity: 0, x: 30 },
+        { opacity: 1, x: 0, duration: 0.6 },
+        '-=0.4'
+      );
+
     const handleScroll = () => {
       const scrolled = window.scrollY > 20;
       setIsScrolled(scrolled);
-      
+
       if (headerRef.current) {
         gsap.to(headerRef.current, {
           boxShadow: scrolled ? '0 4px 30px rgba(0,0,0,0.1)' : 'none',
@@ -58,7 +58,7 @@ const Header = () => {
         });
       }
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -69,10 +69,11 @@ const Header = () => {
   const currentUser = mounted ? user : null;
 
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/properties', label: 'Properties' },
-    { href: '/properties?listingType=LOCATION', label: 'Rentals' },
-    { href: '/properties?listingType=VENTE', label: 'For Sale' },
+    { href: '/', label: 'Accueil' },
+    { href: '/about', label: 'À propos' },
+    { href: '/properties', label: 'Propriétés' },
+    { href: '/properties?listingType=LOCATION', label: 'Locations' },
+    { href: '/properties?listingType=VENTE', label: 'Ventes' },
     { href: '/blog', label: 'Blog' },
     { href: '/contact', label: 'Contact' },
   ];
@@ -83,7 +84,7 @@ const Header = () => {
   };
 
   return (
-    <header 
+    <header
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-50 bg-white transition-all duration-300"
     >
@@ -142,14 +143,14 @@ const Header = () => {
             {/* Search Button - Desktop */}
             <button className="hidden md:flex items-center gap-2 px-4 py-2 bg-secondary-100 hover:bg-secondary-200 rounded-full transition-colors">
               <FiSearch className="w-4 h-4 text-secondary-600" />
-              <span className="text-sm text-secondary-600">Search...</span>
+              <span className="text-sm text-secondary-600">Rechercher...</span>
             </button>
 
             {/* Favorites */}
             <Link
               href="/favorites"
               className="relative p-2.5 hover:bg-secondary-100 rounded-full transition-colors"
-              title="Favorites"
+              title="Favoris"
             >
               <FiHeart className="w-5 h-5 text-secondary-700" />
               {favCount > 0 && (
@@ -164,7 +165,7 @@ const Header = () => {
               <Link
                 href="/compare"
                 className="relative p-2.5 hover:bg-secondary-100 rounded-full transition-colors"
-                title="Compare"
+                title="Comparer"
               >
                 <FiBarChart2 className="w-5 h-5 text-secondary-700" />
                 <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary-900 text-white text-xs rounded-full flex items-center justify-center font-medium">
@@ -180,7 +181,7 @@ const Header = () => {
                 className="flex items-center gap-2 p-1.5 pl-3 bg-secondary-100 hover:bg-secondary-200 rounded-full transition-all duration-200"
               >
                 <span className="hidden sm:block text-sm font-medium text-secondary-700">
-                  {currentUser ? currentUser.name.split(' ')[0] : 'Account'}
+                  {currentUser ? currentUser.name.split(' ')[0] : 'Compte'}
                 </span>
                 <div className="w-8 h-8 bg-gradient-to-br from-primary-900 to-primary-700 rounded-full flex items-center justify-center">
                   <FiUser size={16} className="text-white" />
@@ -204,7 +205,7 @@ const Header = () => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FiUser className="w-4 h-4 text-secondary-500" />
-                          <span className="text-secondary-700">Dashboard</span>
+                          <span className="text-secondary-700">Tableau de bord</span>
                         </Link>
                         <Link
                           href="/favorites"
@@ -212,7 +213,7 @@ const Header = () => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FiHeart className="w-4 h-4 text-secondary-500" />
-                          <span className="text-secondary-700">Favorites ({favCount})</span>
+                          <span className="text-secondary-700">Favoris ({favCount})</span>
                         </Link>
                         {currentUser.role === 'admin' && (
                           <Link
@@ -221,7 +222,7 @@ const Header = () => {
                             onClick={() => setIsUserMenuOpen(false)}
                           >
                             <FiSettings className="w-4 h-4 text-secondary-500" />
-                            <span className="text-secondary-700">Admin Panel</span>
+                            <span className="text-secondary-700">Panneau Admin</span>
                           </Link>
                         )}
                       </div>
@@ -231,7 +232,7 @@ const Header = () => {
                           className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-danger-50 transition-colors text-left"
                         >
                           <FiLogOut className="w-4 h-4 text-danger-500" />
-                          <span className="text-danger-600">Logout</span>
+                          <span className="text-danger-600">Déconnexion</span>
                         </button>
                       </div>
                     </>
@@ -242,14 +243,14 @@ const Header = () => {
                         className="flex items-center gap-3 px-4 py-2.5 hover:bg-secondary-50 transition-colors"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        <span className="text-secondary-700">Log in</span>
+                        <span className="text-secondary-700">Connexion</span>
                       </Link>
                       <Link
                         href="/register"
                         className="flex items-center gap-3 px-4 py-2.5 hover:bg-secondary-50 transition-colors"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        <span className="text-secondary-700">Sign up</span>
+                        <span className="text-secondary-700">Inscription</span>
                       </Link>
                       <div className="border-t border-secondary-100 mt-2 pt-2">
                         <Link
@@ -258,7 +259,7 @@ const Header = () => {
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FiHeart className="w-4 h-4 text-secondary-500" />
-                          <span className="text-secondary-700">Favorites ({favCount})</span>
+                          <span className="text-secondary-700">Favoris ({favCount})</span>
                         </Link>
                       </div>
                     </div>
@@ -284,9 +285,8 @@ const Header = () => {
 
       {/* Mobile Navigation */}
       <div
-        className={`lg:hidden absolute top-full left-0 right-0 bg-white border-t border-secondary-100 shadow-lg transition-all duration-300 ${
-          isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-        }`}
+        className={`lg:hidden absolute top-full left-0 right-0 bg-white border-t border-secondary-100 shadow-lg transition-all duration-300 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+          }`}
       >
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col gap-1">
@@ -307,7 +307,7 @@ const Header = () => {
               className="block w-full py-3 text-center bg-primary-900 text-white rounded-xl font-medium hover:bg-primary-800 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
-              Browse Properties
+              Parcourir les Propriétés
             </Link>
           </div>
         </div>

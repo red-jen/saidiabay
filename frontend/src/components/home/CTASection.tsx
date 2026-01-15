@@ -12,37 +12,33 @@ gsap.registerPlugin(ScrollTrigger);
 export default function CTASection() {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Parallax effect for background
+      gsap.to('.cta-bg', {
+        yPercent: 20,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+
+      // Content Reveal
       gsap.fromTo(
         contentRef.current,
         { opacity: 0, y: 50 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
+          duration: 1,
+          ease: 'power3.out',
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top 70%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-
-      gsap.fromTo(
-        imageRef.current,
-        { opacity: 0, scale: 0.9 },
-        {
-          opacity: 1,
-          scale: 1,
-          duration: 0.8,
-          delay: 0.2,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 70%',
-            toggleActions: 'play none none reverse',
+            start: 'top 75%',
           },
         }
       );
@@ -52,109 +48,66 @@ export default function CTASection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-20 lg:py-28">
+    <section ref={sectionRef} className="py-20 lg:py-32 overflow-hidden">
       <div className="container mx-auto px-4 lg:px-6">
-        <div className="relative bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 rounded-[2.5rem] overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-              }}
+        <div className="relative rounded-[3rem] overflow-hidden shadow-2xl min-h-[500px] flex items-center justify-center text-center">
+
+          {/* Background Image with Parallax */}
+          <div className="absolute inset-0 -z-10">
+            <Image
+              src="/images/about/hero.jpg"
+              alt="Saidia Bay Luxury View"
+              fill
+              className="cta-bg object-cover scale-110"
             />
+            <div className="absolute inset-0 bg-primary-900/80 mix-blend-multiply" />
+            <div className="absolute inset-0 bg-black/30" />
           </div>
 
-          <div className="relative grid lg:grid-cols-2 gap-12 p-10 lg:p-16 items-center">
-            {/* Content */}
-            <div ref={contentRef}>
-              <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-6">
-                🏠 Commencez Votre Voyage Aujourd'hui
-              </span>
+          <div ref={contentRef} className="relative z-10 px-6 max-w-4xl mx-auto py-20">
+            <span className="inline-block px-6 py-2 bg-white/10 backdrop-blur-md rounded-full text-white/90 text-xs font-bold tracking-[0.2em] uppercase mb-8 border border-white/20">
+              Commencez Votre Voyage
+            </span>
 
-              <h2 className="text-4xl lg:text-5xl font-heading font-bold text-white leading-tight mb-6">
-                Prêt à Trouver Votre
-                <br />
-                <span className="text-accent-400">Propriété de Rêve ?</span>
-              </h2>
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-heading font-light text-white mb-8 leading-tight">
+              Prêt à Vivre le <br />
+              <span className="font-serif italic text-accent-300">Rêve Méditerranéen ?</span>
+            </h2>
 
-              <p className="text-lg text-white/80 mb-10 max-w-lg">
-                Que vous achetiez, vendiez ou louiez, notre équipe d'experts est là pour vous guider à chaque étape.
-              </p>
+            <p className="text-lg md:text-xl text-white/80 mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+              Que vous cherchiez une résidence secondaire ou un investissement stratégique,
+              Saidia Bay vous ouvre ses portes. Laissez-nous vous guider.
+            </p>
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-10">
-                <Link
-                  href="/properties"
-                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-primary-900 rounded-xl font-semibold hover:bg-accent-50 transition-colors group"
-                >
-                  <span>Parcourir les Propriétés</span>
-                  <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+              <Link
+                href="/properties"
+                className="group px-10 py-5 bg-white text-primary-900 rounded-full font-medium tracking-wide hover:bg-accent-50 transition-all duration-300 shadow-xl hover:shadow-white/20 flex items-center gap-3"
+              >
+                <span>Explorer les Propriétés</span>
+                <FiArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
 
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/30 rounded-xl font-semibold hover:bg-white/20 transition-colors"
-                >
-                  <FiPhone className="w-5 h-5" />
-                  <span>Contactez-nous</span>
-                </Link>
-              </div>
-
-              {/* Contact Info */}
-              <div className="flex flex-wrap gap-6">
-                <a href="tel:+212XXXXXXXX" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors">
-                  <FiPhone className="w-4 h-4" />
-                  <span>+212 XXX XXX XXX</span>
-                </a>
-                <a href="mailto:info@saidiabay.com" className="flex items-center gap-2 text-white/70 hover:text-white transition-colors">
-                  <FiMail className="w-4 h-4" />
-                  <span>info@saidiabay.com</span>
-                </a>
-              </div>
+              <Link
+                href="/contact"
+                className="px-10 py-5 bg-transparent border border-white/30 text-white rounded-full font-medium tracking-wide hover:bg-white/10 transition-colors backdrop-blur-sm"
+              >
+                Nous Contacter
+              </Link>
             </div>
 
-            {/* Image */}
-            <div ref={imageRef} className="hidden lg:block relative">
-              <div className="relative w-full aspect-square max-w-md mx-auto">
-                {/* Main Image */}
-                <div className="absolute inset-0 rounded-3xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
-                  <Image
-                    src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600"
-                    alt="Luxury Home"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-
-                {/* Floating Stats */}
-                <div className="absolute -left-8 bottom-12 bg-white rounded-2xl shadow-luxury p-5 animate-float">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-success-100 rounded-xl flex items-center justify-center">
-                      <span className="text-2xl">🏠</span>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-heading font-bold text-primary-900">
-                        500+
-                      </div>
-                      <p className="text-secondary-600 text-sm">Propriétés Listées</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="absolute -right-4 top-12 bg-white rounded-2xl shadow-luxury p-5 animate-float" style={{ animationDelay: '1s' }}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center">
-                      <span className="text-2xl">⭐</span>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-heading font-bold text-primary-900">
-                        4.9
-                      </div>
-                      <p className="text-secondary-600 text-sm">Note Client</p>
-                    </div>
-                  </div>
-                </div>
+            <div className="mt-16 flex justify-center gap-8 text-white/60 text-sm tracking-wider uppercase">
+              <div className="flex items-center gap-2">
+                <FiPhone className="w-4 h-4" />
+                <span>Casablanca</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-1 bg-white/60 rounded-full" />
+                <span>Oujda</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-1 bg-white/60 rounded-full" />
+                <span>Saidia</span>
               </div>
             </div>
           </div>
