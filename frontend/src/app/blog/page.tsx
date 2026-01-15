@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Metadata } from 'next';
 import BlogCard from '@/components/blog/BlogCard';
+import BlogHero from '@/components/blog/BlogHero';
+
 import BlogCategories from '@/components/blog/BlogCategories';
 import RecentPosts from '@/components/blog/RecentPosts';
 import NewsletterBox from '@/components/blog/NewsletterBox';
@@ -38,10 +40,10 @@ export default function BlogPage() {
       const mockPosts: BlogPost[] = [
         {
           _id: '1',
-          title: '10 Tips for First-Time Home Buyers in Saidia Bay',
+          title: '10 Conseils pour les Primo-Accédants à Saidia Bay',
           slug: '10-tips-first-time-home-buyers',
-          excerpt: 'Buying your first home can be overwhelming. Here are essential tips to make the process smoother and ensure you make the right decision.',
-          content: '<p>Full content here...</p>',
+          excerpt: 'Acheter votre première maison peut être intimidant. Voici des conseils essentiels pour faciliter le processus.',
+          content: '<p>Contenu complet ici...</p>',
           featuredImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800',
           category: 'buying-guide',
           tags: ['buying', 'tips', 'first-time'],
@@ -57,10 +59,10 @@ export default function BlogPage() {
         },
         {
           _id: '2',
-          title: 'Saidia Bay Real Estate Market Trends 2024',
+          title: 'Tendances du Marché Immobilier 2024',
           slug: 'saidia-bay-market-trends-2024',
-          excerpt: 'An in-depth analysis of the current real estate market in Saidia Bay, including price trends, demand patterns, and future predictions.',
-          content: '<p>Full content here...</p>',
+          excerpt: 'Une analyse approfondie du marché immobilier actuel à Saidia Bay, incluant les tendances de prix et les prévisions.',
+          content: '<p>Contenu complet ici...</p>',
           featuredImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800',
           category: 'market-insights',
           tags: ['market', 'trends', '2024'],
@@ -76,10 +78,10 @@ export default function BlogPage() {
         },
         {
           _id: '3',
-          title: 'Why Invest in Saidia Bay Real Estate?',
+          title: 'Pourquoi Investir à Saidia Bay ?',
           slug: 'why-invest-saidia-bay',
-          excerpt: 'Discover the top reasons why Saidia Bay is becoming one of the most attractive investment destinations for real estate.',
-          content: '<p>Full content here...</p>',
+          excerpt: 'Découvrez les principales raisons pour lesquelles Saidia Bay devient l\'une des destinations d\'investissement les plus attractives.',
+          content: '<p>Contenu complet ici...</p>',
           featuredImage: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
           category: 'investment',
           tags: ['investment', 'saidia', 'property'],
@@ -109,17 +111,8 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-secondary-50 pt-28 lg:pt-32">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-primary-900 to-primary-700 text-white py-20">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-6">
-            Blog Immobilier
-          </h1>
-          <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-            Restez informé des dernières nouvelles, conseils et tendances de l'immobilier à Saidia Bay
-          </p>
-        </div>
-      </div>
+      {/* Animated Hero Section */}
+      <BlogHero />
 
       {/* Main Content */}
       <div className="section">
@@ -168,8 +161,8 @@ export default function BlogPage() {
                             key={p}
                             onClick={() => setPage(p)}
                             className={`w-10 h-10 rounded-lg font-medium transition-all ${p === page
-                                ? 'bg-primary-900 text-white'
-                                : 'bg-white text-secondary-700 hover:bg-secondary-50'
+                              ? 'bg-primary-900 text-white'
+                              : 'bg-white text-secondary-700 hover:bg-secondary-50'
                               }`}
                           >
                             {p}
