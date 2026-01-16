@@ -15,18 +15,30 @@ export default function CTASection() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Parallax effect for background
+      gsap.to('.cta-bg', {
+        yPercent: 20,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+
+      // Content Reveal
       gsap.fromTo(
         contentRef.current,
         { opacity: 0, y: 20 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.6,
-          ease: 'power2.out',
+          duration: 1,
+          ease: 'power3.out',
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top 75%',
-            toggleActions: 'play none none reverse',
           },
         }
       );
@@ -36,57 +48,67 @@ export default function CTASection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-16 lg:py-20 bg-white">
-      <div className="container mx-auto px-4 lg:px-8">
-        <div className="relative bg-secondary-900 rounded-2xl overflow-hidden">
-          <div className="grid lg:grid-cols-2 items-center">
-            {/* Content */}
-            <div ref={contentRef} className="p-8 lg:p-12">
-              <h2 className="text-2xl lg:text-3xl font-semibold text-white mb-4">
-                Ready to find your dream property?
-              </h2>
-              <p className="text-secondary-300 mb-8 max-w-md">
-                Whether you're buying, selling, or renting, our expert team is here to guide you every step of the way.
-              </p>
+    <section ref={sectionRef} className="py-20 lg:py-32 overflow-hidden">
+      <div className="container mx-auto px-4 lg:px-6">
+        <div className="relative rounded-[3rem] overflow-hidden shadow-2xl min-h-[500px] flex items-center justify-center text-center">
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Link
-                  href="/properties"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-secondary-900 rounded-lg font-medium hover:bg-secondary-100 transition-colors"
-                >
-                  Browse Properties
-                  <FiArrowRight className="w-4 h-4" />
-                </Link>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-white/30 text-white rounded-lg font-medium hover:bg-white/10 transition-colors"
-                >
-                  Contact Us
-                </Link>
-              </div>
+          {/* Background Image with Parallax */}
+          <div className="absolute inset-0 -z-10">
+            <Image
+              src="/images/about/hero.jpg"
+              alt="Saidia Bay Luxury View"
+              fill
+              className="cta-bg object-cover scale-110"
+            />
+            <div className="absolute inset-0 bg-primary-900/80 mix-blend-multiply" />
+            <div className="absolute inset-0 bg-black/30" />
+          </div>
 
-              {/* Contact Info */}
-              <div className="flex flex-wrap gap-6 text-sm">
-                <a href="tel:+212661234567" className="flex items-center gap-2 text-secondary-400 hover:text-white transition-colors">
-                  <FiPhone className="w-4 h-4" />
-                  <span>+212 661 234 567</span>
-                </a>
-                <a href="mailto:contact@saidiabay.com" className="flex items-center gap-2 text-secondary-400 hover:text-white transition-colors">
-                  <FiMail className="w-4 h-4" />
-                  <span>contact@saidiabay.com</span>
-                </a>
-              </div>
+          <div ref={contentRef} className="relative z-10 px-6 max-w-4xl mx-auto py-20">
+            <span className="inline-block px-6 py-2 bg-white/10 backdrop-blur-md rounded-full text-white/90 text-xs font-bold tracking-[0.2em] uppercase mb-8 border border-white/20">
+              Commencez Votre Voyage
+            </span>
+
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-heading font-light text-white mb-8 leading-tight">
+              Prêt à Vivre le <br />
+              <span className="font-serif italic text-accent-300">Rêve Méditerranéen ?</span>
+            </h2>
+
+            <p className="text-lg md:text-xl text-white/80 mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+              Que vous cherchiez une résidence secondaire ou un investissement stratégique,
+              Saidia Bay vous ouvre ses portes. Laissez-nous vous guider.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+              <Link
+                href="/properties"
+                className="group px-10 py-5 bg-white text-primary-900 rounded-full font-medium tracking-wide hover:bg-accent-50 transition-all duration-300 shadow-xl hover:shadow-white/20 flex items-center gap-3"
+              >
+                <span>Explorer les Propriétés</span>
+                <FiArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              <Link
+                href="/contact"
+                className="px-10 py-5 bg-transparent border border-white/30 text-white rounded-full font-medium tracking-wide hover:bg-white/10 transition-colors backdrop-blur-sm"
+              >
+                Nous Contacter
+              </Link>
             </div>
 
-            {/* Image */}
-            <div className="relative h-64 lg:h-full lg:min-h-[400px]">
-              <Image
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=85"
-                alt="Luxury Property"
-                fill
-                className="object-cover"
-              />
+            <div className="mt-16 flex justify-center gap-8 text-white/60 text-sm tracking-wider uppercase">
+              <div className="flex items-center gap-2">
+                <FiPhone className="w-4 h-4" />
+                <span>Casablanca</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-1 bg-white/60 rounded-full" />
+                <span>Oujda</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-1 bg-white/60 rounded-full" />
+                <span>Saidia</span>
+              </div>
             </div>
           </div>
         </div>

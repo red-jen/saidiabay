@@ -14,7 +14,12 @@ import { useFavoritesStore } from '@/store/favoritesStore';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const tabs = ['France', 'Japan', 'Italy', 'Australia'];
+const tabs = [
+  { id: 'all', label: 'Toutes les propriétés' },
+  { id: 'featured', label: 'En Vedette' },
+  { id: 'LOCATION', label: 'À Louer' },
+  { id: 'VENTE', label: 'À Vendre' },
+];
 
 export default function FeaturedProperties() {
   const [activeTab, setActiveTab] = useState('France');
@@ -45,7 +50,14 @@ export default function FeaturedProperties() {
   const fetchProperties = async () => {
     try {
       setLoading(true);
-      const params: Record<string, any> = { limit: 4, featured: true };
+      const params: Record<string, any> = { limit: 8 };
+
+      if (activeTab === 'featured') {
+        params.featured = true;
+      } else if (activeTab === 'LOCATION' || activeTab === 'VENTE') {
+        params.listingType = activeTab;
+      }
+
       const data = await propertiesApi.getAll(params);
       setProperties(data.properties || []);
     } catch (error) {
@@ -72,19 +84,22 @@ export default function FeaturedProperties() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-2xl lg:text-3xl font-semibold text-secondary-900 mb-2">
-              Top trending hotel in worldwide
+            <p className="text-accent-600 font-semibold text-sm uppercase tracking-wider mb-2">
+              Propriétés
+            </p>
+            <h2 className="text-4xl lg:text-5xl font-heading font-bold text-secondary-900">
+              Propriétés en Vedette
             </h2>
-            <p className="text-secondary-500">
-              Discover the most trending hotels worldwide for an unforgettable experience.
+            <p className="text-secondary-600 mt-3 max-w-lg">
+              Explorez notre sélection triée sur le volet de propriétés haut de gamme dans les meilleurs emplacements
             </p>
           </div>
           <Link
             href="/properties"
             className="inline-flex items-center gap-2 text-secondary-700 font-medium hover:text-secondary-900 transition-colors"
           >
-            See All
-            <FiArrowRight className="w-4 h-4" />
+            Voir Tout
+            <FiArrowRight className="w-5 h-5" />
           </Link>
         </div>
 
@@ -135,12 +150,28 @@ export default function FeaturedProperties() {
                     className="object-cover"
                   />
 
+                  {/* Overlays */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                  {/* Badges */}
+                  <div className="absolute top-4 left-4 flex gap-2">
+                    {property.isFeatured && (
+                      <span className="px-3 py-1 bg-accent-500 text-white text-xs font-semibold rounded-full">
+                        En Vedette
+                      </span>
+                    )}
+                    <span className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${property.listingType === 'VENTE' ? 'bg-primary-900' : 'bg-success-500'
+                      }`}>
+                      {property.listingType === 'VENTE' ? 'À Vendre' : 'À Louer'}
+                    </span>
+                  </div>
+
                   {/* Favorite */}
                   <button
-                    onClick={(e) => handleFavorite(e, property.id)}
-                    className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all ${mounted && isFavorite(property.id)
-                        ? 'bg-rose-500 text-white'
-                        : 'bg-white/80 text-secondary-600 hover:bg-white'
+                    onClick={(e) => handleFavorite(e, property._id)}
+                    className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all ${mounted && isFavorite(property._id)
+                        ? 'bg-danger-500 text-white'
+                        : 'bg-white/90 text-secondary-600 hover:bg-white hover:text-danger-500'
                       }`}
                   >
                     <FiHeart className={`w-4 h-4 ${mounted && isFavorite(property.id) ? 'fill-current' : ''}`} />
@@ -160,20 +191,40 @@ export default function FeaturedProperties() {
                     {property.title}
                   </h3>
 
-                  {/* Rating */}
-                  <div className="flex items-center gap-1 mb-3">
-                    <FiStar className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                    <span className="text-xs font-medium text-secondary-700">4.9</span>
-                    <span className="text-xs text-secondary-400">(1,270 Reviews)</span>
+                  {/* Features */}
+                  <div className="flex items-center gap-4 text-secondary-600 text-sm mb-4">
+                    {property.bedrooms && (
+                      <div className="flex items-center gap-1">
+                        <IoBedOutline className="w-4 h-4" />
+                        <span>{property.bedrooms} Lits</span>
+                      </div>
+                    )}
+                    {property.bathrooms && (
+                      <div className="flex items-center gap-1">
+                        <LuBath className="w-4 h-4" />
+                        <span>{property.bathrooms} SDB</span>
+                      </div>
+                    )}
+                    {property.area && (
+                      <div className="flex items-center gap-1">
+                        <FiMaximize2 className="w-4 h-4" />
+                        <span>{property.area} m²</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Price */}
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-lg font-bold text-secondary-900">
-                      ${Math.floor(property.price / 10)}
-                    </span>
-                    <span className="text-xs text-secondary-400 line-through">
-                      ${Math.floor(property.price / 8)}
+                  <div className="flex items-center justify-between pt-4 border-t border-secondary-100">
+                    <div>
+                      <span className="text-xl font-bold text-primary-900">
+                        {property.price?.toLocaleString()} DH
+                      </span>
+                      {property.listingType === 'LOCATION' && (
+                        <span className="text-secondary-500 text-sm"> /mois</span>
+                      )}
+                    </div>
+                    <span className="text-primary-700 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                      Voir Détails →
                     </span>
                   </div>
                   <p className="text-xs text-secondary-500">includes taxes & fees</p>
@@ -182,8 +233,8 @@ export default function FeaturedProperties() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-white rounded-xl">
-            <p className="text-secondary-500">No properties found</p>
+          <div className="text-center py-16">
+            <p className="text-secondary-600 text-lg">Aucune propriété trouvée</p>
           </div>
         )}
       </div>

@@ -10,10 +10,18 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const features = [
-  'Verified luxury properties',
-  'Expert market knowledge',
-  'Personalized service',
-  'Legal & financial support',
+  'Propriétés de luxe vérifiées',
+  'Expertise du marché',
+  'Service personnalisé',
+  'Support juridique & financier',
+  'Gestion immobilière',
+  'Conseil en investissement',
+];
+
+const stats = [
+  { icon: FiTrendingUp, value: '500+', label: 'Propriétés', color: 'bg-primary-100 text-primary-700' },
+  { icon: FiUsers, value: '1.2K+', label: 'Clients', color: 'bg-accent-100 text-accent-700' },
+  { icon: FiAward, value: '10+', label: 'Années', color: 'bg-success-100 text-success-700' },
 ];
 
 export default function AboutSection() {
@@ -57,25 +65,39 @@ export default function AboutSection() {
                 fill
                 className="object-cover"
               />
+
+              {/* Play Button */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <button className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-luxury hover:scale-110 transition-transform group">
+                  <FiPlay className="w-8 h-8 text-primary-900 ml-1" />
+                </button>
+              </div>
             </div>
 
-            {/* Floating Badge */}
-            <div className="absolute bottom-4 right-4 bg-white rounded-xl shadow-lg px-4 py-3">
-              <p className="text-2xl font-bold text-secondary-900">98%</p>
-              <p className="text-xs text-secondary-500">Client Satisfaction</p>
+            {/* Floating Card */}
+            <div className="absolute -bottom-8 -right-8 bg-white rounded-2xl shadow-luxury-xl p-6 max-w-[200px] hidden lg:block">
+              <div className="text-4xl font-heading font-bold text-primary-900 mb-1">
+                98%
+              </div>
+              <p className="text-secondary-600 text-sm">
+                Taux de Satisfaction Client
+              </p>
             </div>
           </div>
 
           {/* Content */}
           <div ref={contentRef}>
-            <p className="text-sm font-medium text-primary-600 mb-2">ABOUT US</p>
-            <h2 className="text-2xl lg:text-3xl font-semibold text-secondary-900 mb-4">
-              Beyond accommodation, creating memories of a lifetime
+            <p className="text-accent-600 font-semibold text-sm uppercase tracking-wider mb-3">
+              À Propos de Nous
+            </p>
+            <h2 className="text-4xl lg:text-5xl font-heading font-bold text-secondary-900 leading-tight mb-6">
+              Votre Partenaire de Confiance en
+              <span className="text-primary-700"> Immobilier de Luxe</span>
             </h2>
 
-            <p className="text-secondary-600 mb-6 leading-relaxed">
-              With over a decade of expertise in Saidia Bay's premium property market, we've helped
-              thousands of clients discover their dream homes and make sound investment decisions.
+            <p className="text-lg text-secondary-600 mb-8 leading-relaxed">
+              Avec plus d'une décennie d'expertise sur le marché immobilier de Saidia Bay, nous avons aidé
+              des milliers de clients à trouver la maison de leurs rêves et à prendre des décisions d'investissement judicieuses.
             </p>
 
             {/* Features */}
@@ -91,13 +113,15 @@ export default function AboutSection() {
             </div>
 
             {/* CTA */}
-            <Link
-              href="/about"
-              className="inline-flex items-center gap-2 text-secondary-900 font-medium hover:text-primary-700 transition-colors"
-            >
-              Learn More
-              <FiArrowRight className="w-4 h-4" />
-            </Link>
+            <div className="mt-10">
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-2 text-primary-900 font-semibold hover:gap-4 transition-all"
+              >
+                En Savoir Plus Sur Nous
+                <span className="text-xl">→</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

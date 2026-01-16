@@ -37,9 +37,15 @@ export default function TrustedSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-8 border-y border-secondary-100 bg-white">
-      <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-center gap-8 lg:gap-16 flex-wrap">
+    <section ref={sectionRef} className="py-16 border-y border-secondary-100">
+      <div className="container mx-auto px-4 lg:px-6">
+        <p className="text-center text-secondary-500 text-sm uppercase tracking-wider mb-8">
+          Reconnu par les Leaders de l'Industrie
+        </p>
+        <div
+          ref={logosRef}
+          className="flex flex-wrap items-center justify-center gap-8 md:gap-16"
+        >
           {partners.map((partner) => (
             <div
               key={partner.name}

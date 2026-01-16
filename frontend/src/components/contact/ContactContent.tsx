@@ -1,213 +1,243 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { LuMapPin, LuPhone, LuMail, LuClock, LuArrowRight, LuMessageSquare } from 'react-icons/lu';
-import ContactForm from '@/components/contact/ContactForm';
+import Link from 'next/link';
+import { FiMapPin, FiPhone, FiMail, FiSend, FiInstagram, FiLinkedin, FiFacebook, FiArrowUpRight } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function ContactContent() {
-    const heroRef = useRef<HTMLDivElement>(null);
-    const formRef = useRef<HTMLDivElement>(null);
-    const infoRef = useRef<HTMLDivElement>(null);
-    const ctaRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        toast.success('Message envoyé avec succès !');
+        setFormData({ name: '', email: '', phone: '', message: '' });
+        setLoading(false);
+    };
 
     useEffect(() => {
         const ctx = gsap.context(() => {
-            // Hero Animation
-            gsap.fromTo(
-                '.hero-content > *',
-                { y: 50, opacity: 0 },
-                { y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: 'power3.out' }
-            );
-
-            gsap.fromTo(
-                '.hero-card',
-                { x: 50, opacity: 0 },
-                { x: 0, opacity: 1, duration: 1, delay: 0.5, ease: 'power3.out' }
-            );
+            // Header Animation
+            const tl = gsap.timeline();
+            tl.fromTo('.contact-title',
+                { y: 100, opacity: 0 },
+                { y: 0, opacity: 1, duration: 1, ease: 'power4.out', stagger: 0.1 }
+            )
+                .fromTo('.contact-card',
+                    { y: 50, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power2.out' },
+                    '-=0.5'
+                );
 
             // Form Animation
-            gsap.fromTo(
-                formRef.current,
-                { y: 50, opacity: 0 },
-                {
-                    y: 0,
-                    opacity: 1,
-                    duration: 0.8,
-                    scrollTrigger: {
-                        trigger: formRef.current,
-                        start: 'top 80%',
-                    },
-                }
-            );
-
-            // Info Animation - Glass Cards
-            gsap.fromTo(
-                '.glass-card',
+            gsap.fromTo('.form-element',
                 { x: 50, opacity: 0 },
                 {
                     x: 0,
                     opacity: 1,
                     duration: 0.8,
-                    stagger: 0.15,
+                    stagger: 0.1,
                     scrollTrigger: {
-                        trigger: infoRef.current,
-                        start: 'top 80%',
-                    },
+                        trigger: '.contact-form-section',
+                        start: 'top 70%'
+                    }
                 }
             );
 
-            // CTA Animation
-            gsap.fromTo(
-                ctaRef.current,
-                { y: 50, opacity: 0 },
-                {
-                    y: 0,
-                    opacity: 1,
-                    duration: 0.8,
-                    scrollTrigger: {
-                        trigger: ctaRef.current,
-                        start: 'top 85%',
-                    },
-                }
-            );
-        });
-
+        }, containerRef);
         return () => ctx.revert();
     }, []);
 
-    const contactInfo = [
-        {
-            icon: LuMapPin,
-            title: 'Visit Us',
-            details: ['Saidia Bay Marina', 'Saidia, Morocco'],
-        },
-        {
-            icon: LuPhone,
-            title: 'Call Us',
-            details: ['+212 6 00 00 00 00', '+212 5 00 00 00 00'],
-        },
-        {
-            icon: LuMail,
-            title: 'Email Us',
-            details: ['contact@saidiabay.com', 'info@saidiabay.com'],
-        },
-        {
-            icon: LuClock,
-            title: 'Working Hours',
-            details: ['Monday - Friday: 9:00 AM - 6:00 PM', 'Saturday: 10:00 AM - 4:00 PM'],
-        },
-    ];
-
     return (
-        <div className="min-h-screen bg-secondary-50 overflow-hidden">
-            {/* Hero Section - Floating Style */}
-            <section ref={heroRef} className="relative pt-4 px-4 pb-20 lg:pb-32">
-                <div className="relative h-[60vh] min-h-[500px] rounded-[2.5rem] overflow-hidden">
-                    <Image
-                        src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=1920"
-                        alt="Contact Saidia Bay"
-                        fill
-                        className="object-cover"
-                        priority
-                    />
-                    <div className="absolute inset-0 bg-black/30" />
+        <div ref={containerRef} className="bg-neutral-50 min-h-screen relative overflow-hidden text-secondary-900">
 
-                    <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-6">
-                        <span className="inline-block px-4 py-1.5 mb-6 rounded-full bg-white/20 border border-white/30 text-white text-sm font-medium tracking-wide uppercase backdrop-blur-md">
-                            24/7 Support
-                        </span>
-                        <h1 className="text-5xl md:text-7xl font-heading font-bold mb-6">
-                            Get in Touch
-                        </h1>
-                        <p className="text-xl text-white/90 max-w-2xl font-light">
-                            We're here to help you find your perfect piece of paradise.
-                        </p>
-                    </div>
-                </div>
+            {/* Background Decorative */}
+            <div className="absolute top-0 right-0 w-[50vw] h-[50vh] bg-accent-100/30 blur-[120px] rounded-full pointer-events-none -z-10" />
+            <div className="absolute bottom-0 left-0 w-[40vw] h-[40vh] bg-primary-100/30 blur-[100px] rounded-full pointer-events-none -z-10" />
 
-                {/* Floating Info Card */}
-                <div className="container mx-auto px-4 relative z-20 -mt-20">
-                    <div className="bg-white rounded-[2rem] shadow-2xl p-8 md:p-12 border border-secondary-100 max-w-5xl mx-auto">
-                        <div className="grid md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-secondary-100">
-                            {contactInfo.slice(0, 3).map((info, index) => (
-                                <div key={index} className="flex flex-col items-center text-center p-4">
-                                    <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6 text-primary-900">
-                                        <info.icon size={32} />
-                                    </div>
-                                    <h3 className="text-xl font-bold text-secondary-900 mb-2">{info.title}</h3>
-                                    {info.details.map((detail, idx) => (
-                                        <p key={idx} className="text-secondary-600">{detail}</p>
-                                    ))}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+            {/* --- HERO / INTRO --- */}
+            <section className="pt-32 pb-20 px-6 lg:px-12 container mx-auto">
+                <div className="max-w-4xl">
+                    <span className="contact-title block text-accent-600 font-bold uppercase tracking-widest text-xs mb-4">
+                        Contactez-nous
+                    </span>
+                    <h1 className="contact-title text-5xl md:text-7xl lg:text-8xl font-heading font-light leading-tight mb-8">
+                        Parlons de votre <br />
+                        <span className="font-serif italic text-primary-900">Prochain Chapitre</span>
+                    </h1>
+                    <p className="contact-title text-xl text-secondary-500 font-light max-w-2xl leading-relaxed">
+                        Une question ? Un projet immobilier ? Notre équipe d'experts à Saidia Bay est à votre écoute pour concrétiser vos ambitions.
+                    </p>
                 </div>
             </section>
 
-            {/* Contact Form Section */}
-            <section className="pb-20 lg:pb-32">
-                <div className="container mx-auto px-4">
-                    <div className="max-w-4xl mx-auto" id="contact-form" ref={formRef}>
-                        <div className="bg-white rounded-[2.5rem] shadow-xl border border-secondary-100 p-8 md:p-12 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-primary-50 rounded-full blur-3xl -mr-20 -mt-20 opacity-50" />
+            {/* --- MAIN CONTENT GRID --- */}
+            <div className="contact-form-section container mx-auto px-6 lg:px-12 pb-32">
+                <div className="grid lg:grid-cols-12 gap-12 lg:gap-24">
 
-                            <div className="text-center mb-10 relative z-10">
-                                <span className="inline-flex items-center gap-2 rounded-full bg-accent-50 px-4 py-1.5 text-xs font-bold text-accent-700 uppercase tracking-wide border border-accent-100 mb-4">
-                                    <LuClock className="w-3 h-3" />
-                                    Response in &lt; 24h
-                                </span>
-                                <h2 className="text-3xl md:text-4xl font-heading font-bold text-secondary-900 mb-4">
-                                    Tell us about your project
-                                </h2>
-                                <p className="text-secondary-600 max-w-lg mx-auto">
-                                    Share a few details and one of our senior agents will follow up with a tailored selection of properties.
+                    {/* LEFT: INFO INFO */}
+                    <div className="lg:col-span-5 space-y-12">
+
+                        {/* Image Card showing office or vibe */}
+                        <div className="contact-card relative h-64 w-full rounded-3xl overflow-hidden shadow-2xl mb-12 group">
+                            <Image
+                                src="/images/about/hero.jpg"
+                                alt="Saidia Office View"
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            />
+                            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                            <div className="absolute bottom-6 left-6 text-white">
+                                <p className="font-heading text-xl">Notre Bureau Principal</p>
+                                <p className="text-sm opacity-80">Marina de Saidia</p>
+                            </div>
+                        </div>
+
+                        {/* Info Details */}
+                        <div className="space-y-8">
+                            <div className="contact-card group">
+                                <div className="flex items-center gap-4 mb-2 text-primary-900">
+                                    <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center group-hover:bg-primary-900 group-hover:text-white transition-colors duration-300">
+                                        <FiMapPin className="w-5 h-5" />
+                                    </div>
+                                    <h3 className="text-sm font-bold uppercase tracking-wider">Adresse</h3>
+                                </div>
+                                <p className="pl-14 text-lg text-secondary-600 font-light">
+                                    Marina Saidia Bay, <br />
+                                    Saidia, 60600, Maroc
                                 </p>
                             </div>
 
-                            <ContactForm />
-                        </div>
-                    </div>
-                </div>
-            </section>
+                            <div className="contact-card group">
+                                <div className="flex items-center gap-4 mb-2 text-primary-900">
+                                    <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center group-hover:bg-primary-900 group-hover:text-white transition-colors duration-300">
+                                        <FiPhone className="w-5 h-5" />
+                                    </div>
+                                    <h3 className="text-sm font-bold uppercase tracking-wider">Téléphone</h3>
+                                </div>
+                                <p className="pl-14 text-lg text-secondary-600 font-light cursor-pointer hover:text-accent-500 transition-colors">
+                                    +212 6 00 00 00 00
+                                </p>
+                                <p className="pl-14 text-sm text-secondary-400 mt-1">Lun-Sam, 9h-19h</p>
+                            </div>
 
-            {/* CTA Section */}
-            <section ref={ctaRef} className="bg-primary-900 text-white py-20 md:py-24 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10 pattern-grid-lg" />
-                <div className="container mx-auto px-4 relative z-10">
-                    <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-                        <div className="max-w-xl text-center lg:text-left">
-                            <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">
-                                Ready to secure your <br />
-                                <span className="text-accent-400">Saidia Bay property?</span>
-                            </h2>
-                            <p className="text-lg text-primary-100 leading-relaxed">
-                                Browse our curated selection of properties or speak directly with an expert who knows every building on the marina.
-                            </p>
+                            <div className="contact-card group">
+                                <div className="flex items-center gap-4 mb-2 text-primary-900">
+                                    <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center group-hover:bg-primary-900 group-hover:text-white transition-colors duration-300">
+                                        <FiMail className="w-5 h-5" />
+                                    </div>
+                                    <h3 className="text-sm font-bold uppercase tracking-wider">Email</h3>
+                                </div>
+                                <p className="pl-14 text-lg text-secondary-600 font-light cursor-pointer hover:text-accent-500 transition-colors">
+                                    contact@saidiabay.com
+                                </p>
+                            </div>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-5 w-full sm:w-auto justify-center">
-                            <a
-                                href="/properties"
-                                className="px-8 py-4 bg-white text-primary-900 rounded-full font-bold hover:bg-primary-50 transition-all hover:scale-105 shadow-xl"
-                            >
-                                Browse properties
-                            </a>
-                            <a
-                                href="tel:+212600000000"
-                                className="px-8 py-4 bg-transparent border-2 border-white/30 text-white rounded-full font-bold hover:bg-white/10 transition-all hover:scale-105 backdrop-blur-sm flex items-center justify-center gap-2"
-                            >
-                                <LuPhone />
-                                Talk to an advisor
-                            </a>
+
+                        {/* Socials */}
+                        <div className="contact-card pt-8 border-t border-gray-200">
+                            <h3 className="text-sm font-bold uppercase tracking-wider mb-6 text-primary-900">Suivez-nous</h3>
+                            <div className="flex gap-4">
+                                {[FiInstagram, FiLinkedin, FiFacebook].map((Icon, i) => (
+                                    <a key={i} href="#" className="w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center hover:bg-primary-900 hover:text-white hover:border-primary-900 transition-all duration-300">
+                                        <Icon className="w-5 h-5" />
+                                    </a>
+                                ))}
+                            </div>
                         </div>
                     </div>
+
+                    {/* RIGHT: FORM */}
+                    <div className="lg:col-span-7 bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-gray-100">
+                        <h2 className="form-element text-3xl font-heading mb-8">Envoyez-nous un Message</h2>
+
+                        <form onSubmit={handleSubmit} className="space-y-8">
+                            <div className="grid md:grid-cols-2 gap-8">
+                                <div className="form-element group">
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-secondary-400 mb-2 group-focus-within:text-primary-900 transition-colors">Nom Complet</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        className="w-full bg-transparent border-b border-gray-200 py-3 text-lg focus:outline-none focus:border-primary-900 transition-colors placeholder:text-gray-300"
+                                        placeholder="ex. Jean Dupont"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-element group">
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-secondary-400 mb-2 group-focus-within:text-primary-900 transition-colors">Email</label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        className="w-full bg-transparent border-b border-gray-200 py-3 text-lg focus:outline-none focus:border-primary-900 transition-colors placeholder:text-gray-300"
+                                        placeholder="ex. jean@exemple.com"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-element group">
+                                <label className="block text-xs font-bold uppercase tracking-widest text-secondary-400 mb-2 group-focus-within:text-primary-900 transition-colors">Téléphone (Optionnel)</label>
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className="w-full bg-transparent border-b border-gray-200 py-3 text-lg focus:outline-none focus:border-primary-900 transition-colors placeholder:text-gray-300"
+                                    placeholder="ex. +212 6..."
+                                />
+                            </div>
+
+                            <div className="form-element group">
+                                <label className="block text-xs font-bold uppercase tracking-widest text-secondary-400 mb-2 group-focus-within:text-primary-900 transition-colors">Votre Message</label>
+                                <textarea
+                                    name="message"
+                                    value={formData.message}
+                                    onChange={handleChange}
+                                    rows={4}
+                                    className="w-full bg-transparent border-b border-gray-200 py-3 text-lg focus:outline-none focus:border-primary-900 transition-colors placeholder:text-gray-300 resize-none"
+                                    placeholder="Dites-nous en plus sur votre projet..."
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-element pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="group relative inline-flex items-center gap-4 px-8 py-4 bg-primary-900 text-white rounded-full text-sm font-bold uppercase tracking-widest overflow-hidden hover:bg-primary-800 transition-all w-full md:w-auto justify-center"
+                                >
+                                    <span className="relative z-10">{loading ? 'Envoi...' : 'Envoyer le Message'}</span>
+                                    {!loading && <FiArrowUpRight className="relative z-10 w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                 </div>
-            </section>
+            </div>
         </div>
     );
 }

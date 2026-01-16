@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import dynamic from 'next/dynamic';
-import '../globals.css';
-import Header from '@/components/layout/Header';
-import MainLayout from '@/components/layout/MainLayout';
-import Footer from '@/components/layout/Footer';
+import './globals.css';
+import LayoutWrapper from '@/components/layout/LayoutWrapper';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { NextIntlClientProvider, useMessages } from 'next-intl';
@@ -71,24 +69,20 @@ export default function RootLayout({
   return (
     <html lang={locale} className={`${inter.variable} ${poppins.variable}`}>
       <body className="font-sans antialiased">
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <Header />
-          <MainLayout>{children}</MainLayout>
-          <Footer />
-          <ComparisonBar />
-          <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-          />
-        </NextIntlClientProvider>
+        <LayoutWrapper>{children}</LayoutWrapper>
+        <ComparisonBar />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
       </body>
     </html>
   );

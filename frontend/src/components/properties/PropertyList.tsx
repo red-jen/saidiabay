@@ -65,7 +65,7 @@ const PropertyList = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <PropertyFilters onFilterChange={handleFilterChange} />
-          
+
           <select
             className="px-4 py-3 border border-secondary-300 rounded-xl text-sm font-medium bg-white hover:border-secondary-900 transition-colors cursor-pointer"
             onChange={(e) => {
@@ -73,22 +73,22 @@ const PropertyList = () => {
               setFilters({ ...filters, sortBy, sortOrder: sortOrder as 'ASC' | 'DESC' });
             }}
           >
-            <option value="createdAt-DESC">Newest first</option>
-            <option value="createdAt-ASC">Oldest first</option>
-            <option value="price-ASC">Price: Low to high</option>
-            <option value="price-DESC">Price: High to low</option>
+            <option value="createdAt-DESC">Plus récents</option>
+            <option value="createdAt-ASC">Plus anciens</option>
+            <option value="price-ASC">Prix: Croissant</option>
+            <option value="price-DESC">Prix: Décroissant</option>
           </select>
         </div>
 
         <button className="hidden lg:flex items-center gap-2 px-4 py-3 border border-secondary-300 rounded-xl hover:border-secondary-900 transition-colors">
           <FiMap size={16} />
-          <span className="text-sm font-medium">Show map</span>
+          <span className="text-sm font-medium">Voir sur la carte</span>
         </button>
       </div>
 
       {/* Results info */}
       <p className="text-sm text-secondary-500 mb-6">
-        {pagination.total} properties found
+        {pagination.total} propriétés trouvées
       </p>
 
       {/* Property Grid - Airbnb style */}
@@ -133,16 +133,15 @@ const PropertyList = () => {
                 } else {
                   pageNum = pagination.page - 3 + i;
                 }
-                
+
                 return (
                   <button
                     key={pageNum}
                     onClick={() => handlePageChange(pageNum)}
-                    className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium transition-colors ${
-                      pageNum === pagination.page 
-                        ? 'bg-secondary-900 text-white' 
+                    className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium transition-colors ${pageNum === pagination.page
+                        ? 'bg-secondary-900 text-white'
                         : 'hover:bg-secondary-100'
-                    }`}
+                      }`}
                   >
                     {pageNum}
                   </button>
@@ -162,10 +161,10 @@ const PropertyList = () => {
       ) : (
         <div className="text-center py-20">
           <p className="text-lg text-secondary-900 font-medium mb-2">
-            No properties found
+            Aucune propriété trouvée
           </p>
           <p className="text-secondary-500">
-            Try adjusting your filters or search criteria
+            Essayez d'ajuster vos filtres ou vos critères de recherche
           </p>
         </div>
       )}
