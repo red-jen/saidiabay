@@ -1,4 +1,5 @@
 import HeroSection from '@/components/home/HeroSection';
+import PromoBanner from '@/components/home/PromoBanner';
 import DiscoverSection from '@/components/home/DiscoverSection';
 import FeaturedProperties from '@/components/home/FeaturedProperties';
 import AboutSection from '@/components/home/AboutSection';
@@ -10,6 +11,7 @@ import CTASection from '@/components/home/CTASection';
 export default function Home() {
   return (
     <>
+      <PromoBanner />
       <HeroSection />
       <DiscoverSection />
       <FeaturedProperties />
