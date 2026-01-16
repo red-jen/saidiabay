@@ -40,7 +40,7 @@ export default function BlogHero() {
     return (
         <div ref={containerRef} className="relative w-full h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
 
-            {/* --- Background Image with Parallax --- */}
+           
             <div ref={imageRef} className="absolute inset-0 w-full h-[120%] -top-[10%] pointer-events-none">
                 <Image
                     src="/images/about/marina.jpg"
