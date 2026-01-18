@@ -10,13 +10,14 @@ export interface User {
 }
 
 export interface Property {
+  _id: string; // MongoDB ID
   id: string;
   title: string;
   description: string;
   price: number;
   type: 'apartment' | 'house' | 'villa' | 'studio' | 'commercial' | 'land';
-  status: 'available' | 'rented' | 'sold' | 'pending';
-  listingType: 'rent' | 'sale';
+  status: 'DISPONIBLE' | 'LOUE' | 'VENDU' | 'EN_ATTENTE' | 'available' | 'rented' | 'sold' | 'pending';
+  listingType: 'VENTE' | 'LOCATION' | 'rent' | 'sale';
   location: string;
   address?: string;
   city?: string;

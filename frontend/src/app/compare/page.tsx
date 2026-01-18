@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FiX, FiMapPin, FiHome, FiMaximize2, FiBed, FiCheck, FiDollarSign } from 'react-icons/fi';
+import { FiX, FiMapPin, FiHome, FiMaximize2, FiCheck, FiDollarSign } from 'react-icons/fi';
+import { LuBed } from 'react-icons/lu';
 import { useComparisonStore } from '@/store/comparisonStore';
 import { propertiesApi } from '@/lib/api';
 import { Property } from '@/types';
@@ -40,7 +41,7 @@ export default function ComparePage() {
     { key: 'price', label: 'Price', icon: FiDollarSign },
     { key: 'type', label: 'Type', icon: FiHome },
     { key: 'location', label: 'Location', icon: FiMapPin },
-    { key: 'bedrooms', label: 'Bedrooms', icon: FiBed },
+    { key: 'bedrooms', label: 'Bedrooms', icon: LuBed },
     { key: 'bathrooms', label: 'Bathrooms', icon: FiHome },
     { key: 'area', label: 'Area (m²)', icon: FiMaximize2 },
     { key: 'listingType', label: 'Listing Type', icon: FiHome },
@@ -204,30 +205,28 @@ export default function ComparePage() {
                             {feature.key === 'area' && `${property.area || 'N/A'} m²`}
                             {feature.key === 'listingType' && (
                               <span
-                                className={`badge ${
-                                  property.listingType === 'VENTE'
-                                    ? 'badge-sale'
-                                    : 'badge-rent'
-                                }`}
+                                className={`badge ${property.listingType === 'VENTE'
+                                  ? 'badge-sale'
+                                  : 'badge-rent'
+                                  }`}
                               >
                                 {property.listingType === 'VENTE' ? 'For Sale' : 'For Rent'}
                               </span>
                             )}
                             {feature.key === 'status' && (
                               <span
-                                className={`badge ${
-                                  property.status === 'DISPONIBLE'
-                                    ? 'badge-available'
-                                    : property.status === 'VENDU'
+                                className={`badge ${property.status === 'DISPONIBLE'
+                                  ? 'badge-available'
+                                  : property.status === 'VENDU'
                                     ? 'badge-sold'
                                     : 'badge-pending'
-                                }`}
+                                  }`}
                               >
                                 {property.status === 'DISPONIBLE'
                                   ? 'Available'
                                   : property.status === 'VENDU'
-                                  ? 'Sold'
-                                  : 'Pending'}
+                                    ? 'Sold'
+                                    : 'Pending'}
                               </span>
                             )}
                           </td>

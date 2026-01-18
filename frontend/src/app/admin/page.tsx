@@ -39,17 +39,19 @@ export default function AdminDashboard() {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      // Fetch stats from APIs
+      // Fetch stats from APIs - use type assertion for the fallback objects
+      type PaginatedResponse = { pagination?: { total: number } };
+
       const [propertiesRes, usersRes, reservationsRes] = await Promise.all([
-        propertiesApi.getAll({ page: 1, limit: 1 }).catch(() => ({ pagination: { total: 0 } })),
-        usersApi.getAll({ page: 1, limit: 1 }).catch(() => ({ pagination: { total: 0 } })),
-        reservationsApi.getAll({ page: 1, limit: 1 }).catch(() => ({ pagination: { total: 0 } })),
+        propertiesApi.getAll({ page: 1, limit: 1 }).catch((): PaginatedResponse => ({ pagination: { total: 0 } })),
+        usersApi.getAll({ page: 1, limit: 1 }).catch((): PaginatedResponse => ({ pagination: { total: 0 } })),
+        reservationsApi.getAll({ page: 1, limit: 1 }).catch((): PaginatedResponse => ({ pagination: { total: 0 } })),
       ]);
 
       setStats({
-        properties: propertiesRes.pagination?.total || 0,
-        users: usersRes.pagination?.total || 0,
-        reservations: reservationsRes.pagination?.total || 0,
+        properties: (propertiesRes as PaginatedResponse).pagination?.total || 0,
+        users: (usersRes as PaginatedResponse).pagination?.total || 0,
+        reservations: (reservationsRes as PaginatedResponse).pagination?.total || 0,
         revenue: 0, // Calculate from reservations
       });
     } catch (error) {
