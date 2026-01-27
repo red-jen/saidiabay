@@ -20,11 +20,24 @@ const PropertyList = () => {
   });
 
   const [filters, setFilters] = useState<Filters>({
-    type: searchParams.get('type') || '',
+    type: searchParams.get('propertyCategory') || searchParams.get('type') || '',
     listingType: searchParams.get('listingType') || '',
-    page: 1,
+    search: searchParams.get('search') || '',
+    page: parseInt(searchParams.get('page') || '1'),
     limit: 20,
   });
+
+  // Update filters when URL search params change
+  useEffect(() => {
+    const newFilters: Filters = {
+      type: searchParams.get('propertyCategory') || searchParams.get('type') || '',
+      listingType: searchParams.get('listingType') || '',
+      search: searchParams.get('search') || '',
+      page: parseInt(searchParams.get('page') || '1'),
+      limit: 20,
+    };
+    setFilters(newFilters);
+  }, [searchParams]);
 
   useEffect(() => {
     fetchProperties();
@@ -47,6 +60,12 @@ const PropertyList = () => {
       if (filters.sortBy) apiParams.sortBy = filters.sortBy;
       if (filters.sortOrder) apiParams.sortOrder = filters.sortOrder;
       if (filters.search) apiParams.search = filters.search;
+      
+      // Add date filters from URL if present
+      const startDate = searchParams.get('startDate');
+      const endDate = searchParams.get('endDate');
+      if (startDate) apiParams.startDate = startDate;
+      if (endDate) apiParams.endDate = endDate;
 
       const response = await propertiesApi.getAll(apiParams);
       

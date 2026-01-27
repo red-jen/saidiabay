@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { FiMenu, FiX, FiUser, FiHeart, FiBarChart2, FiLogOut, FiSettings, FiPhone, FiMail, FiMapPin, FiSearch, FiHome, FiChevronDown, FiCalendar } from 'react-icons/fi';
@@ -51,9 +52,10 @@ const Header = () => {
   const currentUser = mounted ? user : null;
   const isRental = searchParams.listingType === 'LOCATION';
 
-  const handleSearch = () => {
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const params = new URLSearchParams();
-    if (searchParams.location) params.append('search', searchParams.location);
+    if (searchParams.location.trim()) params.append('search', searchParams.location.trim());
     if (searchParams.listingType) params.append('listingType', searchParams.listingType);
     if (activeType !== 'all') params.append('propertyCategory', activeType);
     if (startDate && searchParams.listingType === 'LOCATION') {
@@ -63,6 +65,12 @@ const Header = () => {
       params.append('endDate', endDate.toISOString().split('T')[0]);
     }
     router.push(`/properties?${params.toString()}`);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   const navLinks = [
@@ -80,11 +88,11 @@ const Header = () => {
   };
 
   return (
-    <header ref={headerRef} className="fixed top-0 left-0 right-0 z-50">
+    <header ref={headerRef} className="fixed top-0 left-0 right-0 z-50 w-full max-w-full overflow-x-hidden">
       {/* Top Bar - Premium Contact Info */}
       <div className={`hidden lg:block transition-all duration-500 ${isScrolled ? 'h-0 opacity-0 overflow-hidden' : 'h-auto opacity-100'}`}>
-        <div className="bg-primary-900 text-white/90">
-          <div className="container mx-auto px-6">
+        <div className="bg-primary-900 text-white/90 w-full">
+          <div className="container mx-auto px-6 max-w-full">
             <div className="flex items-center justify-between h-10 text-xs">
               <div className="flex items-center divide-x divide-white/20">
                 <div className="flex items-center gap-2 pr-4">
@@ -114,22 +122,24 @@ const Header = () => {
       </div>
 
       {/* Main Header */}
-      <div className={`transition-all duration-300 ${
+      <div className={`transition-all duration-300 w-full ${
         isScrolled 
           ? 'bg-white shadow-elegant-md' 
           : 'bg-white/95 backdrop-blur-md'
       }`}>
-      <div className="container mx-auto px-4 lg:px-6">
-          <div className="flex items-center justify-between h-20">
+      <div className="container mx-auto px-4 lg:px-6 max-w-full">
+          <div className="flex items-center justify-between h-20 min-w-0">
             {/* Logo - Premium Brand Identity */}
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative">
-                {/* Logo Mark */}
-                <div className="w-12 h-12 bg-primary-900 rounded-lg flex items-center justify-center group-hover:bg-primary-800 transition-colors">
-                  <span className="font-serif text-2xl text-white font-medium">S</span>
-                </div>
-                {/* Gold accent */}
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-accent-500 rounded-sm" />
+              <div className="relative flex-shrink-0">
+                <Image
+                  src="/images/Logo.png"
+                  alt="Saidia Bay Real Estate"
+                  width={98}
+                  height={98}
+                  className="object-contain"
+                  priority
+                />
               </div>
               <div className="hidden sm:flex flex-col">
                 <span className="font-serif text-2xl font-medium text-primary-900 leading-tight tracking-tight">
@@ -281,14 +291,14 @@ const Header = () => {
       </div>
 
       {/* Search Bar - Professional & Clean */}
-      <div className="bg-white border-t border-secondary-100">
-        <div className="container mx-auto px-4 lg:px-6 py-3">
-          <div className="max-w-6xl mx-auto">
+      <div className="bg-white border-t border-secondary-100 w-full">
+        <div className="container mx-auto px-4 lg:px-6 py-3 max-w-full">
+          <div className="max-w-6xl mx-auto w-full">
             {/* Horizontal Search Bar - Clean Design */}
-            <div className="bg-white rounded-lg shadow-md border border-secondary-200 overflow-hidden">
-              <div className="flex flex-col lg:flex-row">
+            <form onSubmit={handleSearch} className="bg-white rounded-lg shadow-md border border-secondary-200 overflow-hidden w-full">
+              <div className="flex flex-col lg:flex-row w-full min-w-0">
                 {/* Listing Type Toggle - Integrated */}
-                <div className="flex items-center gap-1 p-1 bg-secondary-50 border-r border-secondary-200 lg:w-32">
+                <div className="flex items-center gap-1 p-1 bg-secondary-50 border-r border-secondary-200 lg:w-32 flex-shrink-0">
                   <button
                     onClick={() => {
                       setSearchParams({ ...searchParams, listingType: 'LOCATION' });
@@ -320,27 +330,28 @@ const Header = () => {
                 </div>
 
                 {/* Location */}
-                <div className="flex-1 relative border-r border-secondary-200">
-                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary-50/50 transition-colors">
+                <div className="flex-1 relative border-r border-secondary-200 min-w-0">
+                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
                     <FiMapPin className="w-4 h-4 text-secondary-500 flex-shrink-0" />
                     <input
                       type="text"
                       placeholder="Où allez-vous ?"
                       value={searchParams.location}
                       onChange={(e) => setSearchParams({ ...searchParams, location: e.target.value })}
-                      className="flex-1 bg-transparent text-sm text-primary-900 placeholder:text-secondary-400 focus:outline-none"
+                      onKeyPress={handleKeyPress}
+                      className="flex-1 bg-transparent text-sm text-primary-900 placeholder:text-secondary-400 focus:outline-none min-w-0"
                     />
                   </div>
                 </div>
 
                 {/* Property Type */}
-                <div className="flex-1 relative border-r border-secondary-200">
-                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary-50/50 transition-colors">
+                <div className="flex-1 relative border-r border-secondary-200 min-w-0">
+                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
                     <FiHome className="w-4 h-4 text-secondary-500 flex-shrink-0" />
                     <select
                       value={activeType}
                       onChange={(e) => setActiveType(e.target.value)}
-                      className="flex-1 bg-transparent text-sm text-primary-900 focus:outline-none appearance-none cursor-pointer"
+                      className="flex-1 bg-transparent text-sm text-primary-900 focus:outline-none appearance-none cursor-pointer min-w-0"
                     >
                       {propertyTypes.map((type) => (
                         <option key={type.id} value={type.id}>
@@ -354,18 +365,18 @@ const Header = () => {
 
                 {/* Date Range - Only for Rentals */}
                 {isRental && (
-                  <div className="flex-1 relative border-r border-secondary-200">
-                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary-50/50 transition-colors cursor-pointer">
+                  <div className="flex-1 relative border-r border-secondary-200 min-w-0">
+                    <div className="flex items-center gap-2 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
                       <FiCalendar className="w-4 h-4 text-secondary-500 flex-shrink-0" />
                       <div className="flex-1 min-w-0 relative">
-                        <div className="pointer-events-none">
+                        <div className="absolute inset-0 pointer-events-none z-10 flex items-center">
                           {startDate && endDate ? (
-                            <span className="text-sm text-primary-900">
+                            <span className="text-sm text-primary-900 font-medium">
                               {startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} — {endDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
                             </span>
                           ) : startDate ? (
-                            <span className="text-sm text-primary-900">
-                              {startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} — Date de départ
+                            <span className="text-sm text-primary-900 font-medium">
+                              {startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} — ...
                             </span>
                           ) : (
                             <span className="text-sm text-secondary-400">Date d'arrivée — Date de départ</span>
@@ -380,16 +391,23 @@ const Header = () => {
                                 setEndDate(dates[1]);
                               } else {
                                 setStartDate(dates);
+                                setEndDate(null);
                               }
+                            } else {
+                              setStartDate(null);
+                              setEndDate(null);
                             }
                           }}
                           startDate={startDate}
                           endDate={endDate}
                           selectsRange
                           minDate={new Date()}
-                          dateFormat="dd MMM"
-                          className="absolute inset-0 opacity-0 cursor-pointer"
-                          wrapperClassName="absolute inset-0"
+                          dateFormat=""
+                          className="w-full bg-transparent text-sm text-transparent focus:outline-none cursor-pointer border-0 p-0 opacity-0"
+                          wrapperClassName="w-full"
+                          calendarClassName="date-picker-calendar"
+                          popperClassName="date-picker-popper"
+                          isClearable
                         />
                       </div>
                     </div>
@@ -398,14 +416,14 @@ const Header = () => {
 
                 {/* Search Button */}
                 <button
-                  onClick={handleSearch}
-                  className="flex items-center justify-center gap-2 px-6 lg:px-8 py-3 bg-accent-500 text-white font-semibold hover:bg-accent-600 transition-all text-sm whitespace-nowrap"
+                  type="submit"
+                  className="flex items-center justify-center gap-2 px-6 lg:px-8 py-3 bg-accent-500 text-white font-semibold hover:bg-accent-600 transition-all text-sm whitespace-nowrap flex-shrink-0 rounded-r-lg"
                 >
                   <FiSearch className="w-4 h-4" />
                   <span className="hidden sm:inline">Rechercher</span>
-            </button>
+                </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>
