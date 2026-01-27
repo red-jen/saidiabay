@@ -2,7 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+/* Premium Typography - Sotheby's & Booking.com inspired */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   html {
@@ -12,182 +13,338 @@
   }
 
   body {
-    @apply font-sans text-secondary-900 bg-white;
+    @apply font-sans text-primary-900 bg-white;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-heading font-semibold text-secondary-900;
-    letter-spacing: -0.02em;
+  /* Elegant Headings */
+  h1, h2, h3 {
+    @apply font-serif font-medium text-primary-900;
+    letter-spacing: -0.01em;
+  }
+
+  h4, h5, h6 {
+    @apply font-sans font-semibold text-primary-900;
+    letter-spacing: -0.01em;
+  }
+
+  /* Selection styling */
+  ::selection {
+    @apply bg-accent-200 text-primary-900;
   }
 }
 
 @layer components {
-  /* Premium buttons */
+  /* ===== PREMIUM BUTTONS ===== */
   .btn {
-    @apply inline-flex items-center justify-center px-6 py-3 font-medium text-sm rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98];
+    @apply inline-flex items-center justify-center font-sans font-medium text-sm tracking-wide transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98];
   }
 
   .btn-primary {
-    @apply btn bg-primary-900 text-white hover:bg-primary-800 focus:ring-primary-800;
+    @apply btn px-8 py-3.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 focus:ring-primary-800 shadow-elegant hover:shadow-elegant-md;
   }
 
   .btn-secondary {
-    @apply btn bg-secondary-100 text-secondary-900 hover:bg-secondary-200 focus:ring-secondary-300;
+    @apply btn px-8 py-3.5 bg-white text-primary-900 border border-primary-200 rounded-lg hover:bg-primary-50 hover:border-primary-300 focus:ring-primary-300;
   }
 
   .btn-accent {
-    @apply btn bg-accent-500 text-white hover:bg-accent-600 focus:ring-accent-400;
-  }
-
-  .btn-outline {
-    @apply btn border border-secondary-900 text-secondary-900 hover:bg-secondary-50 focus:ring-secondary-300;
+    @apply btn px-8 py-3.5 bg-accent-500 text-white rounded-lg hover:bg-accent-600 focus:ring-accent-400 shadow-gold;
   }
 
   .btn-ghost {
-    @apply btn text-secondary-700 hover:bg-secondary-100 focus:ring-secondary-200;
+    @apply btn px-6 py-3 text-primary-700 hover:bg-primary-50 hover:text-primary-900 rounded-lg focus:ring-primary-200;
   }
 
-  /* Badges */
+  .btn-outline {
+    @apply btn px-8 py-3.5 border-2 border-primary-900 text-primary-900 rounded-lg hover:bg-primary-900 hover:text-white focus:ring-primary-300;
+  }
+
+  .btn-link {
+    @apply btn px-0 py-0 text-primary-900 hover:text-accent-600 underline-offset-4 hover:underline;
+  }
+
+  /* ===== PREMIUM BADGES ===== */
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase;
   }
 
   .badge-rent {
-    @apply badge bg-primary-100 text-primary-800;
+    @apply badge bg-primary-900 text-white;
   }
 
   .badge-sale {
-    @apply badge bg-accent-100 text-accent-800;
+    @apply badge bg-accent-500 text-white;
   }
 
   .badge-available {
-    @apply badge bg-success-100 text-success-700;
+    @apply badge bg-success-100 text-success-700 border border-success-200;
   }
 
   .badge-sold {
-    @apply badge bg-danger-100 text-danger-700;
+    @apply badge bg-danger-100 text-danger-700 border border-danger-200;
   }
 
   .badge-pending {
-    @apply badge bg-warning-100 text-warning-700;
+    @apply badge bg-warning-100 text-warning-700 border border-warning-200;
   }
 
-  .badge-rented {
-    @apply badge bg-secondary-100 text-secondary-700;
+  .badge-featured {
+    @apply badge bg-gradient-to-r from-accent-500 to-accent-600 text-white;
   }
 
-  /* Inputs */
+  /* ===== PREMIUM INPUTS ===== */
   .input {
-    @apply w-full px-4 py-3 border border-secondary-300 rounded-lg bg-white text-secondary-900 placeholder:text-secondary-400 focus:outline-none focus:border-secondary-900 focus:ring-1 focus:ring-secondary-900 transition-all;
+    @apply w-full px-4 py-3.5 bg-white border border-secondary-300 rounded-lg text-primary-900 placeholder:text-secondary-500 focus:outline-none focus:border-primary-900 focus:ring-2 focus:ring-primary-100 transition-all duration-200;
   }
 
   .input-lg {
     @apply input py-4 text-base;
   }
 
-  .label {
-    @apply block text-sm font-medium text-secondary-700 mb-1.5;
+  .input-elegant {
+    @apply input border-0 border-b-2 border-secondary-200 rounded-none bg-transparent focus:border-primary-900 focus:ring-0 px-0;
   }
 
-  /* Cards */
+  .label {
+    @apply block text-sm font-medium text-primary-800 mb-2 tracking-wide;
+  }
+
+  /* ===== PREMIUM CARDS ===== */
   .card {
-    @apply bg-white rounded-xl overflow-hidden transition-all duration-300;
+    @apply bg-white rounded-2xl overflow-hidden transition-all duration-500;
   }
 
   .card:hover {
-    @apply shadow-lg;
+    @apply shadow-elegant-lg;
   }
 
-  /* Sections */
+  .card-elegant {
+    @apply card border border-secondary-200 hover:border-secondary-300;
+  }
+
+  .card-luxury {
+    @apply card shadow-elegant hover:shadow-elegant-xl;
+  }
+
+  /* ===== SECTIONS ===== */
   .section {
-    @apply py-12 md:py-16 lg:py-20;
+    @apply py-16 md:py-20 lg:py-28;
   }
 
   .section-title {
-    @apply text-2xl md:text-3xl font-heading font-semibold text-secondary-900 mb-2;
+    @apply font-serif text-3xl md:text-4xl lg:text-5xl font-medium text-primary-900 tracking-tight;
   }
 
   .section-subtitle {
-    @apply text-base text-secondary-500 max-w-2xl;
+    @apply text-lg text-secondary-600 max-w-2xl font-light leading-relaxed;
   }
 
-  /* Search box */
-  .search-box {
-    @apply bg-white rounded-full border border-secondary-200 shadow-lg hover:shadow-xl transition-shadow;
+  .section-label {
+    @apply inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] uppercase text-accent-600 mb-4;
   }
 
-  /* Price display */
-  .price-display {
-    @apply text-lg font-semibold text-secondary-900;
-  }
-
-  /* Divider */
+  /* ===== DIVIDERS ===== */
   .divider {
-    @apply border-t border-secondary-200 my-6;
+    @apply border-t border-secondary-200;
   }
 
-  /* Image container */
+  .divider-gold {
+    @apply h-px bg-gradient-to-r from-transparent via-accent-400 to-transparent;
+  }
+
+  /* ===== IMAGE CONTAINERS ===== */
   .img-container {
     @apply relative overflow-hidden rounded-xl bg-secondary-100;
   }
 
-  /* Category pills */
-  .category-pill {
-    @apply flex flex-col items-center gap-2 px-4 py-3 border-b-2 border-transparent text-secondary-500 hover:text-secondary-900 hover:border-secondary-300 transition-all cursor-pointer;
+  .img-zoom {
+    @apply transition-transform duration-700 hover:scale-110;
   }
 
-  .category-pill.active {
-    @apply text-secondary-900 border-secondary-900;
+  /* ===== PREMIUM NAVIGATION ===== */
+  .nav-link {
+    @apply relative text-sm font-medium text-primary-700 hover:text-primary-900 transition-colors;
+  }
+
+  .nav-link::after {
+    @apply content-[''] absolute -bottom-1 left-0 w-0 h-0.5 bg-accent-500 transition-all duration-300;
+  }
+
+  .nav-link:hover::after {
+    @apply w-full;
+  }
+
+  .nav-link-active {
+    @apply text-primary-900;
+  }
+
+  .nav-link-active::after {
+    @apply w-full;
+  }
+
+  /* ===== SKELETON LOADING ===== */
+  .skeleton {
+    @apply bg-gradient-to-r from-secondary-100 via-secondary-200 to-secondary-100 animate-pulse rounded-lg bg-[length:1000px_100%];
+  }
+
+  /* ===== PRICE DISPLAY ===== */
+  .price-display {
+    @apply font-sans text-xl font-bold text-primary-900;
+  }
+
+  .price-label {
+    @apply text-sm font-normal text-secondary-500;
   }
 }
 
 @layer utilities {
-  /* Image zoom */
-  .img-zoom {
-    @apply transition-transform duration-500 hover:scale-105;
+  /* Text gradients */
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-accent-600 via-accent-500 to-accent-600 bg-clip-text text-transparent;
   }
 
-  /* Heart button */
-  .heart-btn {
-    @apply transition-transform duration-200 hover:scale-110 active:scale-95;
+  .text-gradient-navy {
+    @apply bg-gradient-to-r from-primary-900 via-primary-700 to-primary-900 bg-clip-text text-transparent;
   }
 
-  /* Skeleton loading */
-  .skeleton {
-    @apply bg-secondary-200 animate-pulse rounded-lg;
+  /* Decorative line */
+  .line-accent {
+    @apply w-12 h-0.5 bg-accent-500;
   }
 
-  /* Animations */
-  .animate-fade-in {
-    animation: fadeIn 0.6s ease-out;
+  .line-accent-lg {
+    @apply w-20 h-1 bg-gradient-to-r from-accent-400 via-accent-500 to-accent-400;
   }
 
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out;
+  /* Glass effect */
+  .glass {
+    @apply bg-white/80 backdrop-blur-md;
   }
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+  .glass-dark {
+    @apply bg-primary-900/90 backdrop-blur-md;
   }
 
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  /* Premium overlays */
+  .overlay-elegant {
+    @apply bg-gradient-to-t from-primary-950/80 via-primary-900/40 to-transparent;
+  }
+
+  .overlay-light {
+    @apply bg-gradient-to-t from-white/90 via-white/40 to-transparent;
+  }
+
+  /* Hide scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
 
-/* Swiper Custom Styles */
+/* ===== REACT DATEPICKER CUSTOM STYLES ===== */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container input {
+  width: 100%;
+  padding-left: 2.5rem !important;
+  padding-right: 1rem !important;
+  padding-top: 0.625rem !important;
+  padding-bottom: 0.625rem !important;
+  border: 1px solid #d4c7b5;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background-color: white;
+  color: #0c1f3f;
+}
+
+.react-datepicker__input-container input:focus {
+  outline: none;
+  border-color: #0c1f3f;
+  ring: 2px;
+  ring-color: rgba(12, 31, 63, 0.1);
+}
+
+.react-datepicker {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  border: 1px solid #e5ddd1;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 20px rgba(12, 31, 63, 0.06), 0 20px 40px rgba(12, 31, 63, 0.1);
+}
+
+.react-datepicker__header {
+  background-color: #0c1f3f;
+  border-bottom: none;
+  border-radius: 0.75rem 0.75rem 0 0;
+  padding-top: 0.75rem;
+}
+
+.react-datepicker__current-month {
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.react-datepicker__day-name {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+.react-datepicker__day {
+  color: #0c1f3f;
+  border-radius: 0.375rem;
+  margin: 0.125rem;
+}
+
+.react-datepicker__day:hover {
+  background-color: #f0f4f8;
+  border-radius: 0.375rem;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range {
+  background-color: #0c1f3f;
+  color: white;
+  border-radius: 0.375rem;
+}
+
+.react-datepicker__day--selected:hover,
+.react-datepicker__day--in-selecting-range:hover,
+.react-datepicker__day--in-range:hover {
+  background-color: #33425d;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: #f0f4f8;
+  color: #0c1f3f;
+}
+
+.react-datepicker__day--disabled {
+  color: #cfcfcf;
+  cursor: not-allowed;
+}
+
+.react-datepicker__navigation {
+  top: 0.75rem;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white;
+}
+
+.react-datepicker__navigation:hover *::before {
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+/* ===== SWIPER CUSTOM STYLES ===== */
 .swiper {
   width: 100%;
   height: 100%;
@@ -200,8 +357,55 @@
 .swiper-pagination-bullet {
   background: white !important;
   opacity: 0.5 !important;
+  width: 8px !important;
+  height: 8px !important;
 }
 
 .swiper-pagination-bullet-active {
   opacity: 1 !important;
+  width: 24px !important;
+  border-radius: 4px !important;
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8f6f3;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4c7b5;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c2b199;
+}
+
+/* ===== FOCUS STYLES ===== */
+*:focus-visible {
+  @apply outline-none ring-2 ring-accent-500 ring-offset-2;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }

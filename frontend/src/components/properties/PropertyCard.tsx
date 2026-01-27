@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { FiStar, FiMapPin, FiMaximize2 } from 'react-icons/fi';
+import { FiMapPin, FiMaximize2 } from 'react-icons/fi';
 import { IoBedOutline } from 'react-icons/io5';
 import { LuBath } from 'react-icons/lu';
 import { Property } from '@/types';
@@ -21,16 +21,17 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   const area = property.surface || property.area;
   const isRental = property.listingType === 'LOCATION' || property.listingType === 'rent';
 
-  const formatPrice = (price: number, listingType: string) => {
-    if (listingType === 'LOCATION' || listingType === 'rent') {
+  const formatPrice = (price: number, isRent: boolean) => {
+    const formatted = price.toLocaleString('fr-MA');
+    if (isRent) {
       return (
         <>
-          <span className="font-semibold">{price.toLocaleString()} DH</span>
-          <span className="text-secondary-500 font-normal"> /mois</span>
+          <span className="font-bold">{formatted} DH</span>
+          <span className="text-secondary-500 font-normal text-sm">/mois</span>
         </>
       );
     }
-    return <span className="font-semibold">{price.toLocaleString()} DH</span>;
+    return <span className="font-bold">{formatted} DH</span>;
   };
 
   const getCategoryLabel = (category?: string) => {
@@ -41,110 +42,111 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
       house: 'Maison',
       villa: 'Villa',
       studio: 'Studio',
-      commercial: 'Commercial',
-      land: 'Terrain',
     };
-    return labels[category || ''] || category || 'Propriété';
+    return labels[category || ''] || 'Propriété';
   };
 
   return (
-    <div className="group">
-      <Link href={`/properties/${property.slug || propertyId}`}>
-        {/* Image Container - Airbnb style with rounded corners */}
-        <div className="img-container aspect-square mb-3 relative overflow-hidden rounded-xl">
-          {property.images && property.images.length > 0 ? (
-            <Image
-              src={property.images[0]}
-              alt={property.title}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-            />
-          ) : (
-            <div className="w-full h-full bg-secondary-100 flex items-center justify-center">
-              <FiMapPin className="text-secondary-300" size={32} />
-            </div>
-          )}
-
-          {/* Gradient overlay on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-          {/* Favorite Button */}
-          <div className="absolute top-3 right-3 z-10">
-            <FavoriteButton propertyId={propertyId} />
+    <Link
+      href={`/properties/${property.slug || propertyId}`}
+      className="group block bg-white rounded-2xl overflow-hidden shadow-elegant hover:shadow-elegant-lg transition-all duration-500"
+    >
+      {/* Image Container */}
+      <div className="relative aspect-[4/3] overflow-hidden">
+        {property.images && property.images.length > 0 ? (
+          <Image
+            src={property.images[0]}
+            alt={property.title}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full bg-secondary-100 flex items-center justify-center">
+            <FiMapPin className="text-secondary-300" size={32} />
           </div>
+        )}
+
+        {/* Overlay on hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-primary-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* Favorite Button */}
+        <div className="absolute top-4 right-4 z-10">
+          <FavoriteButton propertyId={propertyId} />
+        </div>
+
+        {/* Top Left Badges */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+          {/* Listing Type Badge */}
+          <span className={`px-3 py-1.5 text-xs font-semibold tracking-wide uppercase rounded ${
+            isRental 
+              ? 'bg-primary-900 text-white' 
+              : 'bg-accent-500 text-white'
+          }`}>
+            {isRental ? 'Location' : 'Vente'}
+          </span>
 
           {/* Featured Badge */}
           {property.isFeatured && (
-            <div className="absolute top-3 left-3">
-              <span className="bg-accent-500 px-2.5 py-1 rounded-full text-xs font-semibold text-white shadow-sm">
-                En Vedette
-              </span>
+            <span className="px-3 py-1.5 text-xs font-semibold tracking-wide uppercase bg-white text-primary-900 rounded">
+              En Vedette
+            </span>
+          )}
+        </div>
+
+        {/* Property Category - Bottom Left */}
+        <div className="absolute bottom-4 left-4">
+          <span className="px-3 py-1.5 text-xs font-medium bg-white/95 backdrop-blur-sm text-primary-800 rounded">
+            {getCategoryLabel(property.propertyCategory || property.type)}
+          </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-5">
+        {/* Location */}
+        <div className="flex items-center gap-1.5 text-secondary-500 text-sm mb-2">
+          <FiMapPin className="w-4 h-4 text-accent-500 flex-shrink-0" />
+          <span className="truncate">{location}</span>
+        </div>
+
+        {/* Title */}
+        <h3 className="font-serif text-lg text-primary-900 mb-3 line-clamp-1 group-hover:text-accent-600 transition-colors">
+          {property.title}
+        </h3>
+
+        {/* Features */}
+        <div className="flex items-center gap-4 text-sm text-secondary-600 mb-4">
+          {bedrooms && (
+            <div className="flex items-center gap-1.5">
+              <IoBedOutline className="w-4 h-4 text-secondary-400" />
+              <span>{bedrooms} ch.</span>
             </div>
           )}
-
-          {/* Listing Type Tag */}
-          <div className="absolute bottom-3 left-3">
-            <span className={`px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm ${
-              isRental 
-                ? 'bg-primary-900 text-white' 
-                : 'bg-accent-500 text-white'
-            }`}>
-              {isRental ? 'À Louer' : 'À Vendre'}
-            </span>
-          </div>
+          {bathrooms && (
+            <div className="flex items-center gap-1.5">
+              <LuBath className="w-4 h-4 text-secondary-400" />
+              <span>{bathrooms} sdb.</span>
+            </div>
+          )}
+          {area && (
+            <div className="flex items-center gap-1.5">
+              <FiMaximize2 className="w-4 h-4 text-secondary-400" />
+              <span>{area} m²</span>
+            </div>
+          )}
         </div>
 
-        {/* Content */}
-        <div className="space-y-1.5">
-          {/* Location & Rating */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1 text-secondary-900">
-              <FiMapPin size={14} className="text-primary-600" />
-              <span className="text-sm font-medium truncate max-w-[150px]">
-                {location}
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <FiStar className="fill-accent-500 text-accent-500" size={14} />
-              <span className="text-sm font-medium">4.9</span>
-            </div>
+        {/* Price & View Details */}
+        <div className="flex items-center justify-between pt-4 border-t border-secondary-100">
+          <div className="text-primary-900">
+            {formatPrice(property.price, isRental)}
           </div>
-
-          {/* Property Type & Features */}
-          <div className="flex items-center gap-3 text-sm text-secondary-500">
-            <span>{getCategoryLabel(property.propertyCategory || property.type)}</span>
-            {bedrooms && (
-              <span className="flex items-center gap-1">
-                <IoBedOutline size={14} />
-                {bedrooms}
-              </span>
-            )}
-            {bathrooms && (
-              <span className="flex items-center gap-1">
-                <LuBath size={14} />
-                {bathrooms}
-              </span>
-            )}
-            {area && (
-              <span className="flex items-center gap-1">
-                <FiMaximize2 size={14} />
-                {area}m²
-              </span>
-            )}
-          </div>
-
-          {/* Title */}
-          <p className="text-sm text-secondary-700 font-medium line-clamp-1 group-hover:text-primary-700 transition-colors">
-            {property.title}
-          </p>
-
-          {/* Price */}
-          <div className="text-base text-primary-900 pt-1">
-            {formatPrice(property.price, property.listingType)}
-          </div>
+          <span className="text-sm font-medium text-accent-600 opacity-0 group-hover:opacity-100 transition-opacity">
+            Voir détails →
+          </span>
         </div>
-      </Link>
-    </div>
+      </div>
+    </Link>
   );
 };
 

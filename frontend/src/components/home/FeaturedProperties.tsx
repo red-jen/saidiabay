@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FiArrowRight, FiMapPin, FiMaximize2, FiHeart, FiStar } from 'react-icons/fi';
+import { FiArrowRight, FiMapPin, FiMaximize2, FiHeart } from 'react-icons/fi';
 import { IoBedOutline } from 'react-icons/io5';
 import { LuBath } from 'react-icons/lu';
 import gsap from 'gsap';
@@ -15,21 +15,19 @@ import { useFavoritesStore } from '@/store/favoritesStore';
 gsap.registerPlugin(ScrollTrigger);
 
 const tabs = [
-  { id: 'all', label: 'Toutes les propriétés' },
-  { id: 'featured', label: 'En Vedette' },
-  { id: 'LOCATION', label: 'À Louer' },
+  { id: 'all', label: 'Toutes' },
+  { id: 'LOCATION', label: 'Locations' },
   { id: 'VENTE', label: 'À Vendre' },
 ];
 
 export default function FeaturedProperties() {
-  const [activeTab, setActiveTab] = useState('featured');
+  const [activeTab, setActiveTab] = useState('all');
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
-  const tabsRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
   const { isFavorite, addFavorite, removeFavorite } = useFavoritesStore();
@@ -41,33 +39,15 @@ export default function FeaturedProperties() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Title animation
       gsap.fromTo(
         titleRef.current,
-        { opacity: 0, y: 40 },
+        { opacity: 0, y: 30 },
         {
           opacity: 1,
           y: 0,
           duration: 0.8,
           scrollTrigger: {
             trigger: titleRef.current,
-            start: 'top 85%',
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-
-      // Tabs animation
-      gsap.fromTo(
-        tabsRef.current?.children || [],
-        { opacity: 0, y: 20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: tabsRef.current,
             start: 'top 85%',
             toggleActions: 'play none none reverse',
           },
@@ -82,11 +62,11 @@ export default function FeaturedProperties() {
     if (gridRef.current && properties.length > 0) {
       gsap.fromTo(
         gridRef.current.children,
-        { opacity: 0, y: 40 },
+        { opacity: 0, y: 30 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.6,
+          duration: 0.5,
           stagger: 0.1,
           ease: 'power2.out',
         }
@@ -97,16 +77,10 @@ export default function FeaturedProperties() {
   const fetchProperties = async () => {
     try {
       setLoading(true);
-      const params: Record<string, any> = { limit: 8 };
+      const params: Record<string, any> = { limit: 6, status: 'AVAILABLE' };
 
-      if (activeTab === 'featured') {
-        // Show only available properties for featured
-        params.status = 'AVAILABLE';
-      } else if (activeTab === 'LOCATION' || activeTab === 'VENTE') {
+      if (activeTab === 'LOCATION' || activeTab === 'VENTE') {
         params.listingType = activeTab;
-        params.status = 'AVAILABLE';
-      } else if (activeTab === 'all') {
-        params.status = 'AVAILABLE';
       }
 
       const data = await propertiesApi.getAll(params);
@@ -130,171 +104,159 @@ export default function FeaturedProperties() {
   };
 
   return (
-    <section ref={sectionRef} className="py-20 lg:py-28">
+    <section ref={sectionRef} className="section bg-ivory">
       <div className="container mx-auto px-4 lg:px-6">
         {/* Header */}
-        <div ref={titleRef} className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+        <div ref={titleRef} className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
           <div>
-            <p className="text-accent-600 font-semibold text-sm uppercase tracking-wider mb-2">
-              Propriétés
-            </p>
-            <h2 className="text-4xl lg:text-5xl font-heading font-bold text-secondary-900">
-              Propriétés en Vedette
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-px bg-accent-500" />
+              <span className="text-accent-600 text-sm font-medium tracking-[0.2em] uppercase">
+                Notre Sélection
+              </span>
+            </div>
+            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-primary-900 mb-4">
+              Propriétés d'Exception
             </h2>
-            <p className="text-secondary-600 mt-3 max-w-lg">
-              Explorez notre sélection triée sur le volet de propriétés haut de gamme dans les meilleurs emplacements
+            <p className="text-secondary-600 max-w-lg">
+              Découvrez notre collection soigneusement sélectionnée de biens immobiliers haut de gamme
             </p>
           </div>
-          <Link
-            href="/properties"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-primary-900 text-white rounded-xl font-semibold hover:bg-primary-800 transition-colors"
-          >
-            Voir Tout
-            <FiArrowRight className="w-5 h-5" />
-          </Link>
-        </div>
 
-        {/* Tabs */}
-        <div ref={tabsRef} className="flex flex-wrap gap-2 mb-10">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300
-                ${activeTab === tab.id
-                  ? 'bg-primary-900 text-white shadow-lg'
-                  : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                }
-              `}
+          <div className="flex items-center gap-4">
+            {/* Tabs */}
+            <div className="flex p-1 bg-white rounded-lg shadow-elegant">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-5 py-2.5 text-sm font-medium rounded-md transition-all ${
+                    activeTab === tab.id
+                      ? 'bg-primary-900 text-white'
+                      : 'text-primary-700 hover:text-primary-900'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <Link
+              href="/properties"
+              className="hidden md:inline-flex items-center gap-2 px-6 py-2.5 text-primary-900 font-medium hover:text-accent-600 transition-colors"
             >
-              {tab.label}
-            </button>
-          ))}
+              Voir tout
+              <FiArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
 
         {/* Properties Grid */}
         {loading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="rounded-2xl overflow-hidden">
-                <div className="skeleton h-64" />
-                <div className="p-5 bg-white">
-                  <div className="skeleton h-5 w-3/4 mb-3" />
-                  <div className="skeleton h-4 w-1/2 mb-4" />
-                  <div className="skeleton h-6 w-1/3" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-2xl overflow-hidden">
+                <div className="aspect-[4/3] bg-secondary-200 animate-pulse" />
+                <div className="p-6 space-y-4">
+                  <div className="h-4 bg-secondary-200 rounded animate-pulse w-1/2" />
+                  <div className="h-6 bg-secondary-200 rounded animate-pulse" />
+                  <div className="h-4 bg-secondary-200 rounded animate-pulse w-3/4" />
                 </div>
               </div>
             ))}
           </div>
         ) : properties.length > 0 ? (
-          <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {properties.map((property) => {
-              // Map backend fields to frontend expectations
               const propertyId = property.id || property._id || '';
               const location = property.city?.name || property.location || property.address || 'Saidia Bay';
               const bedrooms = property.chambres || property.bedrooms;
               const bathrooms = property.sallesDeBain || property.bathrooms;
               const area = property.surface || property.area;
-              const slug = property.slug || property.id;
+              const isRental = property.listingType === 'LOCATION';
 
               return (
                 <Link
                   key={propertyId}
-                  href={`/properties/${slug}`}
-                  className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-luxury transition-all duration-500"
+                  href={`/properties/${property.slug || propertyId}`}
+                  className="group bg-white rounded-2xl overflow-hidden shadow-elegant hover:shadow-elegant-lg transition-all duration-500"
                 >
-                  {/* Image */}
-                  <div className="relative h-64 overflow-hidden">
+                  {/* Image Container */}
+                  <div className="relative aspect-[4/3] overflow-hidden">
                     <Image
                       src={property.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600'}
                       alt={property.title}
                       fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
 
-                    {/* Overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {/* Overlay on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    {/* Badges */}
-                    <div className="absolute top-4 left-4 flex gap-2">
-                      {property.isFeatured && (
-                        <span className="px-3 py-1 bg-accent-500 text-white text-xs font-semibold rounded-full">
-                          En Vedette
-                        </span>
-                      )}
-                      <span className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${property.listingType === 'VENTE' ? 'bg-primary-900' : 'bg-success-500'
-                        }`}>
-                        {property.listingType === 'VENTE' ? 'À Vendre' : 'À Louer'}
+                    {/* Top Badges */}
+                    <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
+                      <span className={`px-3 py-1.5 text-xs font-semibold tracking-wide uppercase rounded ${
+                        isRental ? 'bg-primary-900 text-white' : 'bg-accent-500 text-white'
+                      }`}>
+                        {isRental ? 'Location' : 'Vente'}
                       </span>
+
+                      <button
+                        onClick={(e) => handleFavorite(e, propertyId)}
+                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+                          mounted && isFavorite(propertyId)
+                            ? 'bg-danger-500 text-white'
+                            : 'bg-white/90 text-primary-700 hover:bg-white hover:text-danger-500'
+                        }`}
+                      >
+                        <FiHeart className={`w-4 h-4 ${mounted && isFavorite(propertyId) ? 'fill-current' : ''}`} />
+                      </button>
                     </div>
 
-                    {/* Favorite Button */}
-                    <button
-                      onClick={(e) => handleFavorite(e, propertyId)}
-                      className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all ${mounted && isFavorite(propertyId)
-                        ? 'bg-danger-500 text-white'
-                        : 'bg-white/90 text-secondary-600 hover:bg-white hover:text-danger-500'
-                        }`}
-                    >
-                      <FiHeart className={`w-4 h-4 ${mounted && isFavorite(propertyId) ? 'fill-current' : ''}`} />
-                    </button>
-
-                    {/* Rating */}
-                    <div className="absolute bottom-4 left-4 flex items-center gap-1 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full">
-                      <FiStar className="w-4 h-4 text-accent-500 fill-accent-500" />
-                      <span className="text-sm font-semibold text-secondary-900">4.9</span>
+                    {/* Price Badge */}
+                    <div className="absolute bottom-4 left-4">
+                      <div className="px-4 py-2 bg-white/95 backdrop-blur-sm rounded-lg">
+                        <span className="text-lg font-bold text-primary-900">
+                          {property.price?.toLocaleString()} DH
+                        </span>
+                        {isRental && <span className="text-sm text-secondary-600">/mois</span>}
+                      </div>
                     </div>
                   </div>
 
                   {/* Content */}
-                  <div className="p-5">
+                  <div className="p-6">
                     {/* Location */}
-                    <div className="flex items-center gap-1 text-secondary-500 text-sm mb-2">
-                      <FiMapPin className="w-4 h-4" />
+                    <div className="flex items-center gap-1.5 text-secondary-500 text-sm mb-2">
+                      <FiMapPin className="w-4 h-4 text-accent-500" />
                       <span>{location}</span>
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-semibold text-secondary-900 text-lg mb-3 line-clamp-1 group-hover:text-primary-700 transition-colors">
+                    <h3 className="font-serif text-xl text-primary-900 mb-3 line-clamp-1 group-hover:text-accent-600 transition-colors">
                       {property.title}
                     </h3>
 
                     {/* Features */}
-                    <div className="flex items-center gap-4 text-secondary-600 text-sm mb-4">
+                    <div className="flex items-center gap-4 text-sm text-secondary-600 pt-4 border-t border-secondary-100">
                       {bedrooms && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
                           <IoBedOutline className="w-4 h-4" />
-                          <span>{bedrooms} Lits</span>
+                          <span>{bedrooms} ch.</span>
                         </div>
                       )}
                       {bathrooms && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
                           <LuBath className="w-4 h-4" />
-                          <span>{bathrooms} SDB</span>
+                          <span>{bathrooms} sdb.</span>
                         </div>
                       )}
                       {area && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
                           <FiMaximize2 className="w-4 h-4" />
                           <span>{area} m²</span>
                         </div>
                       )}
-                    </div>
-
-                    {/* Price */}
-                    <div className="flex items-center justify-between pt-4 border-t border-secondary-100">
-                      <div>
-                        <span className="text-xl font-bold text-primary-900">
-                          {property.price?.toLocaleString()} DH
-                        </span>
-                        {property.listingType === 'LOCATION' && (
-                          <span className="text-secondary-500 text-sm"> /mois</span>
-                        )}
-                      </div>
-                      <span className="text-primary-700 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                        Voir Détails →
-                      </span>
                     </div>
                   </div>
                 </Link>
@@ -302,10 +264,21 @@ export default function FeaturedProperties() {
             })}
           </div>
         ) : (
-          <div className="text-center py-16">
+          <div className="text-center py-16 bg-white rounded-2xl">
             <p className="text-secondary-600 text-lg">Aucune propriété trouvée</p>
           </div>
         )}
+
+        {/* View All Button - Mobile */}
+        <div className="mt-10 text-center md:hidden">
+          <Link
+            href="/properties"
+            className="inline-flex items-center gap-2 px-8 py-3.5 bg-primary-900 text-white font-medium rounded-lg hover:bg-primary-800 transition-colors"
+          >
+            Voir toutes les propriétés
+            <FiArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
     </section>
   );

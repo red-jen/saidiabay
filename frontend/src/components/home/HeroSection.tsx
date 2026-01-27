@@ -3,15 +3,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FiSearch, FiMapPin, FiHome, FiCalendar, FiChevronDown } from 'react-icons/fi';
+import Link from 'next/link';
+import { FiSearch, FiMapPin, FiHome, FiChevronDown, FiArrowRight, FiCalendar } from 'react-icons/fi';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import gsap from 'gsap';
 
 const propertyTypes = [
-  { id: 'all', label: 'Tous types', icon: '🏠' },
-  { id: 'villa', label: 'Villas', icon: '🏡' },
-  { id: 'apartment', label: 'Appartements', icon: '🏢' },
-  { id: 'house', label: 'Maisons', icon: '🏘️' },
-  { id: 'studio', label: 'Studios', icon: '🛏️' },
+  { id: 'all', label: 'Tous types' },
+  { id: 'VILLA', label: 'Villas' },
+  { id: 'APPARTEMENT', label: 'Appartements' },
 ];
 
 interface HeroSectionProps {
@@ -32,50 +33,30 @@ const HeroSection = ({ heroData }: HeroSectionProps) => {
   const [activeType, setActiveType] = useState('all');
   const [searchParams, setSearchParams] = useState({
     location: '',
-    listingType: '',
+    listingType: 'LOCATION',
   });
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
 
   const heroRef = useRef<HTMLDivElement>(null);
-  const headlineRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
-  const searchBoxRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Main timeline
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-      // Animate hero content
       tl.fromTo(
-        headlineRef.current,
-        { opacity: 0, y: 60 },
-        { opacity: 1, y: 0, duration: 1 }
+        searchRef.current,
+        { opacity: 0, y: -20 },
+        { opacity: 1, y: 0, duration: 0.8 }
       )
-        .fromTo(
-          subtitleRef.current,
-          { opacity: 0, y: 40 },
-          { opacity: 1, y: 0, duration: 0.8 },
-          '-=0.5'
-        )
-        .fromTo(
-          searchBoxRef.current,
-          { opacity: 0, y: 50, scale: 0.95 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.8 },
-          '-=0.5'
-        );
-
-      // Parallax effect on scroll
-      gsap.to(imageRef.current, {
-        yPercent: 15,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: true,
-        },
-      });
+      .fromTo(
+        contentRef.current,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 1 },
+        '-=0.5'
+      );
     }, heroRef);
 
     return () => ctx.revert();
@@ -83,16 +64,17 @@ const HeroSection = ({ heroData }: HeroSectionProps) => {
 
   const handleSearch = () => {
     const params = new URLSearchParams();
-    if (searchParams.location) params.append('location', searchParams.location);
+    if (searchParams.location) params.append('search', searchParams.location);
     if (searchParams.listingType) params.append('listingType', searchParams.listingType);
-    if (activeType !== 'all') params.append('type', activeType);
+    if (activeType !== 'all') params.append('propertyCategory', activeType);
+    if (startDate && searchParams.listingType === 'LOCATION') {
+      params.append('startDate', startDate.toISOString().split('T')[0]);
+    }
+    if (endDate && searchParams.listingType === 'LOCATION') {
+      params.append('endDate', endDate.toISOString().split('T')[0]);
+    }
     router.push(`/properties?${params.toString()}`);
   };
-
-  // Use backend hero data or fallback to default
-  const heroImage = heroData?.imageUrl || "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1920&q=80";
-  const heroTitle = heroData?.title || "Découvrez Votre Propriété Idéale";
-  const heroSubtitle = heroData?.subtitle || "Explorez notre sélection exclusive de biens immobiliers d'exception";
 
   const handleCTAClick = () => {
     if (heroData?.ctaLink) {
@@ -104,96 +86,70 @@ const HeroSection = ({ heroData }: HeroSectionProps) => {
     }
   };
 
+  const heroImage = heroData?.imageUrl || "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1920&q=80";
+  const heroTitle = heroData?.title || "Trouvez votre propriété idéale";
+  const heroSubtitle = heroData?.subtitle || "Recherchez des offres sur des villas, appartements et plus encore";
+  const isRental = searchParams.listingType === 'LOCATION';
+
   return (
-    <section ref={heroRef} className="relative h-[85vh] min-h-[600px] overflow-hidden">
-      {/* Hero Background Image */}
-      <div ref={imageRef} className="absolute inset-0 -z-10">
+    <section ref={heroRef} className="relative min-h-screen flex flex-col">
+      {/* Background Image with Premium Overlay */}
+      <div className="absolute inset-0">
         <Image
           src={heroImage}
-          alt={heroTitle}
+          alt={heroTitle.replace(/\n/g, ' ')}
           fill
           priority
           className="object-cover"
+          quality={90}
         />
-        {/* Gradient overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
+        {/* Multi-layer overlay for premium look */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-950/90 via-primary-900/70 to-primary-900/50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary-950/60 via-transparent to-primary-950/30" />
       </div>
 
-      <div className="container mx-auto px-4 lg:px-6 h-full flex flex-col justify-center">
-        <div className="max-w-4xl pt-20">
-          {/* Dynamic Headline from API */}
-          <h1
-            ref={headlineRef}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-white leading-tight mb-6 drop-shadow-2xl"
-          >
-            {heroTitle.split('\n').map((line, index) => (
-              <span key={index}>
-                {line}
-                {index < heroTitle.split('\n').length - 1 && <br />}
-              </span>
-            ))}
+      {/* Decorative Elements */}
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary-950/50 to-transparent" />
+
+      {/* Horizontal Search Bar - Positioned at Top (Booking.com style) */}
+      <div className="relative container mx-auto px-4 lg:px-6 pt-28 pb-6">
+        <div ref={searchRef} className="max-w-6xl mx-auto">
+          {/* Main Title */}
+          <h1 className="font-serif text-2xl md:text-3xl lg:text-4xl text-white font-medium mb-2 text-center">
+            {heroTitle}
           </h1>
-          
-          {/* Dynamic Subtitle/Description from API */}
-          {heroSubtitle && (
-            <p
-              ref={subtitleRef}
-              className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 max-w-2xl leading-relaxed drop-shadow-lg"
-            >
-              {heroSubtitle}
-            </p>
-          )}
+          <p className="text-white/80 text-center mb-6 text-sm md:text-base">
+            {heroSubtitle}
+          </p>
 
-          {/* CTA Button if provided */}
-          {heroData?.ctaText && (
-            <button
-              onClick={handleCTAClick}
-              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl font-bold text-lg hover:from-primary-700 hover:to-primary-800 shadow-2xl hover:shadow-3xl hover:scale-105 active:scale-100 transition-all"
-            >
-              {heroData.ctaText}
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Enlarged Search Bar - Positioned at Bottom to Bridge Sections */}
-      <div className="absolute bottom-0 left-0 right-0 pb-16 transform translate-y-1/2 z-20">
-        <div className="container mx-auto px-4 lg:px-6">
-          <div
-            ref={searchBoxRef}
-            className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-6 lg:p-8 max-w-6xl mx-auto border border-white/20"
-          >
-            <div className="grid md:grid-cols-4 gap-4 lg:gap-6">
+          {/* Horizontal Search Bar - Booking.com Style */}
+          <div className="bg-white rounded-2xl shadow-elegant-xl p-2 border-2 border-accent-400">
+            <div className="flex flex-col lg:flex-row gap-0">
               {/* Location */}
-              <div className="relative">
-                <div className="flex items-center gap-4 px-5 py-4 bg-secondary-50 rounded-2xl hover:bg-secondary-100 transition-all cursor-pointer group hover:shadow-md">
-                  <FiMapPin className="w-6 h-6 text-primary-600 group-hover:scale-110 transition-transform" />
-                  <div className="flex-1">
-                    <p className="text-xs text-secondary-500 uppercase tracking-wide font-semibold mb-1">Localisation</p>
+              <div className="flex-1 relative">
+                <div className="flex items-center gap-3 px-4 py-3 border-r border-secondary-200 cursor-pointer hover:bg-secondary-50 rounded-l-lg transition-colors h-full">
+                  <FiMapPin className="w-5 h-5 text-accent-500 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
                     <input
                       type="text"
-                      placeholder="Où souhaitez-vous habiter ?"
+                      placeholder="Où allez-vous ?"
                       value={searchParams.location}
                       onChange={(e) => setSearchParams({ ...searchParams, location: e.target.value })}
-                      className="w-full bg-transparent text-base font-medium text-secondary-900 placeholder:text-secondary-400 focus:outline-none"
+                      className="w-full bg-transparent text-sm font-medium text-primary-900 placeholder:text-secondary-500 focus:outline-none"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Property Type */}
-              <div className="relative">
-                <div className="flex items-center gap-4 px-5 py-4 bg-secondary-50 rounded-2xl hover:bg-secondary-100 transition-all cursor-pointer group hover:shadow-md">
-                  <FiHome className="w-6 h-6 text-primary-600 group-hover:scale-110 transition-transform" />
-                  <div className="flex-1">
-                    <p className="text-xs text-secondary-500 uppercase tracking-wide font-semibold mb-1">Type</p>
+              <div className="flex-1 relative">
+                <div className="flex items-center gap-3 px-4 py-3 border-r border-secondary-200 cursor-pointer hover:bg-secondary-50 transition-colors h-full">
+                  <FiHome className="w-5 h-5 text-accent-500 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
                     <select
                       value={activeType}
                       onChange={(e) => setActiveType(e.target.value)}
-                      className="w-full bg-transparent text-base font-medium text-secondary-900 focus:outline-none appearance-none cursor-pointer"
+                      className="w-full bg-transparent text-sm font-medium text-primary-900 focus:outline-none appearance-none cursor-pointer"
                     >
                       {propertyTypes.map((type) => (
                         <option key={type.id} value={type.id}>
@@ -202,40 +158,154 @@ const HeroSection = ({ heroData }: HeroSectionProps) => {
                       ))}
                     </select>
                   </div>
-                  <FiChevronDown className="w-5 h-5 text-secondary-400" />
+                  <FiChevronDown className="w-4 h-4 text-secondary-400 flex-shrink-0" />
                 </div>
               </div>
 
-              {/* Listing Type */}
-              <div className="relative">
-                <div className="flex items-center gap-4 px-5 py-4 bg-secondary-50 rounded-2xl hover:bg-secondary-100 transition-all cursor-pointer group hover:shadow-md">
-                  <FiCalendar className="w-6 h-6 text-primary-600 group-hover:scale-110 transition-transform" />
-                  <div className="flex-1">
-                    <p className="text-xs text-secondary-500 uppercase tracking-wide font-semibold mb-1">Pour</p>
-                    <select
-                      value={searchParams.listingType}
-                      onChange={(e) => setSearchParams({ ...searchParams, listingType: e.target.value })}
-                      className="w-full bg-transparent text-base font-medium text-secondary-900 focus:outline-none appearance-none cursor-pointer"
-                    >
-                      <option value="">Louer ou Acheter</option>
-                      <option value="LOCATION">À Louer</option>
-                      <option value="VENTE">À Vendre</option>
-                    </select>
+              {/* Date Range - Only for Rentals */}
+              {isRental ? (
+                <div className="flex-1 relative">
+                  <div className="flex items-center gap-3 px-4 py-3 border-r border-secondary-200 cursor-pointer hover:bg-secondary-50 transition-colors h-full">
+                    <FiCalendar className="w-5 h-5 text-accent-500 flex-shrink-0" />
+                    <div className="flex-1 min-w-0 relative h-full flex items-center">
+                      <div className="pointer-events-none flex-1">
+                        {startDate && endDate ? (
+                          <div className="text-sm font-medium text-primary-900">
+                            {startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} — {endDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                          </div>
+                        ) : startDate ? (
+                          <div className="text-sm font-medium text-primary-900">
+                            {startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} — Date de départ
+                          </div>
+                        ) : (
+                          <span className="text-sm text-secondary-500">Date d'arrivée — Date de départ</span>
+                        )}
+                      </div>
+                      <DatePicker
+                        selected={startDate}
+                        onChange={(dates: Date | [Date | null, Date | null] | null) => {
+                          if (dates) {
+                            if (Array.isArray(dates)) {
+                              setStartDate(dates[0]);
+                              setEndDate(dates[1]);
+                            } else {
+                              setStartDate(dates);
+                            }
+                          }
+                        }}
+                        startDate={startDate}
+                        endDate={endDate}
+                        selectsRange
+                        minDate={new Date()}
+                        dateFormat="dd MMM"
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        wrapperClassName="absolute inset-0"
+                      />
+                    </div>
                   </div>
-                  <FiChevronDown className="w-5 h-5 text-secondary-400" />
                 </div>
-              </div>
+              ) : null}
 
-              {/* Search Button - Larger and More Prominent */}
+              {/* Search Button */}
               <button
                 onClick={handleSearch}
-                className="flex items-center justify-center gap-3 px-10 py-5 bg-gradient-to-r from-primary-900 via-primary-800 to-primary-700 text-white rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-[1.03] active:scale-[0.98] transition-all"
+                className="flex items-center justify-center gap-2 px-6 lg:px-8 py-3 bg-accent-500 text-white font-semibold rounded-r-lg hover:bg-accent-600 transition-all text-sm lg:text-base whitespace-nowrap"
               >
-                <FiSearch className="w-6 h-6" />
-                <span>Rechercher</span>
+                <FiSearch className="w-5 h-5" />
+                <span className="hidden sm:inline">Rechercher</span>
+              </button>
+            </div>
+
+            {/* Listing Type Toggle - Below Search Bar */}
+            <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-secondary-100">
+              <button
+                onClick={() => {
+                  setSearchParams({ ...searchParams, listingType: 'LOCATION' });
+                  setStartDate(null);
+                  setEndDate(null);
+                }}
+                className={`px-4 py-2 text-xs font-medium rounded-lg transition-all ${
+                  searchParams.listingType === 'LOCATION'
+                    ? 'bg-primary-900 text-white'
+                    : 'text-primary-700 hover:bg-secondary-100'
+                }`}
+              >
+                Location
+              </button>
+              <button
+                onClick={() => {
+                  setSearchParams({ ...searchParams, listingType: 'VENTE' });
+                  setStartDate(null);
+                  setEndDate(null);
+                }}
+                className={`px-4 py-2 text-xs font-medium rounded-lg transition-all ${
+                  searchParams.listingType === 'VENTE'
+                    ? 'bg-primary-900 text-white'
+                    : 'text-primary-700 hover:bg-secondary-100'
+                }`}
+              >
+                Achat
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Main Content - Below Search Bar */}
+      <div className="relative container mx-auto px-4 lg:px-6 flex-1 flex items-center pb-20">
+        <div ref={contentRef} className="max-w-3xl mx-auto text-center">
+          {/* Trust Indicators */}
+          <div className="flex items-center justify-center gap-8 mt-8">
+            <div>
+              <div className="text-3xl font-serif font-medium text-white">150+</div>
+              <div className="text-sm text-white/60">Propriétés</div>
+            </div>
+            <div className="w-px h-12 bg-white/20" />
+            <div>
+              <div className="text-3xl font-serif font-medium text-white">98%</div>
+              <div className="text-sm text-white/60">Satisfaction</div>
+            </div>
+            <div className="w-px h-12 bg-white/20" />
+            <div>
+              <div className="text-3xl font-serif font-medium text-white">10+</div>
+              <div className="text-sm text-white/60">Années</div>
+            </div>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-12">
+            {heroData?.ctaText ? (
+              <button
+                onClick={handleCTAClick}
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-accent-500 text-white font-medium rounded-lg hover:bg-accent-600 transition-all shadow-gold"
+              >
+                {heroData.ctaText}
+                <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            ) : (
+              <Link
+                href="/properties"
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-accent-500 text-white font-medium rounded-lg hover:bg-accent-600 transition-all shadow-gold"
+              >
+                Explorer les Propriétés
+                <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            )}
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 px-8 py-4 border-2 border-white/30 text-white font-medium rounded-lg hover:bg-white/10 hover:border-white/50 transition-all"
+            >
+              Nous Contacter
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60">
+        <span className="text-xs tracking-wider">Découvrir</span>
+        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2">
+          <div className="w-1.5 h-3 bg-white/60 rounded-full animate-bounce" />
         </div>
       </div>
     </section>

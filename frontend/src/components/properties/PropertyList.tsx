@@ -81,15 +81,15 @@ const PropertyList = () => {
 
   return (
     <div className="space-y-8">
-      {/* Enhanced Toolbar */}
-      <div className="bg-white rounded-2xl shadow-sm border border-secondary-100 p-4 lg:p-6">
+      {/* Enhanced Toolbar - Premium Styling */}
+      <div className="bg-white rounded-2xl shadow-elegant p-5 lg:p-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-3">
             <PropertyFilters onFilterChange={handleFilterChange} />
 
             <div className="relative">
               <select
-                className="px-5 py-3 border border-secondary-300 rounded-xl text-sm font-medium bg-white hover:border-primary-600 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all cursor-pointer appearance-none pr-10"
+                className="px-5 py-3 border border-secondary-200 rounded-lg text-sm font-medium bg-white hover:border-primary-900 focus:border-primary-900 focus:ring-2 focus:ring-primary-100 transition-all cursor-pointer appearance-none pr-10"
                 onChange={(e) => {
                   const [sortBy, sortOrder] = e.target.value.split('-');
                   setFilters({ ...filters, sortBy, sortOrder: sortOrder as 'ASC' | 'DESC' });
@@ -97,8 +97,8 @@ const PropertyList = () => {
               >
                 <option value="createdAt-DESC">Plus récents</option>
                 <option value="createdAt-ASC">Plus anciens</option>
-                <option value="price-ASC">Prix: Croissant</option>
-                <option value="price-DESC">Prix: Décroissant</option>
+                <option value="price-ASC">Prix croissant</option>
+                <option value="price-DESC">Prix décroissant</option>
               </select>
               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                 <svg className="w-5 h-5 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,17 +108,17 @@ const PropertyList = () => {
             </div>
           </div>
 
-          <button className="hidden lg:flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all shadow-md hover:shadow-lg">
+          <button className="hidden lg:flex items-center gap-2 px-6 py-3 bg-primary-900 text-white rounded-lg hover:bg-primary-800 transition-colors">
             <FiMap size={18} />
-            <span className="text-sm font-semibold">Voir sur la carte</span>
+            <span className="text-sm font-medium">Voir sur la carte</span>
           </button>
         </div>
 
-        {/* Results info with better styling */}
-        <div className="mt-4 pt-4 border-t border-secondary-100">
+        {/* Results info */}
+        <div className="mt-5 pt-5 border-t border-secondary-100">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-secondary-700">
-              <span className="text-primary-600 font-bold">{pagination.total}</span> 
+            <p className="text-sm text-secondary-600">
+              <span className="font-semibold text-primary-900">{pagination.total}</span> 
               {' '}propriété{pagination.total !== 1 ? 's' : ''} trouvée{pagination.total !== 1 ? 's' : ''}
             </p>
             {pagination.pages > 1 && (
