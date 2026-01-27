@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = 'http://localhost:4000/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -56,15 +56,17 @@ export const authApi = {
 export const propertiesApi = {
   getAll: async (params?: Record<string, any>) => {
     const response = await api.get('/properties', { params });
-    return response.data;
+    // API returns { data: { properties: [], pagination: {} } }
+    return response.data.data || response.data;
   },
   getById: async (id: string) => {
     const response = await api.get(`/properties/${id}`);
-    return response.data;
+    // API returns { data: property } or just property
+    return response.data.data || response.data;
   },
   getFeatured: async (limit?: number) => {
     const response = await api.get('/properties/featured', { params: { limit } });
-    return response.data;
+    return response.data.data || response.data;
   },
   create: (data: any) => api.post('/properties', data),
   update: (id: string, data: any) => api.put(`/properties/${id}`, data),
@@ -79,11 +81,14 @@ export const reservationsApi = {
   getAll: (params?: Record<string, any>) =>
     api.get('/reservations', { params }),
   getMyReservations: (params?: Record<string, any>) =>
-    api.get('/reservations/my-reservations', { params }),
+    api.get('/reservations/my', { params }),
   getById: (id: string) => api.get(`/reservations/${id}`),
-  create: (data: any) => api.post('/reservations', data),
+  create: async (data: any) => {
+    const response = await api.post('/reservations', data);
+    return response.data.data || response.data;
+  },
   confirm: (id: string) => api.patch(`/reservations/${id}/confirm`),
-  cancel: (id: string) => api.patch(`/reservations/${id}/cancel`),
+  cancel: (id: string) => api.post(`/reservations/${id}/cancel`),
   update: (id: string, data: any) => api.put(`/reservations/${id}`, data),
   delete: (id: string) => api.delete(`/reservations/${id}`),
   checkAvailability: (params: { propertyId: string; startDate: string; endDate: string }) =>
@@ -93,23 +98,23 @@ export const reservationsApi = {
 // Blog API
 export const blogApi = {
   getAll: (params?: Record<string, any>) =>
-    api.get('/blog', { params }),
+    api.get('/blogs', { params }),
   getPosts: async (params?: Record<string, any>) => {
-    const response = await api.get('/blog', { params });
-    return response.data;
+    const response = await api.get('/blogs', { params });
+    return response.data.data || response.data;
   },
   getPost: async (slug: string) => {
-    const response = await api.get(`/blog/${slug}`);
-    return response.data;
+    const response = await api.get(`/blogs/${slug}`);
+    return response.data.data || response.data;
   },
-  getById: (id: string) => api.get(`/blog/${id}`),
+  getById: (id: string) => api.get(`/blogs/${id}`),
   getRecent: (limit?: number) =>
-    api.get('/blog/recent', { params: { limit } }),
-  create: (data: any) => api.post('/blog', data),
-  update: (id: string, data: any) => api.put(`/blog/${id}`, data),
-  delete: (id: string) => api.delete(`/blog/${id}`),
-  publish: (id: string) => api.patch(`/blog/${id}/publish`),
-  unpublish: (id: string) => api.patch(`/blog/${id}/unpublish`),
+    api.get('/blogs/recent', { params: { limit } }),
+  create: (data: any) => api.post('/blogs', data),
+  update: (id: string, data: any) => api.put(`/blogs/${id}`, data),
+  delete: (id: string) => api.delete(`/blogs/${id}`),
+  publish: (id: string) => api.patch(`/blogs/${id}/publish`),
+  unpublish: (id: string) => api.patch(`/blogs/${id}/unpublish`),
 };
 
 // Ads API
@@ -135,6 +140,59 @@ export const usersApi = {
   create: (data: any) => api.post('/users', data),
   update: (id: string, data: any) => api.put(`/users/${id}`, data),
   delete: (id: string) => api.delete(`/users/${id}`),
+};
+
+// Heroes API (for hero section advertisements)
+export const heroesApi = {
+  getAll: async () => {
+    const response = await api.get('/heroes');
+    return response.data.data || response.data;
+  },
+  getActive: async () => {
+    const response = await api.get('/heroes');
+    // API might return { data: [...] } or just [...]
+    const heroes = response.data.data || response.data;
+    return Array.isArray(heroes)
+      ? heroes.filter((h: any) => h.isActive).sort((a: any, b: any) => a.order - b.order)
+      : [];
+  },
+  getById: (id: string) => api.get(`/heroes/${id}`),
+  create: (data: any) => api.post('/heroes', data),
+  update: (id: string, data: any) => api.put(`/heroes/${id}`, data),
+  delete: (id: string) => api.delete(`/heroes/${id}`),
+  reorder: (orderedIds: string[]) => api.post('/heroes/reorder', { orderedIds }),
+};
+
+// Cities API
+export const citiesApi = {
+  getAll: async () => {
+    const response = await api.get('/cities');
+    // API might return { data: [...] } or just [...]
+    return response.data.data || response.data;
+  },
+  getById: (id: string) => api.get(`/cities/${id}`),
+  create: (data: any) => api.post('/cities', data),
+  update: (id: string, data: any) => api.put(`/cities/${id}`, data),
+  delete: (id: string) => api.delete(`/cities/${id}`),
+};
+
+// Leads API (contact inquiries)
+export const leadsApi = {
+  create: async (data: {
+    propertyId: string;
+    name: string;
+    email: string;
+    phone: string;
+    message?: string;
+  }) => {
+    const response = await api.post('/leads', data);
+    return response.data.data || response.data;
+  },
+  getAll: (params?: Record<string, any>) =>
+    api.get('/leads', { params }),
+  getById: (id: string) => api.get(`/leads/${id}`),
+  update: (id: string, data: any) => api.put(`/leads/${id}`, data),
+  delete: (id: string) => api.delete(`/leads/${id}`),
 };
 
 export default api;

@@ -86,7 +86,7 @@ export default function DiscoverSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-20 lg:py-28 bg-secondary-50">
+    <section ref={sectionRef} className="pt-32 pb-20 lg:pt-36 lg:pb-28 bg-secondary-50">
       <div className="container mx-auto px-4 lg:px-6">
         {/* Header */}
         <div ref={titleRef} className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">

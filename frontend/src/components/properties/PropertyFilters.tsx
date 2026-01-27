@@ -1,8 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { FiSliders, FiX } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { FiSliders, FiX, FiMapPin } from 'react-icons/fi';
 import { PropertyFilters as Filters } from '@/types';
+import { citiesApi } from '@/lib/api';
+
+interface City {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 interface PropertyFiltersProps {
   onFilterChange: (filters: Filters) => void;
@@ -10,6 +17,7 @@ interface PropertyFiltersProps {
 
 const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [cities, setCities] = useState<City[]>([]);
   const [filters, setFilters] = useState<Filters>({
     type: '',
     listingType: '',
@@ -19,6 +27,19 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
     bedrooms: undefined,
     search: '',
   });
+
+  // Fetch cities from API
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const data = await citiesApi.getAll();
+        setCities(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+      }
+    };
+    fetchCities();
+  }, []);
 
   const handleFilterChange = (key: keyof Filters, value: any) => {
     const newFilters = { ...filters, [key]: value };
@@ -42,6 +63,18 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
 
   const activeFiltersCount = Object.values(filters).filter(v => v !== '' && v !== undefined).length;
 
+  // Listing type options matching API values
+  const listingTypes = [
+    { value: 'LOCATION', label: 'À Louer' },
+    { value: 'VENTE', label: 'À Vendre' },
+  ];
+
+  // Property category options matching API values
+  const propertyCategories = [
+    { value: 'VILLA', label: 'Villa' },
+    { value: 'APPARTEMENT', label: 'Appartement' },
+  ];
+
   return (
     <>
       {/* Filter Toggle Button - Airbnb style */}
@@ -50,9 +83,9 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
         className="flex items-center gap-2 px-4 py-3 border border-secondary-300 rounded-xl hover:border-secondary-900 transition-colors"
       >
         <FiSliders size={16} />
-        <span className="text-sm font-medium">Filters</span>
+        <span className="text-sm font-medium">Filtres</span>
         {activeFiltersCount > 0 && (
-          <span className="w-5 h-5 bg-secondary-900 text-white text-xs rounded-full flex items-center justify-center">
+          <span className="w-5 h-5 bg-primary-900 text-white text-xs rounded-full flex items-center justify-center">
             {activeFiltersCount}
           </span>
         )}
@@ -70,12 +103,12 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
               >
                 <FiX size={20} />
               </button>
-              <span className="font-semibold">Filters</span>
+              <span className="font-semibold">Filtres</span>
               <button
                 onClick={handleReset}
                 className="text-sm font-medium text-secondary-900 underline"
               >
-                Clear all
+                Effacer tout
               </button>
             </div>
 
@@ -83,54 +116,74 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
             <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
               {/* Listing Type */}
               <div>
-                <h3 className="font-semibold text-secondary-900 mb-4">Type of listing</h3>
+                <h3 className="font-semibold text-secondary-900 mb-4">Type d'annonce</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {['rent', 'sale'].map((type) => (
+                  {listingTypes.map((type) => (
                     <button
-                      key={type}
-                      onClick={() => handleFilterChange('listingType', filters.listingType === type ? '' : type)}
+                      key={type.value}
+                      onClick={() => handleFilterChange('listingType', filters.listingType === type.value ? '' : type.value)}
                       className={`p-4 border rounded-xl text-left transition-all ${
-                        filters.listingType === type 
-                          ? 'border-secondary-900 bg-secondary-50' 
+                        filters.listingType === type.value 
+                          ? 'border-primary-900 bg-primary-50' 
                           : 'border-secondary-300 hover:border-secondary-400'
                       }`}
                     >
-                      <span className="font-medium capitalize">{type === 'rent' ? 'For Rent' : 'For Sale'}</span>
+                      <span className="font-medium">{type.label}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Property Type */}
+              {/* Property Category */}
               <div>
-                <h3 className="font-semibold text-secondary-900 mb-4">Property type</h3>
-                <div className="grid grid-cols-3 gap-3">
-                  {['apartment', 'villa', 'house', 'studio', 'commercial', 'land'].map((type) => (
+                <h3 className="font-semibold text-secondary-900 mb-4">Type de propriété</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {propertyCategories.map((cat) => (
                     <button
-                      key={type}
-                      onClick={() => handleFilterChange('type', filters.type === type ? '' : type)}
-                      className={`p-3 border rounded-xl text-center transition-all text-sm ${
-                        filters.type === type 
-                          ? 'border-secondary-900 bg-secondary-50' 
+                      key={cat.value}
+                      onClick={() => handleFilterChange('type', filters.type === cat.value ? '' : cat.value)}
+                      className={`p-4 border rounded-xl text-center transition-all ${
+                        filters.type === cat.value 
+                          ? 'border-primary-900 bg-primary-50' 
                           : 'border-secondary-300 hover:border-secondary-400'
                       }`}
                     >
-                      <span className="capitalize">{type}</span>
+                      <span className="font-medium">{cat.label}</span>
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* City Selection */}
+              <div>
+                <h3 className="font-semibold text-secondary-900 mb-4">Ville</h3>
+                <div className="relative">
+                  <FiMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary-400" size={18} />
+                  <select
+                    value={filters.city || ''}
+                    onChange={(e) => handleFilterChange('city', e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 border border-secondary-300 rounded-xl text-sm bg-white hover:border-secondary-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="">Toutes les villes</option>
+                    {cities.map((city) => (
+                      <option key={city.id} value={city.id}>
+                        {city.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
               {/* Price Range */}
               <div>
-                <h3 className="font-semibold text-secondary-900 mb-4">Price range (DH)</h3>
+                <h3 className="font-semibold text-secondary-900 mb-4">Fourchette de prix (DH)</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm text-secondary-500 mb-1 block">Minimum</label>
                     <input
                       type="number"
-                      placeholder="No min"
-                      className="input"
+                      placeholder="Pas de min"
+                      className="w-full px-4 py-3 border border-secondary-300 rounded-xl text-sm hover:border-secondary-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all"
                       value={filters.minPrice || ''}
                       onChange={(e) =>
                         handleFilterChange('minPrice', e.target.value ? Number(e.target.value) : undefined)
@@ -141,8 +194,8 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
                     <label className="text-sm text-secondary-500 mb-1 block">Maximum</label>
                     <input
                       type="number"
-                      placeholder="No max"
-                      className="input"
+                      placeholder="Pas de max"
+                      className="w-full px-4 py-3 border border-secondary-300 rounded-xl text-sm hover:border-secondary-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all"
                       value={filters.maxPrice || ''}
                       onChange={(e) =>
                         handleFilterChange('maxPrice', e.target.value ? Number(e.target.value) : undefined)
@@ -154,15 +207,15 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
 
               {/* Bedrooms */}
               <div>
-                <h3 className="font-semibold text-secondary-900 mb-4">Bedrooms</h3>
+                <h3 className="font-semibold text-secondary-900 mb-4">Chambres</h3>
                 <div className="flex gap-2">
-                  {['Any', 1, 2, 3, 4, '5+'].map((num) => (
+                  {['Tous', 1, 2, 3, 4, '5+'].map((num) => (
                     <button
                       key={num}
-                      onClick={() => handleFilterChange('bedrooms', num === 'Any' ? undefined : (num === '5+' ? 5 : num))}
+                      onClick={() => handleFilterChange('bedrooms', num === 'Tous' ? undefined : (num === '5+' ? 5 : num))}
                       className={`flex-1 py-3 border rounded-xl text-center transition-all text-sm ${
-                        (num === 'Any' && !filters.bedrooms) || filters.bedrooms === (num === '5+' ? 5 : num)
-                          ? 'border-secondary-900 bg-secondary-50' 
+                        (num === 'Tous' && !filters.bedrooms) || filters.bedrooms === (num === '5+' ? 5 : num)
+                          ? 'border-primary-900 bg-primary-50 text-primary-900' 
                           : 'border-secondary-300 hover:border-secondary-400'
                       }`}
                     >
@@ -179,13 +232,13 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
                 onClick={handleReset}
                 className="text-sm font-medium underline"
               >
-                Clear all
+                Effacer tout
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="btn-primary"
+                className="px-6 py-3 bg-primary-900 text-white rounded-xl font-semibold hover:bg-primary-800 transition-colors"
               >
-                Show results
+                Afficher les résultats
               </button>
             </div>
           </div>

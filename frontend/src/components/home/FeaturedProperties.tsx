@@ -100,9 +100,13 @@ export default function FeaturedProperties() {
       const params: Record<string, any> = { limit: 8 };
 
       if (activeTab === 'featured') {
-        params.featured = true;
+        // Show only available properties for featured
+        params.status = 'AVAILABLE';
       } else if (activeTab === 'LOCATION' || activeTab === 'VENTE') {
         params.listingType = activeTab;
+        params.status = 'AVAILABLE';
+      } else if (activeTab === 'all') {
+        params.status = 'AVAILABLE';
       }
 
       const data = await propertiesApi.getAll(params);
@@ -185,107 +189,117 @@ export default function FeaturedProperties() {
           </div>
         ) : properties.length > 0 ? (
           <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {properties.map((property) => (
-              <Link
-                key={property._id}
-                href={`/properties/${property.slug}`}
-                className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-luxury transition-all duration-500"
-              >
-                {/* Image */}
-                <div className="relative h-64 overflow-hidden">
-                  <Image
-                    src={property.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600'}
-                    alt={property.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
+            {properties.map((property) => {
+              // Map backend fields to frontend expectations
+              const propertyId = property.id || property._id || '';
+              const location = property.city?.name || property.location || property.address || 'Saidia Bay';
+              const bedrooms = property.chambres || property.bedrooms;
+              const bathrooms = property.sallesDeBain || property.bathrooms;
+              const area = property.surface || property.area;
+              const slug = property.slug || property.id;
 
-                  {/* Overlays */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              return (
+                <Link
+                  key={propertyId}
+                  href={`/properties/${slug}`}
+                  className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-luxury transition-all duration-500"
+                >
+                  {/* Image */}
+                  <div className="relative h-64 overflow-hidden">
+                    <Image
+                      src={property.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600'}
+                      alt={property.title}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
 
-                  {/* Badges */}
-                  <div className="absolute top-4 left-4 flex gap-2">
-                    {property.isFeatured && (
-                      <span className="px-3 py-1 bg-accent-500 text-white text-xs font-semibold rounded-full">
-                        En Vedette
+                    {/* Overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                    {/* Badges */}
+                    <div className="absolute top-4 left-4 flex gap-2">
+                      {property.isFeatured && (
+                        <span className="px-3 py-1 bg-accent-500 text-white text-xs font-semibold rounded-full">
+                          En Vedette
+                        </span>
+                      )}
+                      <span className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${property.listingType === 'VENTE' ? 'bg-primary-900' : 'bg-success-500'
+                        }`}>
+                        {property.listingType === 'VENTE' ? 'À Vendre' : 'À Louer'}
                       </span>
-                    )}
-                    <span className={`px-3 py-1 text-white text-xs font-semibold rounded-full ${property.listingType === 'VENTE' ? 'bg-primary-900' : 'bg-success-500'
-                      }`}>
-                      {property.listingType === 'VENTE' ? 'À Vendre' : 'À Louer'}
-                    </span>
-                  </div>
+                    </div>
 
-                  {/* Favorite Button */}
-                  <button
-                    onClick={(e) => handleFavorite(e, property._id)}
-                    className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all ${mounted && isFavorite(property._id)
+                    {/* Favorite Button */}
+                    <button
+                      onClick={(e) => handleFavorite(e, propertyId)}
+                      className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all ${mounted && isFavorite(propertyId)
                         ? 'bg-danger-500 text-white'
                         : 'bg-white/90 text-secondary-600 hover:bg-white hover:text-danger-500'
-                      }`}
-                  >
-                    <FiHeart className={`w-4 h-4 ${mounted && isFavorite(property._id) ? 'fill-current' : ''}`} />
-                  </button>
+                        }`}
+                    >
+                      <FiHeart className={`w-4 h-4 ${mounted && isFavorite(propertyId) ? 'fill-current' : ''}`} />
+                    </button>
 
-                  {/* Rating */}
-                  <div className="absolute bottom-4 left-4 flex items-center gap-1 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full">
-                    <FiStar className="w-4 h-4 text-accent-500 fill-accent-500" />
-                    <span className="text-sm font-semibold text-secondary-900">4.9</span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-5">
-                  {/* Location */}
-                  <div className="flex items-center gap-1 text-secondary-500 text-sm mb-2">
-                    <FiMapPin className="w-4 h-4" />
-                    <span>{property.location}</span>
+                    {/* Rating */}
+                    <div className="absolute bottom-4 left-4 flex items-center gap-1 px-2 py-1 bg-white/90 backdrop-blur-sm rounded-full">
+                      <FiStar className="w-4 h-4 text-accent-500 fill-accent-500" />
+                      <span className="text-sm font-semibold text-secondary-900">4.9</span>
+                    </div>
                   </div>
 
-                  {/* Title */}
-                  <h3 className="font-semibold text-secondary-900 text-lg mb-3 line-clamp-1 group-hover:text-primary-700 transition-colors">
-                    {property.title}
-                  </h3>
+                  {/* Content */}
+                  <div className="p-5">
+                    {/* Location */}
+                    <div className="flex items-center gap-1 text-secondary-500 text-sm mb-2">
+                      <FiMapPin className="w-4 h-4" />
+                      <span>{location}</span>
+                    </div>
 
-                  {/* Features */}
-                  <div className="flex items-center gap-4 text-secondary-600 text-sm mb-4">
-                    {property.bedrooms && (
-                      <div className="flex items-center gap-1">
-                        <IoBedOutline className="w-4 h-4" />
-                        <span>{property.bedrooms} Lits</span>
-                      </div>
-                    )}
-                    {property.bathrooms && (
-                      <div className="flex items-center gap-1">
-                        <LuBath className="w-4 h-4" />
-                        <span>{property.bathrooms} SDB</span>
-                      </div>
-                    )}
-                    {property.area && (
-                      <div className="flex items-center gap-1">
-                        <FiMaximize2 className="w-4 h-4" />
-                        <span>{property.area} m²</span>
-                      </div>
-                    )}
-                  </div>
+                    {/* Title */}
+                    <h3 className="font-semibold text-secondary-900 text-lg mb-3 line-clamp-1 group-hover:text-primary-700 transition-colors">
+                      {property.title}
+                    </h3>
 
-                  {/* Price */}
-                  <div className="flex items-center justify-between pt-4 border-t border-secondary-100">
-                    <div>
-                      <span className="text-xl font-bold text-primary-900">
-                        {property.price?.toLocaleString()} DH
-                      </span>
-                      {property.listingType === 'LOCATION' && (
-                        <span className="text-secondary-500 text-sm"> /mois</span>
+                    {/* Features */}
+                    <div className="flex items-center gap-4 text-secondary-600 text-sm mb-4">
+                      {bedrooms && (
+                        <div className="flex items-center gap-1">
+                          <IoBedOutline className="w-4 h-4" />
+                          <span>{bedrooms} Lits</span>
+                        </div>
+                      )}
+                      {bathrooms && (
+                        <div className="flex items-center gap-1">
+                          <LuBath className="w-4 h-4" />
+                          <span>{bathrooms} SDB</span>
+                        </div>
+                      )}
+                      {area && (
+                        <div className="flex items-center gap-1">
+                          <FiMaximize2 className="w-4 h-4" />
+                          <span>{area} m²</span>
+                        </div>
                       )}
                     </div>
-                    <span className="text-primary-700 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                      Voir Détails →
-                    </span>
+
+                    {/* Price */}
+                    <div className="flex items-center justify-between pt-4 border-t border-secondary-100">
+                      <div>
+                        <span className="text-xl font-bold text-primary-900">
+                          {property.price?.toLocaleString()} DH
+                        </span>
+                        {property.listingType === 'LOCATION' && (
+                          <span className="text-secondary-500 text-sm"> /mois</span>
+                        )}
+                      </div>
+                      <span className="text-primary-700 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                        Voir Détails →
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-16">

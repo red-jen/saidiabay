@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { FiCalendar, FiUser, FiMail, FiPhone } from 'react-icons/fi';
+import { FiCalendar, FiUser, FiMail, FiPhone, FiMessageSquare } from 'react-icons/fi';
 import { reservationsApi } from '@/lib/api';
-import { toast } from 'react-toastify';
 
 interface ReservationFormProps {
   propertyId: string;
@@ -16,22 +15,31 @@ const ReservationForm = ({ propertyId }: ReservationFormProps) => {
     guestName: '',
     guestEmail: '',
     guestPhone: '',
-    numberOfGuests: 1,
-    notes: '',
+    message: '',
   });
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
+    setSuccess(false);
 
     try {
+      // Format data to match API expectations
       await reservationsApi.create({
         propertyId,
-        ...formData,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        guestName: formData.guestName,
+        guestEmail: formData.guestEmail,
+        guestPhone: formData.guestPhone,
+        message: formData.message || undefined,
       });
 
-      toast.success('Reservation request submitted successfully! We will contact you shortly.');
+      setSuccess(true);
       
       // Reset form
       setFormData({
@@ -40,19 +48,18 @@ const ReservationForm = ({ propertyId }: ReservationFormProps) => {
         guestName: '',
         guestEmail: '',
         guestPhone: '',
-        numberOfGuests: 1,
-        notes: '',
+        message: '',
       });
-    } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to submit reservation';
-      toast.error(message);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Échec de la soumission de la réservation';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setFormData({
       ...formData,
@@ -60,16 +67,46 @@ const ReservationForm = ({ propertyId }: ReservationFormProps) => {
     });
   };
 
+  if (success) {
+    return (
+      <div className="text-center py-6">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-secondary-900 mb-2">
+          Demande envoyée !
+        </h3>
+        <p className="text-sm text-secondary-600">
+          Nous vous contacterons dans les 24 heures.
+        </p>
+        <button
+          onClick={() => setSuccess(false)}
+          className="mt-4 text-sm text-primary-600 font-medium hover:text-primary-700"
+        >
+          Faire une autre réservation
+        </button>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <h3 className="text-lg font-semibold text-secondary-900 mb-4">
-        Pre-Reserve This Property
+        Pré-réserver cette propriété
       </h3>
+
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+          {error}
+        </div>
+      )}
 
       {/* Date Range */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="label text-sm">Start Date</label>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">Date début</label>
           <div className="relative">
             <input
               type="date"
@@ -78,12 +115,12 @@ const ReservationForm = ({ propertyId }: ReservationFormProps) => {
               value={formData.startDate}
               onChange={handleChange}
               min={new Date().toISOString().split('T')[0]}
-              className="input text-sm"
+              className="w-full px-4 py-3 border border-secondary-300 rounded-xl text-sm focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
             />
           </div>
         </div>
         <div>
-          <label className="label text-sm">End Date</label>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">Date fin</label>
           <div className="relative">
             <input
               type="date"
@@ -92,7 +129,7 @@ const ReservationForm = ({ propertyId }: ReservationFormProps) => {
               value={formData.endDate}
               onChange={handleChange}
               min={formData.startDate || new Date().toISOString().split('T')[0]}
-              className="input text-sm"
+              className="w-full px-4 py-3 border border-secondary-300 rounded-xl text-sm focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
             />
           </div>
         </div>
@@ -100,23 +137,24 @@ const ReservationForm = ({ propertyId }: ReservationFormProps) => {
 
       {/* Guest Info */}
       <div>
-        <label className="label text-sm">Full Name</label>
+        <label className="block text-sm font-medium text-secondary-700 mb-1">Nom complet</label>
         <div className="relative">
           <input
             type="text"
             name="guestName"
             required
+            minLength={2}
             value={formData.guestName}
             onChange={handleChange}
-            placeholder="Your full name"
-            className="input text-sm pl-10"
+            placeholder="Votre nom complet"
+            className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl text-sm focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
           />
           <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" size={16} />
         </div>
       </div>
 
       <div>
-        <label className="label text-sm">Email</label>
+        <label className="block text-sm font-medium text-secondary-700 mb-1">Email</label>
         <div className="relative">
           <input
             type="email"
@@ -124,64 +162,55 @@ const ReservationForm = ({ propertyId }: ReservationFormProps) => {
             required
             value={formData.guestEmail}
             onChange={handleChange}
-            placeholder="your@email.com"
-            className="input text-sm pl-10"
+            placeholder="votre@email.com"
+            className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl text-sm focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
           />
           <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" size={16} />
         </div>
       </div>
 
       <div>
-        <label className="label text-sm">Phone</label>
+        <label className="block text-sm font-medium text-secondary-700 mb-1">Téléphone</label>
         <div className="relative">
           <input
             type="tel"
             name="guestPhone"
             required
+            minLength={10}
             value={formData.guestPhone}
             onChange={handleChange}
             placeholder="+212 6 00 00 00 00"
-            className="input text-sm pl-10"
+            className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl text-sm focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
           />
           <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" size={16} />
         </div>
       </div>
 
       <div>
-        <label className="label text-sm">Number of Guests</label>
-        <input
-          type="number"
-          name="numberOfGuests"
-          min="1"
-          required
-          value={formData.numberOfGuests}
-          onChange={handleChange}
-          className="input text-sm"
-        />
-      </div>
-
-      <div>
-        <label className="label text-sm">Additional Notes (Optional)</label>
-        <textarea
-          name="notes"
-          value={formData.notes}
-          onChange={handleChange}
-          rows={3}
-          placeholder="Any special requests or questions?"
-          className="input text-sm resize-none"
-        />
+        <label className="block text-sm font-medium text-secondary-700 mb-1">Message (optionnel)</label>
+        <div className="relative">
+          <textarea
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            rows={3}
+            placeholder="Des questions ou demandes spéciales ?"
+            className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl text-sm resize-none focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
+          />
+          <FiMessageSquare className="absolute left-3 top-3 text-secondary-400" size={16} />
+        </div>
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-4 bg-primary-900 text-white rounded-xl font-semibold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? 'Submitting...' : 'Submit Reservation Request'}
+        {loading ? 'Envoi en cours...' : 'Envoyer la demande'}
       </button>
 
       <p className="text-xs text-secondary-500 text-center">
-        Your request will be reviewed and we'll contact you within 24 hours
+        Votre demande sera examinée et nous vous contacterons dans les 24 heures
       </p>
     </form>
   );

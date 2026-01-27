@@ -10,29 +10,75 @@ export interface User {
 }
 
 export interface Property {
-  _id: string; // MongoDB ID
-  id: string;
+  _id?: string; // Old MongoDB ID for backwards compatibility
+  id: string; // Backend uses cuid
   title: string;
-  description: string;
+  description?: string;
   price: number;
-  type: 'apartment' | 'house' | 'villa' | 'studio' | 'commercial' | 'land';
-  status: 'DISPONIBLE' | 'LOUE' | 'VENDU' | 'EN_ATTENTE' | 'available' | 'rented' | 'sold' | 'pending';
-  listingType: 'VENTE' | 'LOCATION' | 'rent' | 'sale';
-  location: string;
+  propertyType?: 'RENT' | 'SALE';
+  listingType: 'VENTE' | 'LOCATION';
+  propertyCategory?: 'VILLA' | 'APPARTEMENT';
+  type?: 'apartment' | 'house' | 'villa' | 'studio' | 'commercial' | 'land';
+  status: 'AVAILABLE' | 'PENDING' | 'SOLD' | 'DISPONIBLE' | 'LOUE' | 'VENDU' | 'EN_ATTENTE';
+  cityId?: string;
+  city?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  location?: string;
   address?: string;
-  city?: string;
+  latitude?: number;
+  longitude?: number;
+  images: string[];
+  thumbnail?: string;
+  videoUrl?: string;
+  // Property features - backend field names
+  chambres?: number;
+  sallesDeBain?: number;
+  surface?: number;
+  anneeCons?: number;
+  garage?: number;
+  balcon?: boolean;
+  climatisation?: boolean;
+  gazon?: boolean;
+  machineLaver?: boolean;
+  tv?: boolean;
+  parking?: boolean;
+  piscine?: boolean;
+  wifi?: boolean;
+  cuisine?: boolean;
+  // Frontend field aliases
   bedrooms?: number;
   bathrooms?: number;
   area?: number;
-  images: string[];
-  features: string[];
-  isFeatured: boolean;
-  views: number;
-  slug: string;
+  features?: string[];
+  isFeatured?: boolean;
+  isActive?: boolean;
+  views?: number;
+  slug?: string;
   metaTitle?: string;
   metaDescription?: string;
-  userId: string;
+  userId?: string;
   owner?: User;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Hero {
+  id: string;
+  title: string;
+  subtitle?: string;
+  imageUrl: string;
+  ctaText?: string;
+  ctaLink?: string;
+  order: number;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -107,17 +153,28 @@ export interface ApiResponse<T> {
 }
 
 export interface PropertyFilters {
-  type?: string;
-  listingType?: string;
-  status?: string;
-  city?: string;
+  type?: string; // Maps to propertyCategory in API (VILLA | APPARTEMENT)
+  listingType?: string; // LOCATION | VENTE
+  status?: string; // AVAILABLE | PENDING | SOLD
+  city?: string; // cityId for API
+  cityId?: string;
+  propertyCategory?: string; // VILLA | APPARTEMENT
   minPrice?: number;
   maxPrice?: number;
-  bedrooms?: number;
+  bedrooms?: number; // Maps to chambres in API
+  chambres?: number;
   search?: string;
   featured?: boolean;
   page?: number;
   limit?: number;
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
+}
+
+export interface City {
+  id: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
 }
