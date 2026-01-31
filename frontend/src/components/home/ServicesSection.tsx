@@ -88,17 +88,22 @@ export default function ServicesSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-20 lg:py-28 bg-secondary-50">
+    <section ref={sectionRef} className="relative py-20 lg:py-32 overflow-hidden bg-white">
       <div className="container mx-auto px-4 lg:px-6">
         {/* Header */}
-        <div ref={titleRef} className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-accent-600 font-semibold text-sm uppercase tracking-wider mb-3">
-            Nos Services
-          </p>
-          <h2 className="text-4xl lg:text-5xl font-heading font-bold text-secondary-900 mb-4">
-            Ce Que Nous Offrons
+        <div ref={titleRef} className="text-center max-w-3xl mx-auto mb-16">
+          {/* Brand Label - Matching Hero */}
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-12 h-px bg-accent-500" />
+            <span className="text-accent-400 text-sm font-medium tracking-[0.2em] uppercase">
+              Nos Services
+            </span>
+            <div className="w-12 h-px bg-accent-500" />
+          </div>
+          <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-primary-900 font-medium leading-[1.1] mb-4">
+            Ce Que Nous <span className="text-accent-500">Offrons</span>
           </h2>
-          <p className="text-lg text-secondary-600">
+          <p className="text-lg md:text-xl text-primary-800/80 leading-relaxed">
             Tout ce dont vous avez besoin pour votre parcours immobilier en un seul endroit
           </p>
         </div>
@@ -117,7 +122,7 @@ export default function ServicesSection() {
                   <Icon className="w-7 h-7" />
                 </div>
 
-                <h3 className="text-xl font-semibold text-secondary-900 mb-3 group-hover:text-primary-700 transition-colors">
+                <h3 className="font-serif text-xl md:text-2xl font-medium text-primary-900 mb-3 group-hover:text-accent-500 transition-colors">
                   {service.title}
                 </h3>
 

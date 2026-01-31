@@ -60,8 +60,9 @@ export default function CTASection() {
               fill
               className="cta-bg object-cover scale-110"
             />
-            <div className="absolute inset-0 bg-primary-900/80 mix-blend-multiply" />
-            <div className="absolute inset-0 bg-black/30" />
+            {/* Premium Overlay - Matching Hero */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary-950/85 via-primary-900/75 to-primary-900/65" />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary-950/60 via-transparent to-primary-950/30" />
           </div>
 
           <div ref={contentRef} className="relative z-10 px-6 max-w-4xl mx-auto py-20">
@@ -69,9 +70,9 @@ export default function CTASection() {
               Commencez Votre Voyage
             </span>
 
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-heading font-light text-white mb-8 leading-tight">
+            <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white font-medium leading-[1.1] mb-8">
               Prêt à Vivre le <br />
-              <span className="font-serif italic text-accent-300">Rêve Méditerranéen ?</span>
+              <span className="text-accent-400">Rêve Méditerranéen ?</span>
             </h2>
 
             <p className="text-lg md:text-xl text-white/80 mb-12 max-w-2xl mx-auto font-light leading-relaxed">
@@ -82,15 +83,15 @@ export default function CTASection() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <Link
                 href="/properties"
-                className="group px-10 py-5 bg-white text-primary-900 rounded-full font-medium tracking-wide hover:bg-accent-50 transition-all duration-300 shadow-xl hover:shadow-white/20 flex items-center gap-3"
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-accent-500 text-white font-medium rounded-lg hover:bg-accent-600 transition-all shadow-gold"
               >
-                <span>Explorer les Propriétés</span>
-                <FiArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Explorer les Propriétés
+                <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
 
               <Link
                 href="/contact"
-                className="px-10 py-5 bg-transparent border border-white/30 text-white rounded-full font-medium tracking-wide hover:bg-white/10 transition-colors backdrop-blur-sm"
+                className="inline-flex items-center gap-2 px-8 py-4 border-2 border-white/30 text-white font-medium rounded-lg hover:bg-white/10 hover:border-white/50 transition-all"
               >
                 Nous Contacter
               </Link>

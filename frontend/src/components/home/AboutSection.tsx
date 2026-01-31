@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FiCheck, FiPlay, FiAward, FiUsers, FiTrendingUp } from 'react-icons/fi';
+import { FiCheck, FiPlay, FiAward, FiUsers, FiTrendingUp, FiArrowRight } from 'react-icons/fi';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -68,53 +68,62 @@ export default function AboutSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-20 lg:py-28 overflow-hidden">
-      <div className="container mx-auto px-4 lg:px-6">
+    <section ref={sectionRef} className="relative py-20 lg:py-32 overflow-hidden">
+      {/* Premium Background with Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white via-secondary-50 to-white" />
+      
+      <div className="relative container mx-auto px-4 lg:px-6">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Images */}
           <div ref={imageRef} className="relative">
             {/* Main Image */}
-            <div className="relative rounded-3xl overflow-hidden shadow-luxury-lg aspect-[4/3]">
+            <div className="relative rounded-3xl overflow-hidden shadow-elegant-lg aspect-[4/3]">
               <Image
                 src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"
                 alt="Luxury Property"
                 fill
                 className="object-cover"
               />
+              
+              {/* Premium Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-primary-950/40 via-transparent to-transparent" />
 
               {/* Play Button */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <button className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-luxury hover:scale-110 transition-transform group">
-                  <FiPlay className="w-8 h-8 text-primary-900 ml-1" />
+                <button className="w-20 h-20 bg-accent-500 rounded-full flex items-center justify-center shadow-gold hover:scale-110 transition-transform group">
+                  <FiPlay className="w-8 h-8 text-white ml-1" />
                 </button>
               </div>
             </div>
 
             {/* Floating Card */}
-            <div className="absolute -bottom-8 -right-8 bg-white rounded-2xl shadow-luxury-xl p-6 max-w-[200px] hidden lg:block">
-              <div className="text-4xl font-heading font-bold text-primary-900 mb-1">
+            <div className="absolute -bottom-8 -right-8 bg-primary-900 rounded-2xl shadow-elegant-xl p-6 max-w-[200px] hidden lg:block">
+              <div className="text-4xl font-serif font-medium text-accent-400 mb-1">
                 98%
               </div>
-              <p className="text-secondary-600 text-sm">
+              <p className="text-white/80 text-sm">
                 Taux de Satisfaction Client
               </p>
             </div>
 
             {/* Background Shape */}
-            <div className="absolute -z-10 -top-6 -left-6 w-full h-full bg-accent-100 rounded-3xl" />
+            <div className="absolute -z-10 -top-6 -left-6 w-full h-full bg-accent-100/50 rounded-3xl" />
           </div>
 
           {/* Content */}
           <div ref={contentRef}>
-            <p className="text-accent-600 font-semibold text-sm uppercase tracking-wider mb-3">
-              À Propos de Nous
-            </p>
-            <h2 className="text-4xl lg:text-5xl font-heading font-bold text-secondary-900 leading-tight mb-6">
-              Votre Partenaire de Confiance en
-              <span className="text-primary-700"> Immobilier de Luxe</span>
+            {/* Brand Label - Matching Hero */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-px bg-accent-500" />
+              <span className="text-accent-400 text-sm font-medium tracking-[0.2em] uppercase">
+                À Propos de Nous
+              </span>
+            </div>
+            <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-primary-900 font-medium leading-[1.1] mb-6">
+              Votre Partenaire de Confiance en <span className="text-accent-500">Immobilier de Luxe</span>
             </h2>
 
-            <p className="text-lg text-secondary-600 mb-8 leading-relaxed">
+            <p className="text-lg md:text-xl text-primary-800/80 mb-8 leading-relaxed">
               Avec plus d'une décennie d'expertise sur le marché immobilier de Saidia Bay, nous avons aidé
               des milliers de clients à trouver la maison de leurs rêves et à prendre des décisions d'investissement judicieuses.
             </p>
@@ -155,10 +164,10 @@ export default function AboutSection() {
             <div className="mt-10">
               <Link
                 href="/about"
-                className="inline-flex items-center gap-2 text-primary-900 font-semibold hover:gap-4 transition-all"
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-accent-500 text-white font-medium rounded-lg hover:bg-accent-600 transition-all shadow-gold"
               >
                 En Savoir Plus Sur Nous
-                <span className="text-xl">→</span>
+                <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>

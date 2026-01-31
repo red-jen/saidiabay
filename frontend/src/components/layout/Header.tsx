@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { FiMenu, FiX, FiUser, FiHeart, FiBarChart2, FiLogOut, FiSettings, FiPhone, FiMail, FiMapPin, FiSearch, FiHome, FiChevronDown, FiCalendar } from 'react-icons/fi';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -19,6 +19,8 @@ const propertyTypes = [
 
 const Header = () => {
   const router = useRouter();
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -290,147 +292,149 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Search Bar - Professional & Clean */}
-      <div className="bg-white border-t border-secondary-100 w-full">
-        <div className="container mx-auto px-4 lg:px-6 py-3 max-w-full">
-          <div className="max-w-6xl mx-auto w-full">
-            {/* Horizontal Search Bar - Clean Design */}
-            <form onSubmit={handleSearch} className="bg-white rounded-lg shadow-md border border-secondary-200 overflow-hidden w-full">
-              <div className="flex flex-col lg:flex-row w-full min-w-0">
-                {/* Listing Type Toggle - Integrated */}
-                <div className="flex items-center gap-1 p-1 bg-secondary-50 border-r border-secondary-200 lg:w-32 flex-shrink-0">
-                  <button
-                    onClick={() => {
-                      setSearchParams({ ...searchParams, listingType: 'LOCATION' });
-                      setStartDate(null);
-                      setEndDate(null);
-                    }}
-                    className={`flex-1 px-3 py-2 text-xs font-medium rounded transition-all ${
-                      searchParams.listingType === 'LOCATION'
-                        ? 'bg-white text-primary-900 shadow-sm'
-                        : 'text-secondary-600 hover:text-primary-900'
-                    }`}
-                  >
-                    Location
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSearchParams({ ...searchParams, listingType: 'VENTE' });
-                      setStartDate(null);
-                      setEndDate(null);
-                    }}
-                    className={`flex-1 px-3 py-2 text-xs font-medium rounded transition-all ${
-                      searchParams.listingType === 'VENTE'
-                        ? 'bg-white text-primary-900 shadow-sm'
-                        : 'text-secondary-600 hover:text-primary-900'
-                    }`}
-                  >
-                    Achat
-                  </button>
-                </div>
-
-                {/* Location */}
-                <div className="flex-1 relative border-r border-secondary-200 min-w-0">
-                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
-                    <FiMapPin className="w-4 h-4 text-secondary-500 flex-shrink-0" />
-                    <input
-                      type="text"
-                      placeholder="Où allez-vous ?"
-                      value={searchParams.location}
-                      onChange={(e) => setSearchParams({ ...searchParams, location: e.target.value })}
-                      onKeyPress={handleKeyPress}
-                      className="flex-1 bg-transparent text-sm text-primary-900 placeholder:text-secondary-400 focus:outline-none min-w-0"
-                    />
-                  </div>
-                </div>
-
-                {/* Property Type */}
-                <div className="flex-1 relative border-r border-secondary-200 min-w-0">
-                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
-                    <FiHome className="w-4 h-4 text-secondary-500 flex-shrink-0" />
-                    <select
-                      value={activeType}
-                      onChange={(e) => setActiveType(e.target.value)}
-                      className="flex-1 bg-transparent text-sm text-primary-900 focus:outline-none appearance-none cursor-pointer min-w-0"
+      {/* Search Bar - Professional & Clean - Only on Home Page */}
+      {isHomePage && (
+        <div className="bg-white border-t border-secondary-100 w-full">
+          <div className="container mx-auto px-4 lg:px-6 py-3 max-w-full">
+            <div className="max-w-6xl mx-auto w-full">
+              {/* Horizontal Search Bar - Clean Design */}
+              <form onSubmit={handleSearch} className="bg-white rounded-lg shadow-md border border-secondary-200 overflow-hidden w-full">
+                <div className="flex flex-col lg:flex-row w-full min-w-0">
+                  {/* Listing Type Toggle - Integrated */}
+                  <div className="flex items-center gap-1 p-1 bg-secondary-50 border-r border-secondary-200 lg:w-32 flex-shrink-0">
+                    <button
+                      onClick={() => {
+                        setSearchParams({ ...searchParams, listingType: 'LOCATION' });
+                        setStartDate(null);
+                        setEndDate(null);
+                      }}
+                      className={`flex-1 px-3 py-2 text-xs font-medium rounded transition-all ${
+                        searchParams.listingType === 'LOCATION'
+                          ? 'bg-white text-primary-900 shadow-sm'
+                          : 'text-secondary-600 hover:text-primary-900'
+                      }`}
                     >
-                      {propertyTypes.map((type) => (
-                        <option key={type.id} value={type.id}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
-                    <FiChevronDown className="w-4 h-4 text-secondary-400 flex-shrink-0 pointer-events-none" />
+                      Location
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSearchParams({ ...searchParams, listingType: 'VENTE' });
+                        setStartDate(null);
+                        setEndDate(null);
+                      }}
+                      className={`flex-1 px-3 py-2 text-xs font-medium rounded transition-all ${
+                        searchParams.listingType === 'VENTE'
+                          ? 'bg-white text-primary-900 shadow-sm'
+                          : 'text-secondary-600 hover:text-primary-900'
+                      }`}
+                    >
+                      Achat
+                    </button>
                   </div>
-                </div>
 
-                {/* Date Range - Only for Rentals */}
-                {isRental && (
+                  {/* Location */}
                   <div className="flex-1 relative border-r border-secondary-200 min-w-0">
-                    <div className="flex items-center gap-2 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
-                      <FiCalendar className="w-4 h-4 text-secondary-500 flex-shrink-0" />
-                      <div className="flex-1 min-w-0 relative">
-                        <div className="absolute inset-0 pointer-events-none z-10 flex items-center">
-                          {startDate && endDate ? (
-                            <span className="text-sm text-primary-900 font-medium">
-                              {startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} — {endDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
-                            </span>
-                          ) : startDate ? (
-                            <span className="text-sm text-primary-900 font-medium">
-                              {startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} — ...
-                            </span>
-                          ) : (
-                            <span className="text-sm text-secondary-400">Date d'arrivée — Date de départ</span>
-                          )}
-                        </div>
-                        <DatePicker
-                          selected={startDate}
-                          onChange={(dates: Date | [Date | null, Date | null] | null) => {
-                            if (dates) {
-                              if (Array.isArray(dates)) {
-                                setStartDate(dates[0]);
-                                setEndDate(dates[1]);
-                              } else {
-                                setStartDate(dates);
-                                setEndDate(null);
-                              }
-                            } else {
-                              setStartDate(null);
-                              setEndDate(null);
-                            }
-                          }}
-                          startDate={startDate}
-                          endDate={endDate}
-                          selectsRange
-                          minDate={new Date()}
-                          dateFormat=""
-                          className="w-full bg-transparent text-sm text-transparent focus:outline-none cursor-pointer border-0 p-0 opacity-0"
-                          wrapperClassName="w-full"
-                          calendarClassName="date-picker-calendar"
-                          popperClassName="date-picker-popper"
-                          isClearable
-                        />
-                      </div>
+                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
+                      <FiMapPin className="w-4 h-4 text-secondary-500 flex-shrink-0" />
+                      <input
+                        type="text"
+                        placeholder="Où allez-vous ?"
+                        value={searchParams.location}
+                        onChange={(e) => setSearchParams({ ...searchParams, location: e.target.value })}
+                        onKeyPress={handleKeyPress}
+                        className="flex-1 bg-transparent text-sm text-primary-900 placeholder:text-secondary-400 focus:outline-none min-w-0"
+                      />
                     </div>
                   </div>
-                )}
 
-                {/* Search Button */}
-                <button
-                  type="submit"
-                  className="flex items-center justify-center gap-2 px-6 lg:px-8 py-3 bg-accent-500 text-white font-semibold hover:bg-accent-600 transition-all text-sm whitespace-nowrap flex-shrink-0 rounded-r-lg"
-                >
-                  <FiSearch className="w-4 h-4" />
-                  <span className="hidden sm:inline">Rechercher</span>
-                </button>
-              </div>
-            </form>
+                  {/* Property Type */}
+                  <div className="flex-1 relative border-r border-secondary-200 min-w-0">
+                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
+                      <FiHome className="w-4 h-4 text-secondary-500 flex-shrink-0" />
+                      <select
+                        value={activeType}
+                        onChange={(e) => setActiveType(e.target.value)}
+                        className="flex-1 bg-transparent text-sm text-primary-900 focus:outline-none appearance-none cursor-pointer min-w-0"
+                      >
+                        {propertyTypes.map((type) => (
+                          <option key={type.id} value={type.id}>
+                            {type.label}
+                          </option>
+                        ))}
+                      </select>
+                      <FiChevronDown className="w-4 h-4 text-secondary-400 flex-shrink-0 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Date Range - Only for Rentals */}
+                  {isRental && (
+                    <div className="flex-1 relative border-r border-secondary-200 min-w-0">
+                      <div className="flex items-center gap-2 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
+                        <FiCalendar className="w-4 h-4 text-secondary-500 flex-shrink-0" />
+                        <div className="flex-1 min-w-0 relative">
+                          <div className="absolute inset-0 pointer-events-none z-10 flex items-center">
+                            {startDate && endDate ? (
+                              <span className="text-sm text-primary-900 font-medium">
+                                {startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} — {endDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                              </span>
+                            ) : startDate ? (
+                              <span className="text-sm text-primary-900 font-medium">
+                                {startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} — ...
+                              </span>
+                            ) : (
+                              <span className="text-sm text-secondary-400">Date d'arrivée — Date de départ</span>
+                            )}
+                          </div>
+                          <DatePicker
+                            selected={startDate}
+                            onChange={(dates: Date | [Date | null, Date | null] | null) => {
+                              if (dates) {
+                                if (Array.isArray(dates)) {
+                                  setStartDate(dates[0]);
+                                  setEndDate(dates[1]);
+                                } else {
+                                  setStartDate(dates);
+                                  setEndDate(null);
+                                }
+                              } else {
+                                setStartDate(null);
+                                setEndDate(null);
+                              }
+                            }}
+                            startDate={startDate}
+                            endDate={endDate}
+                            selectsRange
+                            minDate={new Date()}
+                            dateFormat=""
+                            className="w-full bg-transparent text-sm text-transparent focus:outline-none cursor-pointer border-0 p-0 opacity-0"
+                            wrapperClassName="w-full"
+                            calendarClassName="date-picker-calendar"
+                            popperClassName="date-picker-popper"
+                            isClearable
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Search Button */}
+                  <button
+                    type="submit"
+                    className="flex items-center justify-center gap-2 px-6 lg:px-8 py-3 bg-accent-500 text-white font-semibold hover:bg-accent-600 transition-all text-sm whitespace-nowrap flex-shrink-0 rounded-r-lg"
+                  >
+                    <FiSearch className="w-4 h-4" />
+                    <span className="hidden sm:inline">Rechercher</span>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Mobile Navigation */}
       <div
-        className={`lg:hidden fixed inset-0 top-[200px] bg-white z-40 transition-all duration-300 ${
+        className={`lg:hidden fixed inset-0 ${isHomePage ? 'top-[200px]' : 'top-[80px]'} bg-white z-40 transition-all duration-300 ${
           isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
           }`}
       >

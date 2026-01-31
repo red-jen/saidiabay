@@ -104,36 +104,37 @@ export default function FeaturedProperties() {
   };
 
   return (
-    <section ref={sectionRef} className="section bg-ivory">
+    <section ref={sectionRef} className="relative py-20 lg:py-32 overflow-hidden bg-white">
       <div className="container mx-auto px-4 lg:px-6">
         {/* Header */}
-        <div ref={titleRef} className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
+        <div ref={titleRef} className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
           <div>
+            {/* Brand Label - Matching Hero */}
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-px bg-accent-500" />
-              <span className="text-accent-600 text-sm font-medium tracking-[0.2em] uppercase">
+              <span className="text-accent-400 text-sm font-medium tracking-[0.2em] uppercase">
                 Notre Sélection
               </span>
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-primary-900 mb-4">
-              Propriétés d'Exception
+            <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-primary-900 font-medium leading-[1.1] mb-4">
+              Propriétés d'<span className="text-accent-500">Exception</span>
             </h2>
-            <p className="text-secondary-600 max-w-lg">
+            <p className="text-lg md:text-xl text-primary-800/80 max-w-xl leading-relaxed">
               Découvrez notre collection soigneusement sélectionnée de biens immobiliers haut de gamme
             </p>
           </div>
 
           <div className="flex items-center gap-4">
             {/* Tabs */}
-            <div className="flex p-1 bg-white rounded-lg shadow-elegant">
+            <div className="flex p-1 bg-secondary-100 rounded-lg border border-secondary-200">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`px-5 py-2.5 text-sm font-medium rounded-md transition-all ${
                     activeTab === tab.id
-                      ? 'bg-primary-900 text-white'
-                      : 'text-primary-700 hover:text-primary-900'
+                      ? 'bg-primary-900 text-white shadow-elegant'
+                      : 'text-primary-700 hover:text-primary-900 hover:bg-white/50'
                   }`}
                 >
                   {tab.label}
@@ -143,7 +144,7 @@ export default function FeaturedProperties() {
 
             <Link
               href="/properties"
-              className="hidden md:inline-flex items-center gap-2 px-6 py-2.5 text-primary-900 font-medium hover:text-accent-600 transition-colors"
+              className="hidden md:inline-flex items-center gap-2 px-6 py-3 text-primary-900 font-medium hover:text-accent-600 transition-colors border border-primary-200 rounded-lg hover:border-accent-500"
             >
               Voir tout
               <FiArrowRight className="w-4 h-4" />

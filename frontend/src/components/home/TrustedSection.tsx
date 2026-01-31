@@ -42,11 +42,16 @@ export default function TrustedSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-16 border-y border-secondary-100">
+    <section ref={sectionRef} className="relative py-16 lg:py-20 overflow-hidden bg-white border-y border-secondary-200">
       <div className="container mx-auto px-4 lg:px-6">
-        <p className="text-center text-secondary-500 text-sm uppercase tracking-wider mb-8">
-          Reconnu par les Leaders de l'Industrie
-        </p>
+        {/* Brand Label - Matching Hero */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="w-12 h-px bg-accent-500" />
+          <span className="text-accent-400 text-sm font-medium tracking-[0.2em] uppercase">
+            Reconnu par les Leaders de l'Industrie
+          </span>
+          <div className="w-12 h-px bg-accent-500" />
+        </div>
         <div
           ref={logosRef}
           className="flex flex-wrap items-center justify-center gap-8 md:gap-16"
@@ -54,12 +59,12 @@ export default function TrustedSection() {
           {partners.map((partner) => (
             <div
               key={partner.name}
-              className="flex items-center gap-2 text-secondary-400 hover:text-secondary-700 transition-colors cursor-pointer group"
+              className="flex items-center gap-2 text-primary-700 hover:text-accent-500 transition-colors cursor-pointer group"
             >
               <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">
                 {partner.logo}
               </span>
-              <span className="text-lg font-semibold">{partner.name}</span>
+              <span className="text-lg font-medium">{partner.name}</span>
             </div>
           ))}
         </div>
