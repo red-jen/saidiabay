@@ -124,13 +124,13 @@ const Header = () => {
       </div>
 
       {/* Main Header */}
-      <div className={`transition-all duration-300 w-full ${
+      <div className={`transition-all duration-300 w-full overflow-visible ${
         isScrolled 
           ? 'bg-white shadow-elegant-md' 
           : 'bg-white/95 backdrop-blur-md'
       }`}>
-      <div className="container mx-auto px-4 lg:px-6 max-w-full">
-          <div className="flex items-center justify-between h-20 min-w-0">
+      <div className="container mx-auto px-4 lg:px-6 max-w-full overflow-visible">
+          <div className="flex items-center justify-between h-20 min-w-0 overflow-visible">
             {/* Logo - Premium Brand Identity */}
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative flex-shrink-0">
@@ -198,7 +198,7 @@ const Header = () => {
             )}
 
             {/* User Menu */}
-            <div className="relative">
+            <div className="relative overflow-visible">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center gap-2 px-3 py-2 text-primary-700 hover:text-primary-900 hover:bg-secondary-100 rounded-full transition-all"
@@ -213,7 +213,7 @@ const Header = () => {
 
               {/* Dropdown Menu */}
               {isUserMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-elegant-lg border border-secondary-200 py-2 z-50 overflow-hidden">
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-elegant-lg border border-secondary-200 py-2 z-[9999] overflow-hidden">
                   {currentUser ? (
                     <>
                         <div className="px-4 py-3 border-b border-secondary-100 bg-secondary-50">
