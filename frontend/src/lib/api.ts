@@ -60,9 +60,31 @@ export const propertiesApi = {
     return response.data.data || response.data;
   },
   getById: async (id: string) => {
-    const response = await api.get(`/properties/${id}`);
-    // API returns { data: property } or just property
-    return response.data.data || response.data;
+    try {
+      console.log('API: Fetching property with ID:', id);
+      const response = await api.get(`/properties/${encodeURIComponent(id)}`);
+      console.log('API: Response status:', response.status);
+      console.log('API: Response data:', response.data);
+      
+      // API returns { success: true, data: property }
+      if (response.data && response.data.success !== undefined) {
+        const property = response.data.data;
+        console.log('API: Extracted property:', property);
+        return property;
+      }
+      
+      // Fallback for different response formats
+      const property = response.data.data || response.data;
+      console.log('API: Fallback property:', property);
+      return property;
+    } catch (error: any) {
+      // If error, log it for debugging
+      console.error('API Error fetching property:', id);
+      console.error('API Error response:', error.response);
+      console.error('API Error data:', error.response?.data);
+      console.error('API Error message:', error.message);
+      throw error;
+    }
   },
   getFeatured: async (limit?: number) => {
     const response = await api.get('/properties/featured', { params: { limit } });

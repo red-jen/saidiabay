@@ -14,7 +14,7 @@ interface PropertyDetailPageProps {
 
 export default function PropertyDetailPage({ params }: PropertyDetailPageProps) {
   return (
-    <div className="min-h-screen bg-secondary-50">
+    <div className="min-h-screen bg-gradient-to-b from-white via-secondary-50/50 to-white pt-20 md:pt-24 lg:pt-28">
       <PropertyDetail slug={params.slug} />
     </div>
   );

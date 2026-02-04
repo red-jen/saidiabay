@@ -81,6 +81,7 @@ const Header = () => {
     { href: '/properties?listingType=LOCATION', label: 'Locations' },
     { href: '/properties?listingType=VENTE', label: 'Acheter' },
     { href: '/about', label: 'À Propos' },
+    { href: '/blog', label: 'Blog' },
     { href: '/contact', label: 'Contact' },
   ];
 
@@ -90,7 +91,7 @@ const Header = () => {
   };
 
   return (
-    <header ref={headerRef} className="fixed top-0 left-0 right-0 z-50 w-full max-w-full overflow-x-hidden">
+    <header ref={headerRef} className="fixed top-0 left-0 right-0 z-50 w-full max-w-full ">
       {/* Top Bar - Premium Contact Info */}
       <div className={`hidden lg:block transition-all duration-500 ${isScrolled ? 'h-0 opacity-0 overflow-hidden' : 'h-auto opacity-100'}`}>
         <div className="bg-primary-900 text-white/90 w-full">

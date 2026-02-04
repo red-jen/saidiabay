@@ -78,10 +78,16 @@ exports.getPropertyById = async (req, res, next) => {
   try {
     const { id } = req.params;
     
-    const property = await Property.findOne({
+    console.log('Fetching property with identifier:', id);
+    console.log('Identifier type check - UUID format:', /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id));
+    console.log('Identifier type check - CUID format:', /^c[a-z0-9]{24}$/i.test(id));
+    
+    // Support both UUID and CUID formats, or slug
+    // Try to find by ID first (works for both UUID and CUID), then by slug
+    let property = await Property.findOne({
       where: {
         [Op.or]: [
-          { id: id.match(/^[0-9a-f-]{36}$/i) ? id : null },
+          { id: id },
           { slug: id },
         ],
       },
@@ -92,20 +98,55 @@ exports.getPropertyById = async (req, res, next) => {
     });
 
     if (!property) {
+      console.log('Property not found with identifier:', id);
       return res.status(404).json({
         success: false,
         message: 'Property not found',
       });
     }
 
+    console.log('Property found:', property.id, property.title);
+
     // Increment views
     await property.increment('views');
 
+    // Transform property data to match frontend expectations
+    const propertyData = property.toJSON();
+    
+    // Map backend field names to frontend expectations
+    const transformedProperty = {
+      ...propertyData,
+      // Map listingType values
+      listingType: propertyData.listingType === 'rent' ? 'LOCATION' : 'VENTE',
+      // Map status values
+      status: propertyData.status === 'available' ? 'AVAILABLE' : 
+              propertyData.status === 'rented' ? 'LOUE' :
+              propertyData.status === 'sold' ? 'VENDU' :
+              propertyData.status === 'pending' ? 'EN_ATTENTE' : propertyData.status,
+      // Map propertyCategory from type
+      propertyCategory: propertyData.type === 'villa' ? 'VILLA' : 
+                        propertyData.type === 'apartment' ? 'APPARTEMENT' : 
+                        propertyData.type?.toUpperCase(),
+      // Map field names for French frontend
+      chambres: propertyData.bedrooms,
+      sallesDeBain: propertyData.bathrooms,
+      surface: propertyData.area,
+      // Ensure city object structure if city is a string
+      city: propertyData.city && typeof propertyData.city === 'string' ? {
+        name: propertyData.city,
+        id: propertyData.cityId || '',
+        slug: propertyData.city.toLowerCase().replace(/\s+/g, '-')
+      } : propertyData.city,
+      // Map user/owner
+      user: propertyData.owner || propertyData.user,
+    };
+
     res.json({
       success: true,
-      data: property,
+      data: transformedProperty,
     });
   } catch (error) {
+    console.error('Error in getPropertyById:', error);
     next(error);
   }
 };

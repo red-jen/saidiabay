@@ -46,9 +46,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     return labels[category || ''] || 'Propriété';
   };
 
+  // Use ID if slug is not available (backend supports both)
+  const propertyIdentifier = property.slug || propertyId;
+  
   return (
     <Link
-      href={`/properties/${property.slug || propertyId}`}
+      href={`/properties/${propertyIdentifier}`}
       className="group block bg-white rounded-2xl overflow-hidden shadow-elegant hover:shadow-elegant-lg transition-all duration-500"
     >
       {/* Image Container */}
