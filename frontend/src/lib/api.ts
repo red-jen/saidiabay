@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_URL = 'http://localhost:4000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -9,6 +9,11 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Log API URL in development
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  console.log('🔗 API Base URL:', API_URL);
+}
 
 // Add auth token to requests
 api.interceptors.request.use(
@@ -102,8 +107,10 @@ export const propertiesApi = {
 export const reservationsApi = {
   getAll: (params?: Record<string, any>) =>
     api.get('/reservations', { params }),
-  getMyReservations: (params?: Record<string, any>) =>
-    api.get('/reservations/my', { params }),
+  getMyReservations: async (params?: Record<string, any>) => {
+    const response = await api.get('/reservations/my', { params });
+    return response.data.data || response.data;
+  },
   getById: (id: string) => api.get(`/reservations/${id}`),
   create: async (data: any) => {
     const response = await api.post('/reservations', data);

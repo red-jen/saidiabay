@@ -23,12 +23,19 @@ const LoginForm = () => {
 
     try {
       const response = await authApi.login(formData);
-      const { token, user } = response.data.data;
+      
+      // Handle different response structures
+      const responseData = response.data?.data || response.data;
+      const { token, user } = responseData;
+
+      if (!token || !user) {
+        throw new Error('Invalid response from server');
+      }
 
       // Store token
       Cookies.set('token', token, { expires: 7 });
 
-      toast.success(`Welcome back, ${user.name}!`);
+      toast.success(`Welcome back, ${user.name || user.email}!`);
 
       // Redirect based on role
       if (user.role === 'admin') {
@@ -37,7 +44,24 @@ const LoginForm = () => {
         router.push('/');
       }
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Login failed';
+      console.error('Login error:', error);
+      
+      // Better error handling
+      let message = 'Login failed';
+      
+      if (error.response) {
+        // Server responded with error
+        message = error.response.data?.message || 
+                  error.response.data?.error || 
+                  `Server error: ${error.response.status}`;
+      } else if (error.request) {
+        // Request made but no response
+        message = 'Unable to connect to server. Please check if the backend is running.';
+      } else {
+        // Something else happened
+        message = error.message || 'An unexpected error occurred';
+      }
+      
       toast.error(message);
     } finally {
       setLoading(false);

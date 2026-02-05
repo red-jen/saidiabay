@@ -179,7 +179,7 @@ export default function DashboardPage() {
                       <div className="space-y-4">
                         {reservations.slice(0, 5).map((reservation) => (
                           <div
-                            key={reservation._id}
+                            key={reservation.id}
                             className="flex items-center justify-between p-4 border border-secondary-200 rounded-lg hover:border-primary-300 transition-colors"
                           >
                             <div className="flex-1">

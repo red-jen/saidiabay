@@ -23,19 +23,38 @@ interface HeroData {
 }
 
 export default function Home() {
-  const [heroData, setHeroData] = useState<HeroData | null>(null);
+  const [heroes, setHeroes] = useState<HeroData[]>([]);
 
   useEffect(() => {
     const fetchHeroData = async () => {
+      // Default fallback hero - always included first
+      // Uses local image from public folder, can be changed via env variable
+      const defaultHeroImage = process.env.NEXT_PUBLIC_DEFAULT_HERO_IMAGE || '/images/hero-1.png';
+      
+      const defaultHero: HeroData = {
+        id: 'default',
+        title: "L'Excellence Immobilière\nà Saidia Bay",
+        subtitle: "Découvrez notre collection exclusive de propriétés d'exception sur la côte méditerranéenne du Maroc",
+        imageUrl: defaultHeroImage,
+        ctaText: "Explorer les Propriétés",
+        ctaLink: "/properties",
+        order: 0,
+        isActive: true,
+      };
+
       try {
-        const heroes = await heroesApi.getActive();
-        if (heroes && heroes.length > 0) {
-          // Get the first active hero for the main ad
-          setHeroData(heroes[0]);
+        const activeHeroes = await heroesApi.getActive();
+        if (activeHeroes && activeHeroes.length > 0) {
+          // Always put default hero first, then backend heroes
+          setHeroes([defaultHero, ...activeHeroes]);
+        } else {
+          // If no backend heroes, just use default
+          setHeroes([defaultHero]);
         }
       } catch (error) {
         console.error('Failed to fetch hero data:', error);
-        // Hero section will use fallback image
+        // On error, use default hero
+        setHeroes([defaultHero]);
       }
     };
 
@@ -44,7 +63,7 @@ export default function Home() {
 
   return (
     <>
-      <HeroSection heroData={heroData || undefined} />
+      <HeroSection heroes={heroes} />
       <DiscoverSection />
       <FeaturedProperties />
       <AboutSection />

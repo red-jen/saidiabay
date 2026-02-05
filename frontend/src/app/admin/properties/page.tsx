@@ -58,7 +58,7 @@ export default function AdminPropertiesPage() {
 
   const filteredProperties = properties.filter((property) =>
     property.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.location.toLowerCase().includes(searchTerm.toLowerCase())
+    (property.location?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false)
   );
 
   if (!user || user.role !== 'admin') {
@@ -148,7 +148,7 @@ export default function AdminPropertiesPage() {
                   <tbody className="divide-y divide-secondary-200">
                     {filteredProperties.map((property) => (
                       <tr
-                        key={property._id}
+                        key={property.id || property._id}
                         className="hover:bg-secondary-50 transition-colors"
                       >
                         <td className="px-6 py-4">
@@ -166,7 +166,7 @@ export default function AdminPropertiesPage() {
                                 {property.title}
                               </p>
                               <p className="text-sm text-secondary-600">
-                                {property.location}
+                                {property.location || 'No location'}
                               </p>
                             </div>
                           </div>
@@ -210,14 +210,14 @@ export default function AdminPropertiesPage() {
                               <FiEye className="w-5 h-5" />
                             </Link>
                             <Link
-                              href={`/admin/properties/${property._id}/edit`}
+                              href={`/admin/properties/${property.id || property._id}/edit`}
                               className="p-2 text-secondary-600 hover:text-accent-700 hover:bg-accent-50 rounded-lg transition-colors"
                               title="Edit"
                             >
                               <FiEdit className="w-5 h-5" />
                             </Link>
                             <button
-                              onClick={() => handleDelete(property._id)}
+                              onClick={() => handleDelete(property.id || property._id || '')}
                               className="p-2 text-secondary-600 hover:text-danger-700 hover:bg-danger-50 rounded-lg transition-colors"
                               title="Delete"
                             >

@@ -31,7 +31,7 @@ export default function BlogPostPage() {
       console.error('Error fetching post:', error);
       // Mock data for development
       const mockPost: BlogPost = {
-        _id: '1',
+        id: '1',
         title: '10 Tips for First-Time Home Buyers in Saidia Bay',
         slug: slug,
         excerpt: 'Buying your first home can be overwhelming. Here are essential tips to make the process smoother and ensure you make the right decision.',
@@ -88,17 +88,19 @@ export default function BlogPostPage() {
           <p><strong>Ready to start your property search?</strong> Browse our curated selection of properties in Saidia Bay or contact our team for personalized assistance.</p>
         `,
         featuredImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200',
-        category: 'buying-guide',
         tags: ['buying', 'tips', 'first-time', 'saidia-bay'],
+        views: 0,
+        status: 'published' as const,
+        authorId: '1',
         author: {
-          _id: '1',
+          id: '1',
           name: 'Sarah Johnson',
           email: 'sarah@example.com',
-          role: 'admin',
-          avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
-          bio: 'Sarah is a real estate expert with over 10 years of experience in the Saidia Bay market. She specializes in helping first-time buyers navigate their property journey.',
+          role: 'admin' as const,
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         },
-        published: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };

@@ -26,8 +26,8 @@ export default function ComparePage() {
     try {
       setLoading(true);
       const response = await propertiesApi.getAll({ page: 1, limit: 100 });
-      const compareProps = response.properties.filter((prop) =>
-        comparisonIds.includes(prop._id)
+      const compareProps = response.properties.filter((prop: Property) =>
+        comparisonIds.includes(prop.id || prop._id || '')
       );
       setProperties(compareProps);
     } catch (error) {
@@ -128,7 +128,7 @@ export default function ComparePage() {
                     </th>
                     {properties.map((property) => (
                       <th
-                        key={property._id}
+                        key={property.id || property._id}
                         className="border-b border-secondary-200 p-0 min-w-[280px] relative group"
                       >
                         <div className="relative h-48">
@@ -139,7 +139,7 @@ export default function ComparePage() {
                             className="object-cover"
                           />
                           <button
-                            onClick={() => removeFromComparison(property._id)}
+                            onClick={() => removeFromComparison(property.id || property._id || '')}
                             className="absolute top-3 right-3 p-2 bg-white/90 hover:bg-white rounded-full transition-colors"
                           >
                             <FiX className="w-5 h-5 text-secondary-700" />
@@ -199,7 +199,7 @@ export default function ComparePage() {
                               </span>
                             )}
                             {feature.key === 'type' && property.type}
-                            {feature.key === 'location' && property.location}
+                            {feature.key === 'location' && (property.location || 'N/A')}
                             {feature.key === 'bedrooms' && (property.bedrooms || 'N/A')}
                             {feature.key === 'bathrooms' && (property.bathrooms || 'N/A')}
                             {feature.key === 'area' && `${property.area || 'N/A'} m²`}
