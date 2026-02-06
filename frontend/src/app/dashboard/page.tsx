@@ -187,8 +187,8 @@ export default function DashboardPage() {
                                 {reservation.property?.title || 'Property'}
                               </h4>
                               <p className="text-sm text-secondary-600">
-                                {new Date(reservation.checkIn).toLocaleDateString()} -{' '}
-                                {new Date(reservation.checkOut).toLocaleDateString()}
+                                {new Date(reservation.startDate).toLocaleDateString()} -{' '}
+                                {new Date(reservation.endDate).toLocaleDateString()}
                               </p>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -227,7 +227,7 @@ export default function DashboardPage() {
                     <div className="space-y-6">
                       {reservations.map((reservation) => (
                         <div
-                          key={reservation._id}
+                          key={reservation.id}
                           className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
                         >
                           <div className="p-6">
@@ -258,7 +258,7 @@ export default function DashboardPage() {
                               <div>
                                 <p className="text-sm text-secondary-600 mb-1">Check-in</p>
                                 <p className="font-semibold text-secondary-900">
-                                  {new Date(reservation.checkIn).toLocaleDateString('en-US', {
+                                  {new Date(reservation.startDate).toLocaleDateString('en-US', {
                                     month: 'short',
                                     day: 'numeric',
                                     year: 'numeric',
@@ -268,7 +268,7 @@ export default function DashboardPage() {
                               <div>
                                 <p className="text-sm text-secondary-600 mb-1">Check-out</p>
                                 <p className="font-semibold text-secondary-900">
-                                  {new Date(reservation.checkOut).toLocaleDateString('en-US', {
+                                  {new Date(reservation.endDate).toLocaleDateString('en-US', {
                                     month: 'short',
                                     day: 'numeric',
                                     year: 'numeric',
@@ -285,7 +285,7 @@ export default function DashboardPage() {
 
                             <div className="pt-4 border-t border-secondary-200">
                               <p className="text-sm text-secondary-600">
-                                Guests: {reservation.guests} • Booked on{' '}
+                                Guests: {reservation.numberOfGuests || 'N/A'} • Booked on{' '}
                                 {new Date(reservation.createdAt).toLocaleDateString()}
                               </p>
                             </div>

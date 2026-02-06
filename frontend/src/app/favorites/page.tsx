@@ -27,8 +27,8 @@ export default function FavoritesPage() {
       // Fetch properties by IDs
       // For now, we'll fetch all and filter (in production, add a batch fetch endpoint)
       const response = await propertiesApi.getAll({ page: 1, limit: 100 });
-      const favoriteProps = response.properties.filter((prop) =>
-        favorites.includes(prop._id)
+      const favoriteProps = response.properties.filter((prop: Property) =>
+        favorites.includes(prop.id || prop._id || '')
       );
       setProperties(favoriteProps);
     } catch (error) {
