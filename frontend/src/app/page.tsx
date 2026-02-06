@@ -63,7 +63,7 @@ export default function Home() {
 
   return (
     <>
-      <HeroSection heroes={heroes} />
+      <HeroSection heroData={heroes[0]} />
       <DiscoverSection />
       <FeaturedProperties />
       <AboutSection />

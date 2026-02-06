@@ -26,7 +26,7 @@ export default function RecentPosts({ posts }: RecentPostsProps) {
       <div className="space-y-4">
         {posts.slice(0, 5).map((post) => (
           <Link
-            key={post._id}
+            key={post.id}
             href={`/blog/${post.slug}`}
             className="flex gap-4 group"
           >

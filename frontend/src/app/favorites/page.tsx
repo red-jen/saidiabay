@@ -91,7 +91,7 @@ export default function FavoritesPage() {
           ) : properties.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {properties.map((property) => (
-                <PropertyCard key={property._id} property={property} />
+                <PropertyCard key={property.id || property._id} property={property} />
               ))}
             </div>
           ) : (

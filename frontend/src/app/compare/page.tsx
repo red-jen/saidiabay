@@ -192,7 +192,7 @@ export default function ComparePage() {
                           </div>
                         </td>
                         {properties.map((property) => (
-                          <td key={property._id} className="p-4 text-secondary-900">
+                          <td key={property.id || property._id} className="p-4 text-secondary-900">
                             {feature.key === 'price' && (
                               <span className="text-lg font-semibold">
                                 ${property.price.toLocaleString()}
