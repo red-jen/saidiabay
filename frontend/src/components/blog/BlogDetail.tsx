@@ -134,22 +134,15 @@ export default function BlogDetail({ post }: BlogDetailProps) {
       {post.author && (
         <div className="mt-12 p-8 bg-secondary-50 rounded-2xl">
           <div className="flex items-start gap-6">
-            {post.author.avatar && (
-              <div className="relative w-20 h-20 rounded-full overflow-hidden flex-shrink-0">
-                <Image
-                  src={post.author.avatar}
-                  alt={post.author.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
+            <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center text-primary-900 text-2xl font-bold flex-shrink-0">
+              {post.author.name.charAt(0).toUpperCase()}
+            </div>
             <div>
               <h4 className="text-xl font-semibold text-secondary-900 mb-2">
                 About {post.author.name}
               </h4>
               <p className="text-secondary-600">
-                {post.author.bio || `${post.author.name} is a contributor to Saidia Bay Real Estate.`}
+                {post.author.name} is a contributor to Saidia Bay Real Estate.
               </p>
             </div>
           </div>
