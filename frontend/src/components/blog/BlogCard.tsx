@@ -35,11 +35,18 @@ export default function BlogCard({ post }: BlogCardProps) {
 
       {/* Content */}
       <div className="p-6">
-        {/* Category */}
-        {post.category && (
-          <span className="inline-block px-3 py-1 mb-3 text-xs font-medium text-accent-700 bg-accent-100 rounded-full">
-            {post.category}
-          </span>
+        {/* Tags */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {post.tags.slice(0, 2).map((tag) => (
+              <span
+                key={tag}
+                className="inline-block px-3 py-1 text-xs font-medium text-accent-700 bg-accent-100 rounded-full"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
         )}
 
         {/* Title */}

@@ -55,11 +55,18 @@ export default function BlogDetail({ post }: BlogDetailProps) {
 
       {/* Header */}
       <header className="mb-8">
-        {/* Category */}
-        {post.category && (
-          <span className="inline-block px-4 py-1.5 mb-4 text-sm font-medium text-accent-700 bg-accent-100 rounded-full">
-            {post.category}
-          </span>
+        {/* Tags */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {post.tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-block px-4 py-1.5 text-sm font-medium text-accent-700 bg-accent-100 rounded-full"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
         )}
 
         {/* Title */}
