@@ -19,7 +19,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   const bedrooms = property.chambres || property.bedrooms;
   const bathrooms = property.sallesDeBain || property.bathrooms;
   const area = property.surface || property.area;
-  const isRental = property.listingType === 'LOCATION' || property.listingType === 'rent';
+  const isRental = property.listingType === 'LOCATION';
 
   const formatPrice = (price: number, isRent: boolean) => {
     const formatted = price.toLocaleString('fr-MA');

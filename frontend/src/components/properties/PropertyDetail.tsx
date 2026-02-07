@@ -130,7 +130,7 @@ const PropertyDetail = ({ slug }: PropertyDetailProps) => {
   const bathrooms = property.sallesDeBain || property.bathrooms;
   const area = property.surface || property.area;
   const location = property.city?.name || property.location || property.address || 'Saidia Bay';
-  const isRental = property.listingType === 'LOCATION' || (property.listingType as any) === 'rent';
+  const isRental = property.listingType === 'LOCATION';
   const isAvailable = property.status === 'AVAILABLE' || property.status === 'DISPONIBLE' || (property.status as any) === 'available';
 
   // Build amenities list from backend boolean fields
@@ -147,7 +147,7 @@ const PropertyDetail = ({ slug }: PropertyDetailProps) => {
   if (property.gazon) amenities.push({ icon: MdOutlineGrass, label: 'Jardin' });
 
   const formatPrice = (price: number, listingType: string) => {
-    if (listingType === 'LOCATION' || listingType === 'rent') {
+    if (listingType === 'LOCATION') {
       return `${price.toLocaleString()} DH/mois`;
     }
     return `${price.toLocaleString()} DH`;
