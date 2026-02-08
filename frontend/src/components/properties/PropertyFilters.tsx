@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FiSliders, FiX, FiMapPin } from 'react-icons/fi';
+import { FiSliders, FiX, FiMapPin, FiSearch } from 'react-icons/fi';
 import { PropertyFilters as Filters } from '@/types';
 import { citiesApi } from '@/lib/api';
 
@@ -41,10 +41,15 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
     fetchCities();
   }, []);
 
-  const handleFilterChange = (key: keyof Filters, value: any) => {
-    const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+  // Update local filter state without triggering API call
+  const updateLocalFilter = (key: keyof Filters, value: any) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  // Apply all filters at once (triggered by "Afficher les résultats" button)
+  const handleApplyFilters = () => {
+    onFilterChange(filters);
+    setIsOpen(false);
   };
 
   const handleReset = () => {
@@ -59,6 +64,12 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
     };
     setFilters(resetFilters);
     onFilterChange(resetFilters);
+  };
+
+  // Handle search submission from inline search bar
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onFilterChange(filters);
   };
 
   const activeFiltersCount = Object.values(filters).filter(v => v !== '' && v !== undefined).length;
@@ -77,6 +88,24 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
 
   return (
     <>
+      {/* Search Bar */}
+      <form onSubmit={handleSearchSubmit} className="relative flex-1 min-w-[200px] max-w-md">
+        <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary-400" size={16} />
+        <input
+          type="text"
+          placeholder="Rechercher une propriété..."
+          value={filters.search || ''}
+          onChange={(e) => updateLocalFilter('search', e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              onFilterChange(filters);
+            }
+          }}
+          className="w-full pl-11 pr-4 py-3 border border-secondary-200 rounded-xl text-sm bg-white hover:border-secondary-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all"
+        />
+      </form>
+
       {/* Filter Toggle Button - Airbnb style */}
       <button
         onClick={() => setIsOpen(true)}
@@ -93,7 +122,7 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
 
       {/* Filter Modal */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center justify-center">
+        <div className="fixed inset-0 bg-black/50 flex items-end md:items-center justify-center" style={{ zIndex: 9999 }}>
           <div className="bg-white w-full md:w-[600px] md:max-h-[90vh] rounded-t-3xl md:rounded-2xl overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-secondary-200">
@@ -116,15 +145,15 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
             <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
               {/* Listing Type */}
               <div>
-                <h3 className="font-semibold text-secondary-900 mb-4">Type d'annonce</h3>
+                <h3 className="font-semibold text-secondary-900 mb-4">Type d&apos;annonce</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {listingTypes.map((type) => (
                     <button
                       key={type.value}
-                      onClick={() => handleFilterChange('listingType', filters.listingType === type.value ? '' : type.value)}
+                      onClick={() => updateLocalFilter('listingType', filters.listingType === type.value ? '' : type.value)}
                       className={`p-4 border rounded-xl text-left transition-all ${
                         filters.listingType === type.value 
-                          ? 'border-primary-900 bg-primary-50' 
+                          ? 'border-primary-900 bg-primary-50 font-semibold' 
                           : 'border-secondary-300 hover:border-secondary-400'
                       }`}
                     >
@@ -141,10 +170,10 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
                   {propertyCategories.map((cat) => (
                     <button
                       key={cat.value}
-                      onClick={() => handleFilterChange('type', filters.type === cat.value ? '' : cat.value)}
+                      onClick={() => updateLocalFilter('type', filters.type === cat.value ? '' : cat.value)}
                       className={`p-4 border rounded-xl text-center transition-all ${
                         filters.type === cat.value 
-                          ? 'border-primary-900 bg-primary-50' 
+                          ? 'border-primary-900 bg-primary-50 font-semibold' 
                           : 'border-secondary-300 hover:border-secondary-400'
                       }`}
                     >
@@ -161,7 +190,7 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
                   <FiMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary-400" size={18} />
                   <select
                     value={filters.city || ''}
-                    onChange={(e) => handleFilterChange('city', e.target.value)}
+                    onChange={(e) => updateLocalFilter('city', e.target.value)}
                     className="w-full pl-11 pr-4 py-3 border border-secondary-300 rounded-xl text-sm bg-white hover:border-secondary-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all appearance-none cursor-pointer"
                   >
                     <option value="">Toutes les villes</option>
@@ -186,7 +215,7 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
                       className="w-full px-4 py-3 border border-secondary-300 rounded-xl text-sm hover:border-secondary-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all"
                       value={filters.minPrice || ''}
                       onChange={(e) =>
-                        handleFilterChange('minPrice', e.target.value ? Number(e.target.value) : undefined)
+                        updateLocalFilter('minPrice', e.target.value ? Number(e.target.value) : undefined)
                       }
                     />
                   </div>
@@ -198,7 +227,7 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
                       className="w-full px-4 py-3 border border-secondary-300 rounded-xl text-sm hover:border-secondary-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all"
                       value={filters.maxPrice || ''}
                       onChange={(e) =>
-                        handleFilterChange('maxPrice', e.target.value ? Number(e.target.value) : undefined)
+                        updateLocalFilter('maxPrice', e.target.value ? Number(e.target.value) : undefined)
                       }
                     />
                   </div>
@@ -212,10 +241,10 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
                   {['Tous', 1, 2, 3, 4, '5+'].map((num) => (
                     <button
                       key={num}
-                      onClick={() => handleFilterChange('bedrooms', num === 'Tous' ? undefined : (num === '5+' ? 5 : num))}
+                      onClick={() => updateLocalFilter('bedrooms', num === 'Tous' ? undefined : (num === '5+' ? 5 : num))}
                       className={`flex-1 py-3 border rounded-xl text-center transition-all text-sm ${
                         (num === 'Tous' && !filters.bedrooms) || filters.bedrooms === (num === '5+' ? 5 : num)
-                          ? 'border-primary-900 bg-primary-50 text-primary-900' 
+                          ? 'border-primary-900 bg-primary-50 text-primary-900 font-semibold' 
                           : 'border-secondary-300 hover:border-secondary-400'
                       }`}
                     >
@@ -235,7 +264,7 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
                 Effacer tout
               </button>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={handleApplyFilters}
                 className="px-6 py-3 bg-primary-900 text-white rounded-xl font-semibold hover:bg-primary-800 transition-colors"
               >
                 Afficher les résultats

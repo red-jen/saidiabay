@@ -54,7 +54,7 @@ const HeroSection = ({ heroData }: HeroSectionProps) => {
   const heroSubtitle = heroData?.subtitle || "Découvrez notre collection exclusive de propriétés d'exception sur la côte méditerranéenne du Maroc";
 
   return (
-    <section ref={heroRef} className="relative min-h-[85vh] flex items-center pt-[200px] lg:pt-[220px]">
+    <section ref={heroRef} className="relative h-screen flex items-center pt-[200px] lg:pt-[220px] overflow-hidden">
       {/* Background Image with Premium Overlay */}
       <div className="absolute inset-0">
         <Image

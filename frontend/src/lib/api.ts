@@ -1,13 +1,14 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Send session cookies with every request
 });
 
 // Log API URL in development
@@ -34,9 +35,16 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      Cookies.remove('token');
+      // Don't auto-redirect on dashboard or profile pages - let the page handle it
       if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        const currentPath = window.location.pathname;
+        const protectedPaths = ['/dashboard', '/profile', '/login', '/register'];
+        const isProtectedPath = protectedPaths.some(p => currentPath.startsWith(p));
+        
+        if (!isProtectedPath) {
+          Cookies.remove('token');
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);
@@ -45,8 +53,15 @@ api.interceptors.response.use(
 
 // Auth API
 export const authApi = {
-  login: (data: { email: string; password: string }) =>
-    api.post('/auth/login', data),
+  login: (data: { email: string; password: string }) => {
+    // Backend expects 'identifier' instead of 'email'
+    return api.post('/auth/login', {
+      identifier: data.email,
+      password: data.password,
+    });
+  },
+  verifyOtp: (data: { userId: string; otpCode: string }) =>
+    api.post('/auth/login/verify-otp', data),
   register: (data: { name: string; email: string; password: string; phone?: string }) =>
     api.post('/auth/register', data),
   logout: () => api.post('/auth/logout'),
@@ -112,6 +127,10 @@ export const reservationsApi = {
     return response.data.data || response.data;
   },
   getById: (id: string) => api.get(`/reservations/${id}`),
+  getByProperty: async (propertyId: string) => {
+    const response = await api.get(`/reservations/property/${propertyId}`);
+    return response.data.data || response.data;
+  },
   create: async (data: any) => {
     const response = await api.post('/reservations', data);
     return response.data.data || response.data;
@@ -205,16 +224,21 @@ export const citiesApi = {
   delete: (id: string) => api.delete(`/cities/${id}`),
 };
 
-// Leads API (contact inquiries)
+// Leads API (buy requests / contact inquiries)
 export const leadsApi = {
   create: async (data: {
     propertyId: string;
-    name: string;
-    email: string;
-    phone: string;
+    guestName?: string;
+    guestEmail?: string;
+    guestPhone?: string;
+    guestCountry?: string;
     message?: string;
   }) => {
     const response = await api.post('/leads', data);
+    return response.data.data || response.data;
+  },
+  getMyLeads: async () => {
+    const response = await api.get('/leads/my');
     return response.data.data || response.data;
   },
   getAll: (params?: Record<string, any>) =>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import HeroSection from '@/components/home/HeroSection';
+import HeroCarousel from '@/components/home/HeroCarousel';
 import DiscoverSection from '@/components/home/DiscoverSection';
 import FeaturedProperties from '@/components/home/FeaturedProperties';
 import AboutSection from '@/components/home/AboutSection';
@@ -63,7 +63,7 @@ export default function Home() {
 
   return (
     <>
-      <HeroSection heroData={heroes[0]} />
+      <HeroCarousel heroes={heroes} autoPlayInterval={5000} />
       <DiscoverSection />
       <FeaturedProperties />
       <AboutSection />

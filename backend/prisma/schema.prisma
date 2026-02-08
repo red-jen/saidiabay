@@ -1,0 +1,350 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String?  @unique  // Login par username
+  name      String   // Nom complet de user
+  phone     String?  
+  password  String
+  role      Role     @default(USER)
+  heroClicks HeroClick[]
+  
+  // Sécurité
+  emailVerified Boolean  @default(false)
+  resetToken    String?  // Pour forgot password
+  resetTokenExp DateTime? // Expiration de token
+  
+  // Sessions
+  sessions      Session[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  properties   Property[]
+  blogs        Blog[]
+  reservations Reservation[]
+  leads        Lead[]
+  cities       City[]
+  sales        Sale[]
+  
+  @@index([email])
+  @@index([username])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  lastActivity DateTime @default(now()) // Pour auto-logout après 5 min
+  
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+model OTPCode {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  purpose   OTPPurpose // LOGIN, RESET_PASSWORD, CHANGE_EMAIL, CHANGE_PHONE
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  @@index([email])
+  @@index([expiresAt])
+}
+
+enum OTPPurpose {
+  LOGIN
+  RESET_PASSWORD
+  CHANGE_EMAIL
+  CHANGE_PHONE  // NOUVEAU
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model City {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  properties  Property[]
+  
+  @@index([slug])
+  @@index([userId])
+}
+
+model Property {
+  id          String       @id @default(cuid())
+  title       String
+  description String?      @db.Text
+  price       Float
+  propertyType PropertyType
+  listingType ListingType
+  propertyCategory PropertyCategory
+  status      PropertyStatus @default(AVAILABLE)
+  
+  // Localisation
+  cityId      String
+  city        City         @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  address     String
+  latitude    Float?
+  longitude   Float?
+  
+  // Médias
+  images      String[]
+  thumbnail   String
+  videoUrl    String?
+  
+  // Caractéristiques
+  chambres    Int?
+  sallesDeBain Int?
+  surface     Float?
+  anneeCons   Int?  // FIXED: Correspond au schéma
+  garage      Int?
+  
+  // Équipements
+  balcon      Boolean      @default(false)
+  climatisation Boolean    @default(false)
+  gazon       Boolean      @default(false)  // FIXED: Correspond au schéma
+  machineLaver Boolean     @default(false)
+  tv          Boolean      @default(false)  // FIXED: Correspond au schéma
+  parking     Boolean      @default(false)
+  piscine     Boolean      @default(false)
+  wifi        Boolean      @default(false)
+  cuisine     Boolean      @default(false)
+  
+  // Gestion
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Relations
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reservations Reservation[]
+  blockedDates BlockedDate[]
+  leads       Lead[]
+  
+  @@index([userId])
+  @@index([cityId])
+  @@index([propertyType])
+  @@index([listingType])
+  @@index([propertyCategory])
+  @@index([status])
+  @@index([isActive])
+}
+
+enum PropertyType {
+  RENT
+  SALE
+}
+
+enum ListingType {
+  LOCATION
+  VENTE
+}
+
+enum PropertyCategory {
+  VILLA
+  APPARTEMENT
+}
+
+enum PropertyStatus {
+  AVAILABLE   // Disponible
+  PENDING     // En cours
+  SOLD        // Vendu
+}
+
+model BlockedDate {
+  id          String    @id @default(cuid())
+  propertyId  String
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  startDate   DateTime
+  endDate     DateTime
+  reason      String?   // Ex: "Maintenance", "Travaux"
+  createdAt   DateTime  @default(now())
+  
+  @@index([propertyId])
+  @@index([startDate, endDate])
+}
+
+model Reservation {
+  id          String            @id @default(cuid())
+  propertyId  String
+  property    Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  // Optional user (if logged in)
+  userId      String?
+  user        User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Guest info (for non-logged users)
+  guestName   String?
+  guestEmail  String?
+  guestPhone  String?
+  guestCountry String?
+
+  // Date range
+  startDate   DateTime
+  endDate     DateTime
+  nights      Int              // Calculated number of nights
+
+  // Pricing
+  totalPrice  Float
+
+  // Status
+  status      ReservationStatus @default(PENDING)
+
+  // Timestamps
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([propertyId])
+  @@index([userId])
+  @@index([startDate, endDate])
+  @@index([status])
+
+  @@map("reservations")
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model Lead {
+  id          String     @id @default(cuid())
+  propertyId  String
+  property    Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  // Optional user (if logged in)
+  userId      String?
+  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Guest info (for non-logged users)
+  guestName   String?
+  guestEmail  String?
+  guestPhone  String?
+  guestCountry String?
+
+  // Additional info
+  message     String?    @db.Text
+
+  // Status
+  status      LeadStatus @default(NEW)
+
+  // Timestamps
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([propertyId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+
+  @@map("leads")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CLOSED
+  LOST
+}
+
+model Blog {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  content     String      @db.Text
+  excerpt     String?
+  coverImage  String?
+  videoUrl    String?
+  
+  metaTitle       String?
+  metaDescription String?
+  
+  category    String
+  isPublished Boolean     @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([slug])
+  @@index([category])
+  @@index([isPublished])
+}
+
+model HeroSection {
+  id          String   @id @default(cuid())
+  imageUrl    String
+  ctaLink     String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  clicks    HeroClick[]
+  
+  @@map("hero_sections")
+
+  @@index([order])
+  @@index([isActive])
+}
+
+model HeroClick {
+  id          String      @id @default(uuid())
+  heroId      String
+  hero        HeroSection @relation(fields: [heroId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  visitorId   String      // Cookie-based ID
+  clickedAt   DateTime    @default(now())
+  
+  @@index([heroId])
+  @@index([userId])
+  @@index([visitorId])
+  @@index([clickedAt])
+  @@index([heroId, visitorId, clickedAt(sort: Desc)])
+  
+  @@map("hero_clicks")
+}
+
+model Sale {
+  id          String   @id @default(cuid())
+  propertyId  String
+  amount      Float
+  type        String
+  status      String   @default("completed")
+  createdAt   DateTime @default(now())
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([createdAt])
+}

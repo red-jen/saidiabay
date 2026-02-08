@@ -24,6 +24,7 @@ import { MdOutlineBalcony, MdOutlineLocalLaundryService, MdOutlineGarage, MdOutl
 import { propertiesApi } from '@/lib/api';
 import { Property } from '@/types';
 import ReservationForm from './ReservationForm';
+import BuyRequestForm from './BuyRequestForm';
 
 interface PropertyDetailProps {
   slug: string;
@@ -130,8 +131,27 @@ const PropertyDetail = ({ slug }: PropertyDetailProps) => {
   const bathrooms = property.sallesDeBain || property.bathrooms;
   const area = property.surface || property.area;
   const location = property.city?.name || property.location || property.address || 'Saidia Bay';
-  const isRental = property.listingType === 'LOCATION';
-  const isAvailable = property.status === 'AVAILABLE' || property.status === 'DISPONIBLE' || (property.status as any) === 'available';
+  // Check if property is for rent (LOCATION) - handle different case variations
+  const listingTypeStr = String(property.listingType || '').toUpperCase();
+  const isRental = listingTypeStr === 'LOCATION';
+  
+  // Check if property is available (more flexible status check)
+  const statusStr = String(property.status || '').toUpperCase();
+  const isAvailable = 
+    statusStr === 'AVAILABLE' || 
+    statusStr === 'DISPONIBLE' ||
+    !property.status; // If no status, assume available
+  
+  // Debug logging
+  console.log('Property rental check:', {
+    listingType: property.listingType,
+    listingTypeStr,
+    isRental,
+    status: property.status,
+    statusStr,
+    isAvailable,
+    propertyId: property.id || property._id,
+  });
 
   // Build amenities list from backend boolean fields
   const amenities = [];
@@ -455,23 +475,34 @@ const PropertyDetail = ({ slug }: PropertyDetailProps) => {
 
               {/* Action based on listing type */}
               <div className="relative z-10">
-                {isRental && isAvailable ? (
-                  <ReservationForm propertyId={property.id} />
-                ) : !isRental && isAvailable ? (
-                  <div className="space-y-4">
-                    <Link href="/contact" className="w-full text-center block py-4 bg-accent-500 text-white font-semibold rounded-xl hover:bg-accent-600 transition-all shadow-gold hover:shadow-gold-lg">
-                      Demander des Informations
-                    </Link>
-                    <p className="text-sm text-primary-800/70 text-center font-medium">
-                      Contactez-nous pour planifier une visite
-                    </p>
-                  </div>
-                ) : (
+                {isRental ? (
+                  // Always show rental form for rental properties
+                  <>
+                    {!isAvailable && (
+                      <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl">
+                        <p className="text-sm text-yellow-800 text-center font-medium">
+                          ⚠️ Cette propriété peut ne pas être disponible pour le moment
+                        </p>
+                      </div>
+                    )}
+                    <ReservationForm propertyId={property.id || property._id || ''} propertyPrice={property.price} />
+                  </>
+                ) : statusStr === 'SOLD' || statusStr === 'VENDU' ? (
+                  // Already sold
                   <div className="text-center py-6 bg-secondary-50 rounded-xl border border-secondary-200">
                     <span className={`inline-block px-5 py-2.5 rounded-full text-sm font-semibold shadow-elegant ${getStatusBadge(property.status)}`}>
                       {getStatusLabel(property.status)}
                     </span>
+                    <p className="text-sm text-secondary-500 mt-3">Cette propriété a été vendue</p>
                   </div>
+                ) : (
+                  // For sale properties - show buy request form
+                  <BuyRequestForm 
+                    propertyId={property.id || property._id || ''} 
+                    propertyTitle={property.title}
+                    propertyPrice={property.price}
+                    propertyLocation={location}
+                  />
                 )}
               </div>
             </div>

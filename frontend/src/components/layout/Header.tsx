@@ -4,12 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { FiMenu, FiX, FiUser, FiHeart, FiBarChart2, FiLogOut, FiSettings, FiPhone, FiMail, FiMapPin, FiSearch, FiHome, FiChevronDown, FiCalendar } from 'react-icons/fi';
+import { FiMenu, FiX, FiUser, FiHeart, FiBarChart2, FiLogOut, FiSettings, FiPhone, FiMail, FiMapPin, FiSearch, FiHome, FiChevronDown, FiCalendar, FiLayers } from 'react-icons/fi';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useAuthStore } from '@/store/authStore';
 import { useFavoritesStore } from '@/store/favoritesStore';
 import { useComparisonStore } from '@/store/comparisonStore';
+import { citiesApi } from '@/lib/api';
+import { City } from '@/types';
 
 const propertyTypes = [
   { id: 'all', label: 'Tous types' },
@@ -32,14 +34,42 @@ const Header = () => {
   });
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const [cities, setCities] = useState<City[]>([]);
+  const [selectedCityId, setSelectedCityId] = useState<string>('');
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+  const cityDropdownRef = useRef<HTMLDivElement>(null);
 
-  const { user, logout } = useAuthStore();
+  const { user, logout, setUser } = useAuthStore();
   const { favorites } = useFavoritesStore();
   const { comparisonIds } = useComparisonStore();
 
   useEffect(() => {
     setMounted(true);
+
+    // Sync with localStorage if user is stored there but not in authStore
+    if (!user && typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          setUser(userData);
+        } catch (e) {
+          console.error('Error parsing stored user:', e);
+        }
+      }
+    }
+
+    // Fetch cities
+    const fetchCities = async () => {
+      try {
+        const data = await citiesApi.getAll();
+        setCities(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+      }
+    };
+    fetchCities();
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -47,6 +77,18 @@ const Header = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, [user, setUser]);
+
+  // Close city dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(event.target as Node)) {
+        setShowCityDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const favCount = mounted ? favorites.length : 0;
@@ -56,8 +98,25 @@ const Header = () => {
 
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    
+    console.log('🔍 Search triggered with params:', {
+      selectedCityId,
+      location: searchParams.location,
+      listingType: searchParams.listingType,
+      activeType,
+      startDate,
+      endDate
+    });
+    
     const params = new URLSearchParams();
-    if (searchParams.location.trim()) params.append('search', searchParams.location.trim());
+    
+    // Use cityId if selected, otherwise use location search
+    if (selectedCityId) {
+      params.append('cityId', selectedCityId);
+    } else if (searchParams.location.trim()) {
+      params.append('search', searchParams.location.trim());
+    }
+    
     if (searchParams.listingType) params.append('listingType', searchParams.listingType);
     if (activeType !== 'all') params.append('propertyCategory', activeType);
     if (startDate && searchParams.listingType === 'LOCATION') {
@@ -66,7 +125,10 @@ const Header = () => {
     if (endDate && searchParams.listingType === 'LOCATION') {
       params.append('endDate', endDate.toISOString().split('T')[0]);
     }
-    router.push(`/properties?${params.toString()}`);
+    
+    const queryString = params.toString();
+    console.log('🔍 Navigating to:', `/properties?${queryString}`);
+    router.push(`/properties?${queryString}`);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -87,7 +149,10 @@ const Header = () => {
 
   const handleLogout = () => {
     logout();
+    // Also clear localStorage
+    localStorage.removeItem('user');
     setIsUserMenuOpen(false);
+    router.push('/');
   };
 
   return (
@@ -170,6 +235,17 @@ const Header = () => {
 
           {/* Right Side Actions */}
             <div className="flex items-center gap-3">
+            {/* My Properties - Only show when logged in */}
+            {currentUser && (
+              <Link
+                href="/dashboard"
+                className="relative p-2.5 text-primary-700 hover:text-primary-900 hover:bg-secondary-100 rounded-full transition-all"
+                title="Mes Propriétés"
+              >
+                <FiLayers className="w-5 h-5" />
+              </Link>
+            )}
+
             {/* Favorites */}
             <Link
               href="/favorites"
@@ -227,27 +303,17 @@ const Header = () => {
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-secondary-50 transition-colors"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
-                          <FiUser className="w-4 h-4 text-secondary-500" />
-                            <span className="text-primary-800">Tableau de bord</span>
+                          <FiLayers className="w-4 h-4 text-secondary-500" />
+                          <span className="text-primary-800">Mes Propriétés</span>
                         </Link>
                         <Link
-                          href="/favorites"
+                          href="/profile"
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-secondary-50 transition-colors"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
-                          <FiHeart className="w-4 h-4 text-secondary-500" />
-                            <span className="text-primary-800">Mes Favoris ({favCount})</span>
+                          <FiUser className="w-4 h-4 text-secondary-500" />
+                          <span className="text-primary-800">Profile</span>
                         </Link>
-                        {currentUser.role === 'admin' && (
-                          <Link
-                            href="/admin"
-                            className="flex items-center gap-3 px-4 py-2.5 hover:bg-secondary-50 transition-colors"
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            <FiSettings className="w-4 h-4 text-secondary-500" />
-                              <span className="text-primary-800">Administration</span>
-                          </Link>
-                        )}
                       </div>
                       <div className="border-t border-secondary-100 pt-2">
                         <button
@@ -255,7 +321,7 @@ const Header = () => {
                           className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-danger-50 transition-colors text-left"
                         >
                           <FiLogOut className="w-4 h-4 text-danger-500" />
-                          <span className="text-danger-600">Déconnexion</span>
+                          <span className="text-danger-600">Logout</span>
                         </button>
                       </div>
                     </>
@@ -299,11 +365,12 @@ const Header = () => {
           <div className="container mx-auto px-4 lg:px-6 py-3 max-w-full">
             <div className="max-w-6xl mx-auto w-full">
               {/* Horizontal Search Bar - Clean Design */}
-              <form onSubmit={handleSearch} className="bg-white rounded-lg shadow-md border border-secondary-200 overflow-hidden w-full">
-                <div className="flex flex-col lg:flex-row w-full min-w-0">
+              <form onSubmit={handleSearch} className="bg-white rounded-lg shadow-md border border-secondary-200 overflow-visible w-full">
+                <div className="flex flex-col lg:flex-row w-full min-w-0 overflow-visible">
                   {/* Listing Type Toggle - Integrated */}
                   <div className="flex items-center gap-1 p-1 bg-secondary-50 border-r border-secondary-200 lg:w-32 flex-shrink-0">
                     <button
+                      type="button"
                       onClick={() => {
                         setSearchParams({ ...searchParams, listingType: 'LOCATION' });
                         setStartDate(null);
@@ -318,6 +385,7 @@ const Header = () => {
                       Location
                     </button>
                     <button
+                      type="button"
                       onClick={() => {
                         setSearchParams({ ...searchParams, listingType: 'VENTE' });
                         setStartDate(null);
@@ -333,19 +401,68 @@ const Header = () => {
                     </button>
                   </div>
 
-                  {/* Location */}
-                  <div className="flex-1 relative border-r border-secondary-200 min-w-0">
+                  {/* Location with City Dropdown */}
+                  <div className="flex-1 relative border-r border-secondary-200 min-w-0" ref={cityDropdownRef}>
                     <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
                       <FiMapPin className="w-4 h-4 text-secondary-500 flex-shrink-0" />
                       <input
                         type="text"
                         placeholder="Où allez-vous ?"
                         value={searchParams.location}
-                        onChange={(e) => setSearchParams({ ...searchParams, location: e.target.value })}
+                        onChange={(e) => {
+                          setSearchParams({ ...searchParams, location: e.target.value });
+                          setShowCityDropdown(true);
+                          setSelectedCityId(''); // Clear city selection when typing
+                        }}
+                        onFocus={() => setShowCityDropdown(true)}
                         onKeyPress={handleKeyPress}
                         className="flex-1 bg-transparent text-sm text-primary-900 placeholder:text-secondary-400 focus:outline-none min-w-0"
                       />
                     </div>
+                    {/* City Dropdown - Luxury UI */}
+                    {showCityDropdown && cities.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-secondary-100 z-[100] max-h-72 overflow-hidden">
+                        <div className="max-h-72 overflow-y-auto custom-scrollbar">
+                          {cities
+                            .filter(city => 
+                              !searchParams.location || 
+                              city.name.toLowerCase().includes(searchParams.location.toLowerCase())
+                            )
+                            .map((city, index) => (
+                              <button
+                                key={city.id}
+                                type="button"
+                                onClick={() => {
+                                  setSearchParams({ ...searchParams, location: city.name });
+                                  setSelectedCityId(city.id);
+                                  setShowCityDropdown(false);
+                                }}
+                                className={`w-full px-5 py-3.5 text-left hover:bg-accent-50 transition-all flex items-center gap-3 text-sm group ${
+                                  index !== 0 ? 'border-t border-secondary-50' : ''
+                                }`}
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-accent-50 group-hover:bg-accent-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                                  <FiMapPin className="w-4 h-4 text-accent-600 group-hover:text-accent-700" />
+                                </div>
+                                <div className="flex-1">
+                                  <span className="font-semibold text-primary-900 group-hover:text-accent-700 transition-colors">{city.name}</span>
+                                </div>
+                              </button>
+                            ))}
+                          {cities.filter(city => 
+                            !searchParams.location || 
+                            city.name.toLowerCase().includes(searchParams.location.toLowerCase())
+                          ).length === 0 && (
+                            <div className="px-5 py-4 text-sm text-secondary-500 text-center">
+                              <div className="w-12 h-12 rounded-full bg-secondary-50 flex items-center justify-center mx-auto mb-2">
+                                <FiMapPin className="w-5 h-5 text-secondary-400" />
+                              </div>
+                              Aucune ville trouvée
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Property Type */}
@@ -371,24 +488,11 @@ const Header = () => {
                   {isRental && (
                     <div className="flex-1 relative border-r border-secondary-200 min-w-0">
                       <div className="flex items-center gap-2 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
-                        <FiCalendar className="w-4 h-4 text-secondary-500 flex-shrink-0" />
                         <div className="flex-1 min-w-0 relative">
-                          <div className="absolute inset-0 pointer-events-none z-10 flex items-center">
-                            {startDate && endDate ? (
-                              <span className="text-sm text-primary-900 font-medium">
-                                {startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} — {endDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
-                              </span>
-                            ) : startDate ? (
-                              <span className="text-sm text-primary-900 font-medium">
-                                {startDate.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })} — ...
-                              </span>
-                            ) : (
-                              <span className="text-sm text-secondary-400">Date d'arrivée — Date de départ</span>
-                            )}
-                          </div>
                           <DatePicker
                             selected={startDate}
                             onChange={(dates: Date | [Date | null, Date | null] | null) => {
+                              console.log('📅 Date changed:', dates);
                               if (dates) {
                                 if (Array.isArray(dates)) {
                                   setStartDate(dates[0]);
@@ -406,12 +510,16 @@ const Header = () => {
                             endDate={endDate}
                             selectsRange
                             minDate={new Date()}
-                            dateFormat=""
-                            className="w-full bg-transparent text-sm text-transparent focus:outline-none cursor-pointer border-0 p-0 opacity-0"
+                            dateFormat="dd/MM/yyyy"
+                            placeholderText="Date d'arrivée — Date de départ"
+                            className="w-full bg-transparent text-sm text-primary-900 placeholder:text-secondary-400 focus:outline-none cursor-pointer border-0 p-0"
                             wrapperClassName="w-full"
-                            calendarClassName="date-picker-calendar"
+                            calendarClassName="luxury-calendar"
                             popperClassName="date-picker-popper"
+                            popperPlacement="bottom-start"
                             isClearable
+                            showPopperArrow={false}
+                            withPortal={false}
                           />
                         </div>
                       </div>
@@ -454,7 +562,26 @@ const Header = () => {
           </nav>
 
           <div className="mt-6 pt-6 border-t border-secondary-200 space-y-3">
-            {!currentUser && (
+            {currentUser ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-3 px-4 py-3.5 text-primary-800 hover:bg-secondary-50 rounded-xl transition-colors border border-secondary-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <FiLayers className="w-5 h-5 text-secondary-500" />
+                  <span className="font-medium">Mes Propriétés</span>
+                </Link>
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-3 px-4 py-3.5 text-primary-800 hover:bg-secondary-50 rounded-xl transition-colors border border-secondary-200"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <FiUser className="w-5 h-5 text-secondary-500" />
+                  <span className="font-medium">Profile</span>
+                </Link>
+              </>
+            ) : (
               <>
                 <Link
                   href="/login"
@@ -503,3 +630,4 @@ const Header = () => {
 };
 
 export default Header;
+

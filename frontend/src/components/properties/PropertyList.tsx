@@ -23,19 +23,33 @@ const PropertyList = () => {
     type: searchParams.get('propertyCategory') || searchParams.get('type') || '',
     listingType: searchParams.get('listingType') || '',
     search: searchParams.get('search') || '',
+    city: searchParams.get('cityId') || '',
     page: parseInt(searchParams.get('page') || '1'),
     limit: 20,
   });
 
   // Update filters when URL search params change
   useEffect(() => {
+    console.log('📍 URL Search Params changed:', {
+      propertyCategory: searchParams.get('propertyCategory'),
+      type: searchParams.get('type'),
+      listingType: searchParams.get('listingType'),
+      search: searchParams.get('search'),
+      cityId: searchParams.get('cityId'),
+      startDate: searchParams.get('startDate'),
+      endDate: searchParams.get('endDate'),
+    });
+    
     const newFilters: Filters = {
       type: searchParams.get('propertyCategory') || searchParams.get('type') || '',
       listingType: searchParams.get('listingType') || '',
       search: searchParams.get('search') || '',
+      city: searchParams.get('cityId') || '',
       page: parseInt(searchParams.get('page') || '1'),
       limit: 20,
     };
+    
+    console.log('📍 New filters set:', newFilters);
     setFilters(newFilters);
   }, [searchParams]);
 
@@ -67,7 +81,9 @@ const PropertyList = () => {
       if (startDate) apiParams.startDate = startDate;
       if (endDate) apiParams.endDate = endDate;
 
+      console.log('🔍 Fetching properties with API params:', apiParams);
       const response = await propertiesApi.getAll(apiParams);
+      console.log('✅ Properties response:', response);
       
       // API returns { properties: [], pagination: {} } directly
       const propertiesList = response?.properties || [];

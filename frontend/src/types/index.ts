@@ -87,7 +87,7 @@ export interface Reservation {
   id: string;
   startDate: string;
   endDate: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'PRE_RESERVED';
   guestName?: string;
   guestEmail?: string;
   guestPhone?: string;
@@ -117,6 +117,22 @@ export interface BlogPost {
   metaDescription?: string;
   authorId: string;
   author?: User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Lead {
+  id: string;
+  propertyId: string;
+  property?: Property;
+  userId?: string;
+  user?: User;
+  guestName?: string;
+  guestEmail?: string;
+  guestPhone?: string;
+  guestCountry?: string;
+  message?: string;
+  status: 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'CLOSED' | 'LOST';
   createdAt: string;
   updatedAt: string;
 }
