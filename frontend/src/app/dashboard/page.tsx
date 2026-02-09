@@ -569,18 +569,18 @@ export default function DashboardPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="bg-white rounded-xl shadow-md p-12 text-center">
+                  <div className="bg-white rounded-xl shadow-md p-12 text-center">
                       <FiShoppingBag className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-secondary-900 mb-2">
+                    <h3 className="text-xl font-semibold text-secondary-900 mb-2">
                         Aucune Demande d'Achat
-                      </h3>
-                      <p className="text-secondary-600 mb-6">
+                    </h3>
+                    <p className="text-secondary-600 mb-6">
                         Parcourez nos propriétés en vente et soumettez votre première demande d'achat !
-                      </p>
+                    </p>
                       <Link href="/properties?listingType=VENTE" className="btn-primary">
                         Voir les Propriétés en Vente
-                      </Link>
-                    </div>
+                    </Link>
+                  </div>
                   )}
                 </div>
               )}

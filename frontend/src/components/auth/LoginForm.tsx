@@ -40,9 +40,9 @@ const LoginForm = () => {
         setUserId(data.userId);
         setOtpStep(true);
         toast.info(data.message || 'OTP code sent to your email');
-        setLoading(false);
-        return;
-      }
+      setLoading(false);
+      return;
+    }
 
       // Direct login (non-admin users) - extract token and user
       // Backend may use session-based auth (cookies) instead of JWT tokens
@@ -93,12 +93,12 @@ const LoginForm = () => {
 
         // Also store token if provided
         if (token) {
-          Cookies.set('token', token, { expires: 7 });
+      Cookies.set('token', token, { expires: 7 });
         }
 
-        toast.success(`Welcome back, ${user.name || user.email}!`);
+      toast.success(`Welcome back, ${user.name || user.email}!`);
 
-        // Redirect based on role
+      // Redirect based on role
         if (user.role === 'ADMIN' || user.role === 'admin') {
           // Redirect to backend admin dashboard (port 3000)
           window.location.href = ADMIN_DASHBOARD_URL;
@@ -153,7 +153,7 @@ const LoginForm = () => {
   };
 
   const handleError = (error: any) => {
-    let message = 'Login failed';
+      let message = 'Login failed';
 
     if (error.response) {
       const errorData = error.response.data;
@@ -166,15 +166,15 @@ const LoginForm = () => {
           errorData?.message ||
           errorData?.error ||
           errorData?.errors?.[0]?.message ||
-          `Server error: ${error.response.status}`;
+                 `Server error: ${error.response.status}`;
       }
-    } else if (error.request) {
-      message = 'Unable to connect to server. Please check if the backend is running.';
-    } else {
-      message = error.message || 'An unexpected error occurred';
-    }
-
-    toast.error(message);
+      } else if (error.request) {
+        message = 'Unable to connect to server. Please check if the backend is running.';
+      } else {
+        message = error.message || 'An unexpected error occurred';
+      }
+      
+      toast.error(message);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -200,71 +200,71 @@ const LoginForm = () => {
 
         {!otpStep ? (
           /* Step 1: Email & Password */
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
-            <div>
-              <label className="label">Email Address</label>
-              <div className="relative">
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="your@email.com"
-                  className="input pl-10"
-                />
-                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Email */}
+          <div>
+            <label className="label">Email Address</label>
+            <div className="relative">
+              <input
+                type="email"
+                name="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="your@email.com"
+                className="input pl-10"
+              />
+              <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
             </div>
+          </div>
 
-            {/* Password */}
-            <div>
-              <label className="label">Password</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className="input pl-10 pr-10"
-                />
-                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
-                >
-                  {showPassword ? <FiEyeOff /> : <FiEye />}
-                </button>
-              </div>
-            </div>
-
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="rounded" />
-                <span className="text-secondary-600">Remember me</span>
-              </label>
-              <Link
-                href="/forgot-password"
-                className="text-primary-600 hover:text-primary-700 font-medium"
+          {/* Password */}
+          <div>
+            <label className="label">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="input pl-10 pr-10"
+              />
+              <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
               >
-                Forgot password?
-              </Link>
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
             </div>
+          </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+          {/* Remember Me & Forgot Password */}
+          <div className="flex items-center justify-between text-sm">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" className="rounded" />
+              <span className="text-secondary-600">Remember me</span>
+            </label>
+            <Link
+              href="/forgot-password"
+              className="text-primary-600 hover:text-primary-700 font-medium"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
+              Forgot password?
+            </Link>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
         ) : (
           /* Step 2: OTP Verification */
           <form onSubmit={handleOtpSubmit} className="space-y-6">

@@ -54,7 +54,7 @@ const HeroSection = ({ heroData }: HeroSectionProps) => {
   const heroSubtitle = heroData?.subtitle || "Découvrez notre collection exclusive de propriétés d'exception sur la côte méditerranéenne du Maroc";
 
   return (
-    <section ref={heroRef} className="relative h-screen flex items-center pt-[200px] lg:pt-[220px] overflow-hidden">
+    <div ref={heroRef} className="absolute inset-0 overflow-hidden">
       {/* Background Image with Premium Overlay */}
       <div className="absolute inset-0">
         <Image
@@ -71,74 +71,75 @@ const HeroSection = ({ heroData }: HeroSectionProps) => {
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary-950/40 to-transparent" />
+      <div className="absolute top-0 left-0 w-full h-16 md:h-32 bg-gradient-to-b from-primary-950/40 to-transparent" />
       <div className="absolute bottom-0 left-0 w-1/3 h-1 bg-gradient-to-r from-accent-500 to-transparent" />
 
-      {/* Main Content */}
-      <div className="relative container mx-auto px-4 lg:px-6 pb-20">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
-          <div ref={contentRef} className="max-w-2xl">
-            {/* Brand Label */}
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-px bg-accent-500" />
-              <span className="text-accent-400 text-sm font-medium tracking-[0.2em] uppercase">
-                Saidia Bay Real Estate
-              </span>
-            </div>
-
-            {/* Main Title */}
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white font-medium leading-[1.1] mb-6">
-              {heroTitle.split('\n').map((line, index) => (
-                <span key={index} className="block">
-                  {index === 1 ? (
-                    <span className="text-accent-400">{line}</span>
-                  ) : (
-                    line
-                  )}
+      {/* Main Content - pushed down to account for header */}
+      <div className="absolute inset-0 flex items-center pt-24 sm:pt-28 md:pt-32 lg:pt-36">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-6 md:gap-12 items-center">
+            {/* Left Content */}
+            <div ref={contentRef} className="max-w-2xl">
+              {/* Brand Label */}
+              <div className="flex items-center gap-3 mb-4 md:mb-6">
+                <div className="w-8 md:w-12 h-px bg-accent-500" />
+                <span className="text-accent-400 text-xs md:text-sm font-medium tracking-[0.2em] uppercase">
+                  Saidia Bay Real Estate
                 </span>
-              ))}
-            </h1>
+              </div>
 
-            {/* Subtitle */}
-            <p className="text-lg md:text-xl text-white/90 leading-relaxed mb-8 max-w-xl">
-              {heroSubtitle}
-            </p>
+              {/* Main Title */}
+              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-white font-medium leading-[1.1] mb-4 md:mb-6">
+                {heroTitle.split('\n').map((line, index) => (
+                  <span key={index} className="block">
+                    {index === 1 ? (
+                      <span className="text-accent-400">{line}</span>
+                    ) : (
+                      line
+                    )}
+                  </span>
+                ))}
+              </h1>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-wrap items-center gap-4">
-              {heroData?.ctaText ? (
-                <button
-                  onClick={handleCTAClick}
-                  className="group inline-flex items-center gap-3 px-8 py-4 bg-accent-500 text-white font-medium rounded-lg hover:bg-accent-600 transition-all shadow-gold"
-                >
-                  {heroData.ctaText}
-                  <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-              ) : (
+              {/* Subtitle */}
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 leading-relaxed mb-6 md:mb-8 max-w-xl">
+                {heroSubtitle}
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap items-center gap-3 md:gap-4">
+                {heroData?.ctaText ? (
+                  <button
+                    onClick={handleCTAClick}
+                    className="group inline-flex items-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-accent-500 text-white text-sm md:text-base font-medium rounded-lg hover:bg-accent-600 transition-all shadow-gold"
+                  >
+                    {heroData.ctaText}
+                    <FiArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                ) : (
+                  <Link
+                    href="/properties"
+                    className="group inline-flex items-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-accent-500 text-white text-sm md:text-base font-medium rounded-lg hover:bg-accent-600 transition-all shadow-gold"
+                  >
+                    Explorer les Propriétés
+                    <FiArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                )}
                 <Link
-                  href="/properties"
-                  className="group inline-flex items-center gap-3 px-8 py-4 bg-accent-500 text-white font-medium rounded-lg hover:bg-accent-600 transition-all shadow-gold"
+                  href="/contact"
+                  className="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 border-2 border-white/30 text-white text-sm md:text-base font-medium rounded-lg hover:bg-white/10 hover:border-white/50 transition-all"
                 >
-                  Explorer les Propriétés
-                  <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  Nous Contacter
                 </Link>
-              )}
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 px-8 py-4 border-2 border-white/30 text-white font-medium rounded-lg hover:bg-white/10 hover:border-white/50 transition-all"
-              >
-                Nous Contacter
-              </Link>
+              </div>
             </div>
-          </div>
 
-          {/* Right Side - Empty for now, can add content later */}
-          <div className="hidden lg:block" />
+            {/* Right Side - Empty for now */}
+            <div className="hidden lg:block" />
+          </div>
         </div>
       </div>
-
-    </section>
+    </div>
   );
 };
 

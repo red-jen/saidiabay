@@ -24,20 +24,6 @@ const categories = [
     image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600',
     description: 'Appartements urbains modernes',
   },
-  {
-    id: 'house',
-    title: 'Maisons',
-    count: '80+',
-    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
-    description: 'Maisons familiales',
-  },
-  {
-    id: 'studio',
-    title: 'Studios',
-    count: '65+',
-    image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600',
-    description: 'Espaces de vie compacts',
-  },
 ];
 
 export default function DiscoverSection() {
@@ -119,12 +105,12 @@ export default function DiscoverSection() {
         </div>
 
         {/* Category Cards */}
-        <div ref={cardsRef} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div ref={cardsRef} className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
           {categories.map((category) => (
             <Link
               key={category.id}
-              href={`/properties?type=${category.id}`}
-              className="group relative h-80 rounded-2xl overflow-hidden cursor-pointer"
+              href={`/properties?propertyCategory=${category.id === 'villa' ? 'VILLA' : 'APPARTEMENT'}`}
+              className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer"
             >
               {/* Image */}
               <Image
