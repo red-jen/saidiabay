@@ -8,6 +8,79 @@ import NewsletterBox from '@/components/blog/NewsletterBox';
 import { blogApi } from '@/lib/api';
 import { BlogPost } from '@/types';
 
+// Static blogs that will always be displayed
+const STATIC_BLOGS: BlogPost[] = [
+  {
+    id: 'static-1',
+    title: '10 Conseils pour les Primo-Accédants à Saidia Bay',
+    slug: '10-tips-first-time-home-buyers',
+    excerpt: 'Acheter votre première maison peut être intimidant. Voici des conseils essentiels pour faciliter le processus.',
+    content: '<p>Contenu complet ici...</p>',
+    featuredImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800',
+    tags: ['buying', 'tips', 'first-time'],
+    views: 0,
+    status: 'published' as const,
+    authorId: '1',
+    author: {
+      id: '1',
+      name: 'Sarah Johnson',
+      email: 'sarah@example.com',
+      role: 'admin' as const,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'static-2',
+    title: 'Tendances du Marché Immobilier 2024',
+    slug: 'saidia-bay-market-trends-2024',
+    excerpt: 'Une analyse approfondie du marché immobilier actuel à Saidia Bay, incluant les tendances de prix et les prévisions.',
+    content: '<p>Contenu complet ici...</p>',
+    featuredImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800',
+    tags: ['market', 'trends', '2024'],
+    views: 0,
+    status: 'published' as const,
+    authorId: '1',
+    author: {
+      id: '1',
+      name: 'Sarah Johnson',
+      email: 'sarah@example.com',
+      role: 'admin' as const,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'static-3',
+    title: 'Pourquoi Investir à Saidia Bay ?',
+    slug: 'why-invest-saidia-bay',
+    excerpt: 'Découvrez les principales raisons pour lesquelles Saidia Bay devient l\'une des destinations d\'investissement les plus attractives.',
+    content: '<p>Contenu complet ici...</p>',
+    featuredImage: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
+    tags: ['investment', 'saidia', 'property'],
+    views: 0,
+    status: 'published' as const,
+    authorId: '1',
+    author: {
+      id: '1',
+      name: 'Michael Chen',
+      email: 'michael@example.com',
+      role: 'admin' as const,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
 export default function BlogPostPage() {
   const params = useParams();
   const slug = params?.slug as string;
@@ -112,10 +185,28 @@ export default function BlogPostPage() {
 
   const fetchRecentPosts = async () => {
     try {
-      const response = await blogApi.getPosts({ page: 1, limit: 5 });
-      setRecentPosts(response.posts);
+      // Fetch uploaded blogs from API
+      let uploadedPosts: BlogPost[] = [];
+      
+      try {
+        const response = await blogApi.getPosts({ page: 1, limit: 10 });
+        uploadedPosts = response?.posts || [];
+      } catch (apiError) {
+        console.error('Error fetching uploaded posts:', apiError);
+        // Continue with static blogs even if API fails
+      }
+      
+      // Combine static blogs with uploaded blogs
+      // Exclude the current post from recent posts
+      const allPosts = [...STATIC_BLOGS, ...uploadedPosts];
+      const filteredPosts = allPosts.filter(p => p.slug !== slug).slice(0, 5);
+      
+      // Always set an array, never undefined
+      setRecentPosts(filteredPosts.length > 0 ? filteredPosts : STATIC_BLOGS.slice(0, 5));
     } catch (error) {
       console.error('Error fetching recent posts:', error);
+      // Fallback to static blogs if everything fails
+      setRecentPosts(STATIC_BLOGS.slice(0, 5));
     }
   };
 
@@ -169,7 +260,7 @@ export default function BlogPostPage() {
 
             {/* Sidebar */}
             <div className="space-y-8">
-              {recentPosts.length > 0 && <RecentPosts posts={recentPosts} />}
+              {recentPosts && recentPosts.length > 0 && <RecentPosts posts={recentPosts} />}
               <NewsletterBox />
             </div>
           </div>

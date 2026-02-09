@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { FiMenu, FiX, FiUser, FiHeart, FiBarChart2, FiLogOut, FiSettings, FiPhone, FiMail, FiMapPin, FiSearch, FiHome, FiChevronDown, FiCalendar, FiLayers } from 'react-icons/fi';
+import { FiMenu, FiX, FiUser, FiHeart, FiBarChart2, FiLogOut, FiSettings, FiPhone, FiMail, FiMapPin, FiSearch, FiHome, FiChevronDown, FiChevronUp, FiCalendar, FiLayers } from 'react-icons/fi';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useAuthStore } from '@/store/authStore';
@@ -27,6 +27,7 @@ const Header = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isSearchBarVisible, setIsSearchBarVisible] = useState(true);
   const [activeType, setActiveType] = useState('all');
   const [searchParams, setSearchParams] = useState({
     location: '',
@@ -364,8 +365,31 @@ const Header = () => {
         <div className="bg-white border-t border-secondary-100 w-full">
           <div className="container mx-auto px-4 lg:px-6 py-3 max-w-full">
             <div className="max-w-6xl mx-auto w-full">
+              {/* Toggle Button */}
+              <div className="flex justify-end mb-2">
+                <button
+                  type="button"
+                  onClick={() => setIsSearchBarVisible(!isSearchBarVisible)}
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm text-secondary-600 hover:text-primary-900 hover:bg-secondary-50 rounded-lg transition-all"
+                  aria-label={isSearchBarVisible ? 'Hide search bar' : 'Show search bar'}
+                >
+                  {isSearchBarVisible ? (
+                    <>
+                      <FiChevronUp className="w-4 h-4" />
+                      <span className="hidden sm:inline">Masquer la recherche</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiChevronDown className="w-4 h-4" />
+                      <span className="hidden sm:inline">Afficher la recherche</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              
               {/* Horizontal Search Bar - Clean Design */}
-              <form onSubmit={handleSearch} className="bg-white rounded-lg shadow-md border border-secondary-200 overflow-visible w-full">
+              {isSearchBarVisible && (
+                <form onSubmit={handleSearch} className="bg-white rounded-lg shadow-md border border-secondary-200 overflow-visible w-full">
                 <div className="flex flex-col lg:flex-row w-full min-w-0 overflow-visible">
                   {/* Listing Type Toggle - Integrated */}
                   <div className="flex items-center gap-1 p-1 bg-secondary-50 border-r border-secondary-200 lg:w-32 flex-shrink-0">
@@ -536,6 +560,7 @@ const Header = () => {
                   </button>
                 </div>
               </form>
+              )}
             </div>
           </div>
         </div>

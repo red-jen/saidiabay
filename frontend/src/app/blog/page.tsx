@@ -11,6 +11,79 @@ import NewsletterBox from '@/components/blog/NewsletterBox';
 import { blogApi } from '@/lib/api';
 import { BlogPost } from '@/types';
 
+// Static blogs that will always be displayed
+const STATIC_BLOGS: BlogPost[] = [
+  {
+    id: 'static-1',
+    title: '10 Conseils pour les Primo-Accédants à Saidia Bay',
+    slug: '10-tips-first-time-home-buyers',
+    excerpt: 'Acheter votre première maison peut être intimidant. Voici des conseils essentiels pour faciliter le processus.',
+    content: '<p>Contenu complet ici...</p>',
+    featuredImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800',
+    tags: ['buying', 'tips', 'first-time'],
+    views: 0,
+    status: 'published' as const,
+    authorId: '1',
+    author: {
+      id: '1',
+      name: 'Sarah Johnson',
+      email: 'sarah@example.com',
+      role: 'admin' as const,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'static-2',
+    title: 'Tendances du Marché Immobilier 2024',
+    slug: 'saidia-bay-market-trends-2024',
+    excerpt: 'Une analyse approfondie du marché immobilier actuel à Saidia Bay, incluant les tendances de prix et les prévisions.',
+    content: '<p>Contenu complet ici...</p>',
+    featuredImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800',
+    tags: ['market', 'trends', '2024'],
+    views: 0,
+    status: 'published' as const,
+    authorId: '1',
+    author: {
+      id: '1',
+      name: 'Sarah Johnson',
+      email: 'sarah@example.com',
+      role: 'admin' as const,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'static-3',
+    title: 'Pourquoi Investir à Saidia Bay ?',
+    slug: 'why-invest-saidia-bay',
+    excerpt: 'Découvrez les principales raisons pour lesquelles Saidia Bay devient l\'une des destinations d\'investissement les plus attractives.',
+    content: '<p>Contenu complet ici...</p>',
+    featuredImage: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
+    tags: ['investment', 'saidia', 'property'],
+    views: 0,
+    status: 'published' as const,
+    authorId: '1',
+    author: {
+      id: '1',
+      name: 'Michael Chen',
+      email: 'michael@example.com',
+      role: 'admin' as const,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
@@ -26,90 +99,72 @@ export default function BlogPage() {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await blogApi.getPosts({
-        page,
-        limit: 9,
-        category: activeCategory !== 'all' ? activeCategory : undefined,
-      });
-      setPosts(response.posts);
-      setFilteredPosts(response.posts);
-      setTotalPages(response.pagination.pages);
+      const limit = 9;
+      const staticCount = STATIC_BLOGS.length;
+      
+      // Fetch uploaded blogs from API
+      let uploadedPostsForPage: BlogPost[] = [];
+      let allUploadedPosts: BlogPost[] = [];
+      let uploadedPagination = { total: 0, pages: 1 };
+      
+      try {
+        console.log('📝 Fetching blogs from API...');
+        
+        // Fetch all uploaded posts for sidebar (without pagination)
+        const allResponse = await blogApi.getPosts({
+          limit: 100, // Fetch a large number for sidebar
+          category: activeCategory !== 'all' ? activeCategory : undefined,
+        });
+        
+        console.log('📝 API Response:', allResponse);
+        
+        allUploadedPosts = allResponse?.posts || [];
+        uploadedPagination = allResponse?.pagination || { total: 0, pages: 1 };
+        
+        console.log(`📝 Loaded ${allUploadedPosts.length} blogs from API`);
+        
+        // Fetch paginated posts for main content
+        if (page === 1) {
+          // Page 1: Fetch fewer uploaded blogs to make room for static blogs
+          const remainingSlots = limit - staticCount;
+          if (remainingSlots > 0) {
+            uploadedPostsForPage = allUploadedPosts.slice(0, remainingSlots);
+          }
+        } else {
+          // Other pages: Get the appropriate slice of uploaded posts
+          const offset = (page - 1) * limit - staticCount;
+          uploadedPostsForPage = allUploadedPosts.slice(offset, offset + limit);
+        }
+      } catch (apiError) {
+        console.error('❌ Error fetching uploaded posts:', apiError);
+        // Continue with static blogs even if API fails
+      }
+      
+      // Combine static blogs with uploaded blogs for main display
+      // Static blogs always come first on page 1
+      let displayedPosts: BlogPost[] = [];
+      
+      if (page === 1) {
+        // Page 1: Show all static blogs + first batch of uploaded blogs
+        displayedPosts = [...STATIC_BLOGS, ...uploadedPostsForPage];
+      } else {
+        // Other pages: Only show uploaded blogs
+        displayedPosts = uploadedPostsForPage;
+      }
+      
+      // Store all posts (static + all uploaded) for sidebar (RecentPosts component)
+      const allPosts = [...STATIC_BLOGS, ...allUploadedPosts];
+      setPosts(allPosts);
+      setFilteredPosts(displayedPosts);
+      
+      // Calculate total pages: page 1 has static + uploaded, other pages only uploaded
+      const totalWithStatic = staticCount + uploadedPagination.total;
+      setTotalPages(Math.ceil(totalWithStatic / limit));
     } catch (error) {
       console.error('Error fetching posts:', error);
-      // Use mock data for development
-      const mockPosts: BlogPost[] = [
-        {
-          id: '1',
-          title: '10 Conseils pour les Primo-Accédants à Saidia Bay',
-          slug: '10-tips-first-time-home-buyers',
-          excerpt: 'Acheter votre première maison peut être intimidant. Voici des conseils essentiels pour faciliter le processus.',
-          content: '<p>Contenu complet ici...</p>',
-          featuredImage: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800',
-          tags: ['buying', 'tips', 'first-time'],
-          views: 0,
-          status: 'published' as const,
-          authorId: '1',
-          author: {
-            id: '1',
-            name: 'Sarah Johnson',
-            email: 'sarah@example.com',
-            role: 'admin' as const,
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          id: '2',
-          title: 'Tendances du Marché Immobilier 2024',
-          slug: 'saidia-bay-market-trends-2024',
-          excerpt: 'Une analyse approfondie du marché immobilier actuel à Saidia Bay, incluant les tendances de prix et les prévisions.',
-          content: '<p>Contenu complet ici...</p>',
-          featuredImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800',
-          tags: ['market', 'trends', '2024'],
-          views: 0,
-          status: 'published' as const,
-          authorId: '1',
-          author: {
-            id: '1',
-            name: 'Sarah Johnson',
-            email: 'sarah@example.com',
-            role: 'admin' as const,
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          id: '3',
-          title: 'Pourquoi Investir à Saidia Bay ?',
-          slug: 'why-invest-saidia-bay',
-          excerpt: 'Découvrez les principales raisons pour lesquelles Saidia Bay devient l\'une des destinations d\'investissement les plus attractives.',
-          content: '<p>Contenu complet ici...</p>',
-          featuredImage: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
-          tags: ['investment', 'saidia', 'property'],
-          views: 0,
-          status: 'published' as const,
-          authorId: '1',
-          author: {
-            id: '1',
-            name: 'Michael Chen',
-            email: 'michael@example.com',
-            role: 'admin' as const,
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ];
-      setPosts(mockPosts);
-      setFilteredPosts(mockPosts);
+      // If everything fails, still show static blogs
+      setPosts(STATIC_BLOGS);
+      setFilteredPosts(STATIC_BLOGS);
       setTotalPages(1);
     } finally {
       setLoading(false);

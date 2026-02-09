@@ -80,13 +80,6 @@ const SimpleHeroImage = ({ hero }: { hero: HeroData }) => {
         </div>
       </div>
 
-      {/* Click indicator hint */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-white/80">
-        <span className="text-xs tracking-wider">Cliquez pour découvrir</span>
-        <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center pt-2">
-          <div className="w-1.5 h-3 bg-white/60 rounded-full animate-bounce" />
-        </div>
-      </div>
     </section>
   );
 };

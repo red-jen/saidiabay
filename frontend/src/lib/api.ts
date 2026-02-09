@@ -148,12 +148,100 @@ export const blogApi = {
   getAll: (params?: Record<string, any>) =>
     api.get('/blogs', { params }),
   getPosts: async (params?: Record<string, any>) => {
-    const response = await api.get('/blogs', { params });
-    return response.data.data || response.data;
+    try {
+      const response = await api.get('/blogs', { 
+        params: {
+          ...params,
+          published: 'true', // Only get published blogs
+        }
+      });
+      
+      // Backend returns { data: blogs[] }
+      const blogs = response.data?.data || response.data || [];
+      
+      // Map backend blog structure to frontend BlogPost structure
+      const mappedBlogs = Array.isArray(blogs) ? blogs.map((blog: any) => ({
+        id: blog.id,
+        title: blog.title,
+        slug: blog.slug,
+        content: blog.content,
+        excerpt: blog.excerpt || '',
+        featuredImage: blog.coverImage || blog.featuredImage || '',
+        tags: blog.tags || blog.category ? [blog.category] : [],
+        views: blog.views || 0,
+        status: blog.isPublished ? 'published' as const : 'draft' as const,
+        publishedAt: blog.publishedAt || blog.createdAt,
+        metaTitle: blog.metaTitle,
+        metaDescription: blog.metaDescription,
+        authorId: blog.userId,
+        author: blog.user ? {
+          id: blog.user.id,
+          name: blog.user.name,
+          email: blog.user.email || '',
+          role: 'admin' as const,
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        } : undefined,
+        createdAt: blog.createdAt || new Date().toISOString(),
+        updatedAt: blog.updatedAt || new Date().toISOString(),
+      })) : [];
+      
+      // Return in expected format with pagination
+      return {
+        posts: mappedBlogs,
+        pagination: {
+          total: mappedBlogs.length,
+          page: params?.page || 1,
+          pages: Math.ceil(mappedBlogs.length / (params?.limit || 9)),
+          limit: params?.limit || 9,
+        },
+      };
+    } catch (error) {
+      console.error('Error in blogApi.getPosts:', error);
+      throw error;
+    }
   },
   getPost: async (slug: string) => {
-    const response = await api.get(`/blogs/${slug}`);
-    return response.data.data || response.data;
+    try {
+      const response = await api.get(`/blogs/${slug}`);
+      const blog = response.data?.data || response.data;
+      
+      if (!blog) {
+        throw new Error('Blog post not found');
+      }
+      
+      // Map backend blog structure to frontend BlogPost structure
+      return {
+        id: blog.id,
+        title: blog.title,
+        slug: blog.slug,
+        content: blog.content,
+        excerpt: blog.excerpt || '',
+        featuredImage: blog.coverImage || blog.featuredImage || '',
+        tags: blog.tags || blog.category ? [blog.category] : [],
+        views: blog.views || 0,
+        status: blog.isPublished ? 'published' as const : 'draft' as const,
+        publishedAt: blog.publishedAt || blog.createdAt,
+        metaTitle: blog.metaTitle,
+        metaDescription: blog.metaDescription,
+        authorId: blog.userId,
+        author: blog.user ? {
+          id: blog.user.id,
+          name: blog.user.name,
+          email: blog.user.email || '',
+          role: 'admin' as const,
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        } : undefined,
+        createdAt: blog.createdAt || new Date().toISOString(),
+        updatedAt: blog.updatedAt || new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error('Error in blogApi.getPost:', error);
+      throw error;
+    }
   },
   getById: (id: string) => api.get(`/blogs/${id}`),
   getRecent: (limit?: number) =>
