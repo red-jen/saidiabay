@@ -49,27 +49,38 @@ const SimpleHeroImage = ({ hero }: { hero: HeroData }) => {
   };
 
   return (
-    <div 
+    <section 
       ref={imageRef}
-      className="absolute inset-0 cursor-pointer"
+      className="relative h-screen flex items-center pt-[200px] lg:pt-[220px] cursor-pointer overflow-hidden"
       onClick={handleClick}
     >
       {/* Background Image */}
-      <Image
-        src={hero.imageUrl}
-        alt={hero.title}
-        fill
-        priority
-        className="object-cover"
-        quality={90}
-      />
-      {/* Subtle overlay */}
-      <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-colors" />
+      <div className="absolute inset-0">
+        <Image
+          src={hero.imageUrl}
+          alt={hero.title}
+          fill
+          priority
+          className="object-cover"
+          quality={90}
+        />
+        {/* Subtle overlay for better click indication */}
+        <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-colors" />
+      </div>
 
-      {/* Decorative Elements */}
-      <div className="absolute top-0 left-0 w-full h-16 md:h-32 bg-gradient-to-b from-primary-950/40 to-transparent" />
+      {/* Decorative Elements - matching HeroSection structure */}
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary-950/40 to-transparent" />
       <div className="absolute bottom-0 left-0 w-1/3 h-1 bg-gradient-to-r from-accent-500 to-transparent" />
-    </div>
+
+      {/* Spacer to match HeroSection content height */}
+      <div className="relative container mx-auto px-4 lg:px-6 pb-20 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="max-w-2xl" />
+          <div className="hidden lg:block" />
+        </div>
+      </div>
+
+    </section>
   );
 };
 
@@ -109,7 +120,8 @@ const HeroCarousel = ({ heroes, autoPlayInterval = 5000 }: HeroCarouselProps) =>
     } else {
       setCurrentIndex(index);
     }
-    setIsAutoPlaying(false);
+    setIsAutoPlaying(false); // Pause auto-play when manually navigating
+    // Resume auto-play after a delay
     setTimeout(() => setIsAutoPlaying(true), autoPlayInterval * 2);
   }, [heroes.length, autoPlayInterval]);
 
@@ -136,15 +148,15 @@ const HeroCarousel = ({ heroes, autoPlayInterval = 5000 }: HeroCarouselProps) =>
 
   return (
     <div
-      className="relative w-full aspect-[4/5] sm:aspect-[4/3] md:aspect-[16/9] overflow-hidden"
+      className="relative"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Carousel Content - child fills via absolute */}
+      {/* Carousel Content - Fixed height container to prevent size changes */}
       <div 
         ref={carouselRef} 
         key={currentHero.id}
-        className="absolute inset-0"
+        className="relative h-screen"
       >
         {isFirstHero ? (
           <HeroSection heroData={currentHero} />
@@ -159,30 +171,30 @@ const HeroCarousel = ({ heroes, autoPlayInterval = 5000 }: HeroCarouselProps) =>
           {/* Previous Button */}
           <button
             onClick={goToPrevious}
-            className="absolute left-3 md:left-8 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 md:w-14 md:h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300 shadow-lg border border-white/20 hover:scale-110 group"
+            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 md:w-14 md:h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300 shadow-lg border border-white/20 hover:scale-110 group"
             aria-label="Previous slide"
           >
-            <FiChevronLeft className="w-5 h-5 sm:w-5 sm:h-5 md:w-7 md:h-7 group-hover:-translate-x-1 transition-transform" />
+            <FiChevronLeft className="w-6 h-6 md:w-7 md:h-7 group-hover:-translate-x-1 transition-transform" />
           </button>
 
           {/* Next Button */}
           <button
             onClick={goToNext}
-            className="absolute right-3 md:right-8 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-11 sm:h-11 md:w-14 md:h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300 shadow-lg border border-white/20 hover:scale-110 group"
+            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 md:w-14 md:h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300 shadow-lg border border-white/20 hover:scale-110 group"
             aria-label="Next slide"
           >
-            <FiChevronRight className="w-5 h-5 sm:w-5 sm:h-5 md:w-7 md:h-7 group-hover:translate-x-1 transition-transform" />
+            <FiChevronRight className="w-6 h-6 md:w-7 md:h-7 group-hover:translate-x-1 transition-transform" />
           </button>
 
-          {/* Dots Indicator */}
-          <div className="absolute bottom-4 sm:bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 sm:gap-2">
+          {/* Dots Indicator - Positioned above scroll indicator */}
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
             {heroes.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
                 className={`transition-all duration-300 rounded-full ${
                   index === currentIndex
-                    ? 'w-7 sm:w-8 h-2 bg-white shadow-lg'
+                    ? 'w-8 h-2 bg-white shadow-lg'
                     : 'w-2 h-2 bg-white/40 hover:bg-white/60'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
@@ -190,8 +202,8 @@ const HeroCarousel = ({ heroes, autoPlayInterval = 5000 }: HeroCarouselProps) =>
             ))}
           </div>
 
-          {/* Slide Counter */}
-          <div className="absolute top-4 sm:top-6 md:top-8 right-4 sm:right-6 md:right-8 z-30 bg-white/10 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-white text-xs md:text-sm font-medium border border-white/20">
+          {/* Slide Counter (Optional) */}
+          <div className="absolute top-8 right-8 z-30 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-white text-sm font-medium border border-white/20">
             {currentIndex + 1} / {heroes.length}
           </div>
         </>
@@ -201,3 +213,4 @@ const HeroCarousel = ({ heroes, autoPlayInterval = 5000 }: HeroCarouselProps) =>
 };
 
 export default HeroCarousel;
+

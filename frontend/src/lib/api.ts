@@ -43,7 +43,7 @@ api.interceptors.response.use(
         
         if (!isProtectedPath) {
           Cookies.remove('token');
-          window.location.href = '/login';
+        window.location.href = '/login';
         }
       }
     }
@@ -204,7 +204,7 @@ export const blogApi = {
   },
   getPost: async (slug: string) => {
     try {
-      const response = await api.get(`/blogs/${slug}`);
+    const response = await api.get(`/blogs/${slug}`);
       const blog = response.data?.data || response.data;
       
       if (!blog) {

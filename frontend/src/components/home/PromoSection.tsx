@@ -101,9 +101,9 @@ export default function PromoSection() {
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
 
-              {/* Premium Gradient Overlay - Lighter for better text visibility */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary-950/70 via-primary-900/60 to-primary-900/50" />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary-950/50 via-transparent to-primary-950/20" />
+              {/* Premium Gradient Overlay - Matching Hero */}
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-950/85 via-primary-900/75 to-primary-900/65" />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary-950/60 via-transparent to-primary-950/30" />
 
               {/* Content */}
               <div className="absolute inset-0 p-8 flex flex-col justify-between text-white">
@@ -111,7 +111,7 @@ export default function PromoSection() {
                   <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium mb-4">
                     {promo.subtitle}
                   </span>
-                  <h3 className="font-serif text-2xl md:text-3xl lg:text-4xl font-medium mb-2 text-white drop-shadow-lg">
+                  <h3 className="font-serif text-2xl md:text-3xl lg:text-4xl font-medium mb-2">
                     {promo.title}
                   </h3>
                   <p className="text-white/90 max-w-xs leading-relaxed">
