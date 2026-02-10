@@ -105,12 +105,12 @@ export default function DiscoverSection() {
         </div>
 
         {/* Category Cards */}
-        <div ref={cardsRef} className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div ref={cardsRef} className="grid sm:grid-cols-2 gap-8 lg:gap-10 max-w-4xl mx-auto">
           {categories.map((category) => (
             <Link
               key={category.id}
               href={`/properties?propertyCategory=${category.id === 'villa' ? 'VILLA' : 'APPARTEMENT'}`}
-              className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer"
+              className="group relative aspect-[16/9] rounded-lg overflow-hidden cursor-pointer"
             >
               {/* Image */}
               <Image
