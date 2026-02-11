@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FiUser, FiCalendar, FiHeart, FiSettings, FiLogOut, FiMapPin, FiDollarSign, FiShoppingBag, FiHome } from 'react-icons/fi';
 import { useAuthStore } from '@/store/authStore';
-import { reservationsApi, leadsApi } from '@/lib/api';
+import { reservationsApi, leadsApi, authApi } from '@/lib/api';
 import { Reservation, Lead } from '@/types';
 import { toast } from 'react-toastify';
 
@@ -127,9 +127,17 @@ export default function DashboardPage() {
     return styles[status] || 'bg-secondary-100 text-secondary-700';
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Call backend API to clear the httpOnly session cookie
+      await authApi.logout();
+    } catch (error) {
+      console.error('Logout API error:', error);
+    }
+    // Clear user data from zustand store
     logout();
-    router.push('/');
+    localStorage.removeItem('auth-storage');
+    router.push('/login');
   };
 
   if (!user) {

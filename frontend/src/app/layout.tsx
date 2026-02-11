@@ -3,6 +3,7 @@ import { Inter, Poppins } from 'next/font/google';
 import dynamic from 'next/dynamic';
 import './globals.css';
 import LayoutWrapper from '@/components/layout/LayoutWrapper';
+import AuthProvider from '@/components/auth/AuthProvider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -64,8 +65,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable} overflow-x-hidden`}>
       <body className="font-sans antialiased overflow-x-hidden">
-        <LayoutWrapper>{children}</LayoutWrapper>
-        <ComparisonBar />
+        <AuthProvider>
+          <LayoutWrapper>{children}</LayoutWrapper>
+          <ComparisonBar />
+        </AuthProvider>
         <ToastContainer
           position="top-right"
           autoClose={5000}

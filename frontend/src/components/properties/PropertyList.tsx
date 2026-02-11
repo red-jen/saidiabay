@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PropertyCard from './PropertyCard';
 import PropertyFilters from './PropertyFilters';
+import PropertiesMap from './PropertiesMap';
+import Dropdown from '@/components/ui/Dropdown';
 import { propertiesApi } from '@/lib/api';
 import { Property, PropertyFilters as Filters } from '@/types';
-import { FiChevronLeft, FiChevronRight, FiMap } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiMap, FiGrid } from 'react-icons/fi';
 
 const PropertyList = () => {
   const searchParams = useSearchParams();
@@ -27,6 +29,8 @@ const PropertyList = () => {
     page: parseInt(searchParams.get('page') || '1'),
     limit: 20,
   });
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [sortValue, setSortValue] = useState('createdAt-DESC');
 
   // Update filters when URL search params change
   useEffect(() => {
@@ -122,31 +126,48 @@ const PropertyList = () => {
           <div className="flex flex-wrap items-center gap-3">
             <PropertyFilters onFilterChange={handleFilterChange} />
 
-            <div className="relative">
-              <select
-                className="px-5 py-3 border border-secondary-200 rounded-lg text-sm font-medium bg-white hover:border-primary-900 focus:border-primary-900 focus:ring-2 focus:ring-primary-100 transition-all cursor-pointer appearance-none pr-10"
-                onChange={(e) => {
-                  const [sortBy, sortOrder] = e.target.value.split('-');
-                  setFilters({ ...filters, sortBy, sortOrder: sortOrder as 'ASC' | 'DESC' });
-                }}
-              >
-                <option value="createdAt-DESC">Plus récents</option>
-                <option value="createdAt-ASC">Plus anciens</option>
-                <option value="price-ASC">Prix croissant</option>
-                <option value="price-DESC">Prix décroissant</option>
-              </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <svg className="w-5 h-5 text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
+            <Dropdown
+              options={[
+                { value: 'createdAt-DESC', label: 'Plus récents' },
+                { value: 'createdAt-ASC', label: 'Plus anciens' },
+                { value: 'price-ASC', label: 'Prix croissant' },
+                { value: 'price-DESC', label: 'Prix décroissant' },
+              ]}
+              value={sortValue}
+              onChange={(value) => {
+                setSortValue(value);
+                const [sortBy, sortOrder] = value.split('-');
+                setFilters({ ...filters, sortBy, sortOrder: sortOrder as 'ASC' | 'DESC' });
+              }}
+              placeholder="Trier par"
+              className="w-[200px]"
+            />
           </div>
 
-          <button className="hidden lg:flex items-center gap-2 px-6 py-3 bg-primary-900 text-white rounded-lg hover:bg-primary-800 transition-colors">
-            <FiMap size={18} />
-            <span className="text-sm font-medium">Voir sur la carte</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-primary-900 text-white'
+                  : 'bg-white text-secondary-700 border border-secondary-200 hover:border-primary-300'
+              }`}
+            >
+              <FiGrid size={18} />
+              <span className="text-sm font-medium hidden sm:inline">Liste</span>
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-colors ${
+                viewMode === 'map'
+                  ? 'bg-primary-900 text-white'
+                  : 'bg-white text-secondary-700 border border-secondary-200 hover:border-primary-300'
+              }`}
+            >
+              <FiMap size={18} />
+              <span className="text-sm font-medium hidden sm:inline">Carte</span>
+            </button>
+          </div>
         </div>
 
         {/* Results info */}
@@ -165,30 +186,43 @@ const PropertyList = () => {
         </div>
       </div>
 
-      {/* Property Grid - Enhanced */}
+      {/* Property View - List or Map */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="space-y-4 animate-pulse">
-              <div className="aspect-square bg-gradient-to-br from-secondary-200 to-secondary-300 rounded-2xl" />
-              <div className="space-y-2">
-                <div className="h-4 bg-secondary-200 rounded w-3/4" />
-                <div className="h-4 bg-secondary-200 rounded w-1/2" />
-                <div className="h-5 bg-secondary-200 rounded w-1/3" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : properties.length > 0 ? (
-        <>
+        viewMode === 'list' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-            {properties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="space-y-4 animate-pulse">
+                <div className="aspect-square bg-gradient-to-br from-secondary-200 to-secondary-300 rounded-2xl" />
+                <div className="space-y-2">
+                  <div className="h-4 bg-secondary-200 rounded w-3/4" />
+                  <div className="h-4 bg-secondary-200 rounded w-1/2" />
+                  <div className="h-5 bg-secondary-200 rounded w-1/3" />
+                </div>
+              </div>
             ))}
           </div>
+        ) : (
+          <div className="w-full h-[600px] bg-secondary-100 rounded-2xl flex items-center justify-center animate-pulse">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <span className="text-sm text-secondary-500">Chargement de la carte...</span>
+            </div>
+          </div>
+        )
+      ) : properties.length > 0 ? (
+        <>
+          {viewMode === 'list' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+              {properties.map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
+            </div>
+          ) : (
+            <PropertiesMap properties={properties} />
+          )}
 
-          {/* Enhanced Pagination */}
-          {pagination.pages > 1 && (
+          {/* Enhanced Pagination - Only show in list view */}
+          {viewMode === 'list' && pagination.pages > 1 && (
             <div className="mt-16 pt-8 border-t border-secondary-200">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <p className="text-sm text-secondary-600">

@@ -2,32 +2,18 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    // Disable server-side image optimization to avoid DNS resolution issues
+    // Images are served directly from their source (Unsplash, Cloudinary, etc.)
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'http',
         hostname: 'localhost',
-        port: '5000',
-        pathname: '/uploads/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.unsplash.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
+        hostname: '**',
         pathname: '/**',
       },
     ],

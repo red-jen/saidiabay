@@ -1,5 +1,4 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
@@ -8,7 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Send session cookies with every request
+  withCredentials: true, // Send httpOnly session cookies with every request
 });
 
 // Log API URL in development
@@ -16,34 +15,23 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   console.log('🔗 API Base URL:', API_URL);
 }
 
-// Add auth token to requests
-api.interceptors.request.use(
-  (config) => {
-    const token = Cookies.get('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Handle response errors
+// Handle response errors — redirect to /login on 401 for protected pages only
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Don't auto-redirect on dashboard or profile pages - let the page handle it
       if (typeof window !== 'undefined') {
         const currentPath = window.location.pathname;
-        const protectedPaths = ['/dashboard', '/profile', '/login', '/register'];
-        const isProtectedPath = protectedPaths.some(p => currentPath.startsWith(p));
-        
-        if (!isProtectedPath) {
-          Cookies.remove('token');
-        window.location.href = '/login';
+        // Pages that DON'T need a redirect on 401 (public or auth pages)
+        const publicPaths = ['/login', '/register', '/forgot-password', '/properties', '/blog', '/contact', '/about', '/'];
+        const isPublic = publicPaths.some(p =>
+          currentPath === p || (p !== '/' && currentPath.startsWith(p))
+        );
+
+        if (!isPublic) {
+          // Protected page (dashboard, profile, etc.) → redirect to login
+          localStorage.removeItem('auth-storage');
+          window.location.href = '/login';
         }
       }
     }
@@ -65,7 +53,7 @@ export const authApi = {
   register: (data: { name: string; email: string; password: string; phone?: string }) =>
     api.post('/auth/register', data),
   logout: () => api.post('/auth/logout'),
-  getMe: () => api.get('/auth/me'),
+  getMe: () => api.get('/auth/profile'),
   updateProfile: (data: { name?: string; phone?: string }) =>
     api.put('/auth/profile', data),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>

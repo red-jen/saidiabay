@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FiSliders, FiX, FiMapPin, FiSearch } from 'react-icons/fi';
+import Dropdown from '@/components/ui/Dropdown';
 import { PropertyFilters as Filters } from '@/types';
 import { citiesApi } from '@/lib/api';
 
@@ -186,21 +187,18 @@ const PropertyFilters = ({ onFilterChange }: PropertyFiltersProps) => {
               {/* City Selection */}
               <div>
                 <h3 className="font-semibold text-secondary-900 mb-4">Ville</h3>
-                <div className="relative">
-                  <FiMapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary-400" size={18} />
-                  <select
-                    value={filters.city || ''}
-                    onChange={(e) => updateLocalFilter('city', e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 border border-secondary-300 rounded-xl text-sm bg-white hover:border-secondary-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="">Toutes les villes</option>
-                    {cities.map((city) => (
-                      <option key={city.id} value={city.id}>
-                        {city.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <Dropdown
+                  options={[
+                    { value: '', label: 'Toutes les villes' },
+                    ...cities.map((city) => ({
+                      value: city.id,
+                      label: city.name,
+                    })),
+                  ]}
+                  value={filters.city || ''}
+                  onChange={(value) => updateLocalFilter('city', value)}
+                  placeholder="Sélectionner une ville"
+                />
               </div>
 
               {/* Price Range */}

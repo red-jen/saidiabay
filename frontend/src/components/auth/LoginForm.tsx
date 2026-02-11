@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiShield } from 'react-icons/fi';
 import { authApi } from '@/lib/api';
-import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 import { useAuthStore } from '@/store/authStore';
 
@@ -14,7 +13,7 @@ const ADMIN_DASHBOARD_URL = process.env.NEXT_PUBLIC_ADMIN_URL || 'http://localho
 
 const LoginForm = () => {
   const router = useRouter();
-  const { login: loginToStore, setUser } = useAuthStore();
+  const { login: loginToStore } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -40,24 +39,16 @@ const LoginForm = () => {
         setUserId(data.userId);
         setOtpStep(true);
         toast.info(data.message || 'OTP code sent to your email');
-      setLoading(false);
-      return;
-    }
+        setLoading(false);
+        return;
+      }
 
-      // Direct login (non-admin users) - extract token and user
-      // Backend may use session-based auth (cookies) instead of JWT tokens
-      const responseData = data.data || data;
-      const token = responseData?.token || data?.token || responseData?.accessToken;
-      const user = responseData?.user || data?.user;
+      // Direct login (non-admin users)
+      // Session cookie is automatically set by the browser from the response
+      const user = data.user;
 
-      // For regular users, backend might not return token (uses session cookies)
-      // If we have user data, proceed with login
       if (user) {
-        // Store token if provided, otherwise rely on session cookies
-        if (token) {
-          Cookies.set('token', token, { expires: 7 });
-        }
-        handleLoginSuccess(token || '', user);
+        handleLoginSuccess(user);
       } else {
         throw new Error('Invalid response from server: Missing user data');
       }
@@ -75,36 +66,11 @@ const LoginForm = () => {
     try {
       const response = await authApi.verifyOtp({ userId, otpCode });
       const data = response.data;
-
       const user = data.user;
-      const token = data.token;
 
       if (user) {
-        // Store user in localStorage (matching backend's session approach)
-        localStorage.setItem(
-          'user',
-          JSON.stringify({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-          })
-        );
-
-        // Also store token if provided
-        if (token) {
-      Cookies.set('token', token, { expires: 7 });
-        }
-
-      toast.success(`Welcome back, ${user.name || user.email}!`);
-
-      // Redirect based on role
-        if (user.role === 'ADMIN' || user.role === 'admin') {
-          // Redirect to backend admin dashboard (port 3000)
-          window.location.href = ADMIN_DASHBOARD_URL;
-        } else {
-          router.push('/');
-        }
+        // Session cookie is automatically set by the browser from the response
+        handleLoginSuccess(user);
       } else {
         throw new Error('Invalid OTP verification response');
       }
@@ -115,11 +81,11 @@ const LoginForm = () => {
     }
   };
 
-  const handleLoginSuccess = (token: string | null, user: any) => {
-    // Normalize user role (backend might return 'USER' or 'ADMIN', frontend expects 'client' or 'admin')
-    const normalizedRole = 
-      user.role === 'ADMIN' || user.role === 'admin' ? 'admin' : 
-      user.role === 'USER' || user.role === 'client' ? 'client' : 
+  const handleLoginSuccess = (user: any) => {
+    // Normalize user role
+    const normalizedRole =
+      user.role === 'ADMIN' || user.role === 'admin' ? 'admin' :
+      user.role === 'USER' || user.role === 'client' ? 'client' :
       'client';
 
     const userData = {
@@ -130,35 +96,27 @@ const LoginForm = () => {
       role: normalizedRole as 'admin' | 'client',
     };
 
-    // Store in authStore (which also persists to localStorage)
-    if (token) {
-      loginToStore(userData, token);
-    } else {
-      // For session-based auth, just set user without token
-      setUser(userData);
-    }
+    // Store user info in authStore (for UI display only — session cookie handles auth)
+    loginToStore(userData);
 
-    // Also store in localStorage for compatibility
-    localStorage.setItem('user', JSON.stringify(userData));
-
-    toast.success(`Welcome back, ${user.name || user.email}!`);
+    toast.success(`Bienvenue, ${user.name || user.email}!`);
 
     // Redirect based on role
     if (normalizedRole === 'admin') {
-      // Redirect to backend admin dashboard (port 3000)
+      // Admin users: redirect to backend admin dashboard (port 3000)
       window.location.href = ADMIN_DASHBOARD_URL;
     } else {
+      // Regular users: stay on frontend
       router.push('/');
     }
   };
 
   const handleError = (error: any) => {
-      let message = 'Login failed';
+    let message = 'Login failed';
 
     if (error.response) {
       const errorData = error.response.data;
 
-      // Handle validation errors with details array
       if (errorData?.details && Array.isArray(errorData.details) && errorData.details.length > 0) {
         message = errorData.details.map((d: any) => d.message).join(', ');
       } else {
@@ -166,15 +124,15 @@ const LoginForm = () => {
           errorData?.message ||
           errorData?.error ||
           errorData?.errors?.[0]?.message ||
-                 `Server error: ${error.response.status}`;
+          `Server error: ${error.response.status}`;
       }
-      } else if (error.request) {
-        message = 'Unable to connect to server. Please check if the backend is running.';
-      } else {
-        message = error.message || 'An unexpected error occurred';
-      }
-      
-      toast.error(message);
+    } else if (error.request) {
+      message = 'Unable to connect to server. Please check if the backend is running.';
+    } else {
+      message = error.message || 'An unexpected error occurred';
+    }
+
+    toast.error(message);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -200,71 +158,71 @@ const LoginForm = () => {
 
         {!otpStep ? (
           /* Step 1: Email & Password */
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email */}
-          <div>
-            <label className="label">Email Address</label>
-            <div className="relative">
-              <input
-                type="email"
-                name="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="your@email.com"
-                className="input pl-10"
-              />
-              <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email */}
+            <div>
+              <label className="label">Email Address</label>
+              <div className="relative">
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="your@email.com"
+                  className="input pl-10"
+                />
+                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
+              </div>
             </div>
-          </div>
 
-          {/* Password */}
-          <div>
-            <label className="label">Password</label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="input pl-10 pr-10"
-              />
-              <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
+            {/* Password */}
+            <div>
+              <label className="label">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="input pl-10 pr-10"
+                />
+                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
+                >
+                  {showPassword ? <FiEyeOff /> : <FiEye />}
+                </button>
+              </div>
+            </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" className="rounded" />
+                <span className="text-secondary-600">Remember me</span>
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-primary-600 hover:text-primary-700 font-medium"
               >
-                {showPassword ? <FiEyeOff /> : <FiEye />}
-              </button>
+                Forgot password?
+              </Link>
             </div>
-          </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="rounded" />
-              <span className="text-secondary-600">Remember me</span>
-            </label>
-            <Link
-              href="/forgot-password"
-              className="text-primary-600 hover:text-primary-700 font-medium"
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Forgot password?
-            </Link>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
         ) : (
           /* Step 2: OTP Verification */
           <form onSubmit={handleOtpSubmit} className="space-y-6">
