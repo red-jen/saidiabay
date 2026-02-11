@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FiCheck, FiPlay, FiAward, FiUsers, FiTrendingUp, FiArrowRight } from 'react-icons/fi';
+import { FiCheck, FiPlay, FiAward, FiUsers, FiTrendingUp, FiArrowRight, FiX } from 'react-icons/fi';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -28,6 +28,7 @@ export default function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -67,7 +68,27 @@ export default function AboutSection() {
     return () => ctx.revert();
   }, []);
 
+  // Close video on Escape key and manage body scroll
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsVideoOpen(false);
+      }
+    };
+
+    if (isVideoOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isVideoOpen]);
+
   return (
+    <>
     <section ref={sectionRef} className="relative py-20 lg:py-32 overflow-hidden">
       {/* Premium Background with Gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-white via-secondary-50 to-white" />
@@ -90,7 +111,11 @@ export default function AboutSection() {
 
               {/* Play Button */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <button className="w-20 h-20 bg-accent-500 rounded-full flex items-center justify-center shadow-gold hover:scale-110 transition-transform group">
+                <button 
+                  onClick={() => setIsVideoOpen(true)}
+                  className="w-20 h-20 bg-accent-500 rounded-full flex items-center justify-center shadow-gold hover:scale-110 transition-transform group"
+                  aria-label="Play video"
+                >
                   <FiPlay className="w-8 h-8 text-white ml-1" />
                 </button>
               </div>
@@ -174,5 +199,47 @@ export default function AboutSection() {
         </div>
       </div>
     </section>
+
+    {/* Video Modal */}
+    {isVideoOpen && (
+      <div 
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-in fade-in duration-300"
+        onClick={() => setIsVideoOpen(false)}
+      >
+        <div className="relative w-full max-w-5xl mx-4">
+          {/* Close Button */}
+          <button
+            onClick={() => setIsVideoOpen(false)}
+            className="absolute -top-12 right-0 w-10 h-10 flex items-center justify-center text-white hover:text-accent-500 transition-colors rounded-full hover:bg-white/10"
+            aria-label="Close video"
+          >
+            <FiX className="w-6 h-6" />
+          </button>
+
+          {/* Video Container */}
+          <div 
+            className="relative w-full bg-black rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300"
+            style={{ paddingBottom: '56.25%' }} // 16:9 aspect ratio
+            onClick={(e) => e.stopPropagation()}
+          >
+            <iframe
+              className="absolute inset-0 w-full h-full"
+              src="https://www.youtube.com/embed/TEXgDhT4kJ0?si=50hQKiDFCu95xajY&autoplay=1"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
+
+          {/* Helper Text */}
+          <p className="text-center text-white/60 text-sm mt-4">
+            Appuyez sur <kbd className="px-2 py-1 bg-white/10 rounded">Échap</kbd> pour fermer
+          </p>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

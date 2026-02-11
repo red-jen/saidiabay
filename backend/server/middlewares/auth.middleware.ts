@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import { prisma } from '../config/database';
 
 export interface AuthRequest extends Request {
@@ -13,48 +12,39 @@ export const authenticate = async (
   next: NextFunction
 ) => {
   try {
-    // Check for session cookie first (primary method)
     const sessionToken = req.cookies.session;
 
-    if (sessionToken) {
-      // Verify session token
-      const session = await prisma.session.findUnique({
-        where: { token: sessionToken },
-        include: { user: true },
-      });
-
-      if (!session) {
-        return res.status(401).json({ error: 'Session invalide' });
-      }
-
-      if (session.expiresAt < new Date()) {
-        // Delete expired session
-        await prisma.session.delete({ where: { id: session.id } });
-        return res.status(401).json({ error: 'Session expirée' });
-      }
-
-      req.userId = session.userId;
-      req.userRole = session.user.role;
-      return next();
+    if (!sessionToken) {
+      return res.status(401).json({ error: 'Non authentifié — aucune session' });
     }
 
-    // Fallback to JWT token (for backwards compatibility)
-    const token = req.headers.authorization?.split(' ')[1];
+    // Verify session token
+    const session = await prisma.session.findUnique({
+      where: { token: sessionToken },
+      include: { user: true },
+    });
 
-    if (!token) {
-      return res.status(401).json({ error: 'Token non fourni' });
+    if (!session) {
+      return res.status(401).json({ error: 'Session invalide' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
-      role: string;
-    };
+    if (session.expiresAt < new Date()) {
+      // Delete expired session
+      await prisma.session.delete({ where: { id: session.id } });
+      return res.status(401).json({ error: 'Session expirée' });
+    }
 
-    req.userId = decoded.userId;
-    req.userRole = decoded.role;
-    next();
+    // Update lastActivity
+    await prisma.session.update({
+      where: { id: session.id },
+      data: { lastActivity: new Date() },
+    });
+
+    req.userId = session.userId;
+    req.userRole = session.user.role;
+    return next();
   } catch (error) {
-    return res.status(401).json({ error: 'Token invalide ou expiré' });
+    return res.status(401).json({ error: 'Erreur d\'authentification' });
   }
 };
 
@@ -65,11 +55,9 @@ export const optionalAuthenticate = async (
   next: NextFunction
 ) => {
   try {
-    // Check for session cookie first (primary method)
     const sessionToken = req.cookies.session;
 
     if (sessionToken) {
-      // Verify session token
       const session = await prisma.session.findUnique({
         where: { token: sessionToken },
         include: { user: true },
@@ -79,26 +67,12 @@ export const optionalAuthenticate = async (
         // Valid session - set userId
         req.userId = session.userId;
         req.userRole = session.user.role;
-        return next();
-      }
-    }
 
-    // Fallback to JWT token in Authorization header (for frontend API calls)
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1];
-      
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-          userId: string;
-          role: string;
-        };
-
-        req.userId = decoded.userId;
-        req.userRole = decoded.role;
-      } catch (jwtError) {
-        // Invalid JWT token - continue without setting userId
-        // This is optional auth, so we don't throw an error
+        // Update lastActivity
+        await prisma.session.update({
+          where: { id: session.id },
+          data: { lastActivity: new Date() },
+        });
       }
     }
 

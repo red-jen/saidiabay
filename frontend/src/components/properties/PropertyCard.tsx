@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { FiMapPin, FiMaximize2 } from 'react-icons/fi';
+import { FiMapPin, FiMaximize2, FiPlay } from 'react-icons/fi';
 import { IoBedOutline } from 'react-icons/io5';
 import { LuBath } from 'react-icons/lu';
 import { Property } from '@/types';
@@ -62,6 +62,8 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             alt={property.title}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+            quality={85}
           />
         ) : (
           <div className="w-full h-full bg-secondary-100 flex items-center justify-center">
@@ -96,11 +98,26 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           )}
         </div>
 
-        {/* Property Category - Bottom Left */}
-        <div className="absolute bottom-4 left-4">
+        {/* Bottom bar */}
+        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
           <span className="px-3 py-1.5 text-xs font-medium bg-white/95 backdrop-blur-sm text-primary-800 rounded">
             {getCategoryLabel(property.propertyCategory || property.type)}
           </span>
+          
+          {/* Video & Image Count */}
+          <div className="flex items-center gap-1.5">
+            {property.videoUrl && (
+              <span className="flex items-center gap-1 px-2 py-1 bg-primary-900/80 backdrop-blur-sm text-white rounded text-[10px] font-semibold uppercase tracking-wide">
+                <FiPlay className="w-2.5 h-2.5" />
+                Vidéo
+              </span>
+            )}
+            {property.images && property.images.length > 1 && (
+              <span className="px-2 py-1 bg-black/50 backdrop-blur-sm text-white rounded text-[10px] font-medium">
+                {property.images.length} photos
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

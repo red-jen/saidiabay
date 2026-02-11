@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FiMail, FiLock, FiUser, FiPhone, FiEye, FiEyeOff } from 'react-icons/fi';
 import { authApi } from '@/lib/api';
-import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
+import { useAuthStore } from '@/store/authStore';
 
 const RegisterForm = () => {
   const router = useRouter();
+  const { login: loginToStore } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,13 +27,13 @@ const RegisterForm = () => {
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error('Les mots de passe ne correspondent pas');
       return;
     }
 
     // Validate password length
     if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters long');
+      toast.error('Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
 
@@ -41,15 +42,34 @@ const RegisterForm = () => {
     try {
       const { confirmPassword, ...registerData } = formData;
       const response = await authApi.register(registerData);
-      const { token, user } = response.data.data;
+      const data = response.data;
 
-      // Store token
-      Cookies.set('token', token, { expires: 7 });
+      // Backend returns { message, user } — session cookie is set automatically
+      const user = data.user;
 
-      toast.success(`Welcome, ${user.name}! Your account has been created.`);
-      router.push('/');
+      if (user) {
+        // Store user data in authStore (for UI display only — session cookie handles auth)
+        const normalizedRole = user.role === 'ADMIN' ? 'admin' : 'client';
+        loginToStore({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: normalizedRole as 'admin' | 'client',
+        });
+
+        toast.success(`Bienvenue, ${user.name}! Votre compte a été créé.`);
+        router.push('/');
+      } else {
+        throw new Error('Réponse invalide du serveur');
+      }
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Registration failed';
+      let message = 'Inscription échouée';
+      if (error.response?.data?.details && Array.isArray(error.response.data.details)) {
+        message = error.response.data.details.map((d: any) => d.message).join(', ');
+      } else {
+        message = error.response?.data?.message || error.response?.data?.error || error.message || message;
+      }
       toast.error(message);
     } finally {
       setLoading(false);
@@ -224,4 +244,3 @@ const RegisterForm = () => {
 };
 
 export default RegisterForm;
-
