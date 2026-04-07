@@ -137,8 +137,8 @@ const PropertyList = () => {
               onChange={(value) => {
                 setSortValue(value);
                 const [sortBy, sortOrder] = value.split('-');
-                setFilters({ ...filters, sortBy, sortOrder: sortOrder as 'ASC' | 'DESC' });
-              }}
+                  setFilters({ ...filters, sortBy, sortOrder: sortOrder as 'ASC' | 'DESC' });
+                }}
               placeholder="Trier par"
               className="w-[200px]"
             />
@@ -164,9 +164,9 @@ const PropertyList = () => {
                   : 'bg-white text-secondary-700 border border-secondary-200 hover:border-primary-300'
               }`}
             >
-              <FiMap size={18} />
+            <FiMap size={18} />
               <span className="text-sm font-medium hidden sm:inline">Carte</span>
-            </button>
+          </button>
           </div>
         </div>
 
@@ -189,18 +189,18 @@ const PropertyList = () => {
       {/* Property View - List or Map */}
       {loading ? (
         viewMode === 'list' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="space-y-4 animate-pulse">
-                <div className="aspect-square bg-gradient-to-br from-secondary-200 to-secondary-300 rounded-2xl" />
-                <div className="space-y-2">
-                  <div className="h-4 bg-secondary-200 rounded w-3/4" />
-                  <div className="h-4 bg-secondary-200 rounded w-1/2" />
-                  <div className="h-5 bg-secondary-200 rounded w-1/3" />
-                </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div key={i} className="space-y-4 animate-pulse">
+              <div className="aspect-square bg-gradient-to-br from-secondary-200 to-secondary-300 rounded-2xl" />
+              <div className="space-y-2">
+                <div className="h-4 bg-secondary-200 rounded w-3/4" />
+                <div className="h-4 bg-secondary-200 rounded w-1/2" />
+                <div className="h-5 bg-secondary-200 rounded w-1/3" />
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
         ) : (
           <div className="w-full h-[600px] bg-secondary-100 rounded-2xl flex items-center justify-center animate-pulse">
             <div className="text-center">
@@ -212,11 +212,11 @@ const PropertyList = () => {
       ) : properties.length > 0 ? (
         <>
           {viewMode === 'list' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
-              {properties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+            {properties.map((property) => (
+              <PropertyCard key={property.id} property={property} />
+            ))}
+          </div>
           ) : (
             <PropertiesMap properties={properties} />
           )}

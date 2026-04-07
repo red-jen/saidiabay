@@ -59,7 +59,7 @@ const RegisterForm = () => {
         });
 
         toast.success(`Bienvenue, ${user.name}! Votre compte a été créé.`);
-        router.push('/');
+      router.push('/');
       } else {
         throw new Error('Réponse invalide du serveur');
       }

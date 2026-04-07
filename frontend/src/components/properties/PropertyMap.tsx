@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { FiMapPin, FiExternalLink, FiNavigation, FiMaximize } from 'react-icons/fi';
+import dynamic from 'next/dynamic';
 
 interface PropertyMapProps {
   latitude: number;
@@ -10,11 +11,23 @@ interface PropertyMapProps {
   address?: string;
 }
 
-const PropertyMap = ({ latitude, longitude, title, address }: PropertyMapProps) => {
-  const [MapComponent, setMapComponent] = useState<any>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+// Internal map component that uses Leaflet
+const LeafletMap = ({ 
+  latitude, 
+  longitude, 
+  title, 
+  address, 
+  fullscreen = false 
+}: { 
+  latitude: number; 
+  longitude: number; 
+  title: string; 
+  address?: string; 
+  fullscreen?: boolean;
+}) => {
+  const [MapComponents, setMapComponents] = useState<any>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Dynamic import to avoid SSR issues with Leaflet
   useEffect(() => {
     const loadMap = async () => {
       const L = await import('leaflet');
@@ -51,39 +64,69 @@ const PropertyMap = ({ latitude, longitude, title, address }: PropertyMapProps) 
         popupAnchor: [0, -40],
       });
 
-      // Create the map component
-      const MapContent = ({ fullscreen }: { fullscreen?: boolean }) => (
-        <MapContainer
-          center={[latitude, longitude]}
-          zoom={15}
-          scrollWheelZoom={false}
-          style={{ height: '100%', width: '100%', borderRadius: fullscreen ? '0' : '1rem' }}
-          zoomControl={true}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Marker position={[latitude, longitude]} icon={customIcon}>
-            <Popup>
-              <div style={{ fontFamily: 'system-ui, sans-serif', padding: '4px 0' }}>
-                <strong style={{ fontSize: '14px', color: '#1a1a2e' }}>{title}</strong>
-                {address && (
-                  <p style={{ fontSize: '12px', color: '#666', margin: '4px 0 0', lineHeight: '1.4' }}>
-                    {address}
-                  </p>
-                )}
-              </div>
-            </Popup>
-          </Marker>
-        </MapContainer>
-      );
-
-      setMapComponent(() => MapContent);
+      setMapComponents({ MapContainer, TileLayer, Marker, Popup, customIcon });
+      setIsLoaded(true);
     };
 
     loadMap();
-  }, [latitude, longitude, title, address]);
+  }, []);
+
+  if (!isLoaded || !MapComponents) {
+    return (
+      <div className="w-full h-full bg-secondary-100 flex items-center justify-center animate-pulse">
+        <div className="text-center">
+          <FiMapPin className="w-8 h-8 text-secondary-300 mx-auto mb-2" />
+          <span className="text-sm text-secondary-400">Chargement de la carte...</span>
+        </div>
+      </div>
+    );
+  }
+
+  const { MapContainer, TileLayer, Marker, Popup } = MapComponents;
+
+  return (
+    <MapContainer
+      center={[latitude, longitude]}
+      zoom={15}
+      scrollWheelZoom={false}
+      style={{ height: '100%', width: '100%', borderRadius: fullscreen ? '0' : '1rem' }}
+      zoomControl={true}
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      <Marker position={[latitude, longitude]} icon={MapComponents.customIcon}>
+        <Popup>
+          <div style={{ fontFamily: 'system-ui, sans-serif', padding: '4px 0' }}>
+            <strong style={{ fontSize: '14px', color: '#1a1a2e' }}>{title}</strong>
+            {address && (
+              <p style={{ fontSize: '12px', color: '#666', margin: '4px 0 0', lineHeight: '1.4' }}>
+                {address}
+              </p>
+            )}
+          </div>
+        </Popup>
+      </Marker>
+    </MapContainer>
+  );
+};
+
+// Dynamic import wrapper for LeafletMap
+const DynamicLeafletMap = dynamic(() => Promise.resolve(LeafletMap), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full bg-secondary-100 flex items-center justify-center animate-pulse">
+      <div className="text-center">
+        <FiMapPin className="w-8 h-8 text-secondary-300 mx-auto mb-2" />
+        <span className="text-sm text-secondary-400">Chargement de la carte...</span>
+      </div>
+    </div>
+  ),
+});
+
+const PropertyMap = ({ latitude, longitude, title, address }: PropertyMapProps) => {
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Google Maps link
   const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
@@ -138,16 +181,13 @@ const PropertyMap = ({ latitude, longitude, title, address }: PropertyMapProps) 
 
         {/* Map Container */}
         <div className="relative rounded-2xl overflow-hidden border border-secondary-200 isolate" style={{ height: '400px' }}>
-          {MapComponent ? (
-            <MapComponent />
-          ) : (
-            <div className="w-full h-full bg-secondary-100 flex items-center justify-center animate-pulse">
-              <div className="text-center">
-                <FiMapPin className="w-8 h-8 text-secondary-300 mx-auto mb-2" />
-                <span className="text-sm text-secondary-400">Chargement de la carte...</span>
-              </div>
-            </div>
-          )}
+          <DynamicLeafletMap 
+            latitude={latitude}
+            longitude={longitude}
+            title={title}
+            address={address}
+            fullscreen={false}
+          />
         </div>
 
         {/* Action Buttons */}
@@ -206,7 +246,13 @@ const PropertyMap = ({ latitude, longitude, title, address }: PropertyMapProps) 
 
           {/* Full Map */}
           <div className="flex-1">
-            {MapComponent && <MapComponent fullscreen />}
+            <DynamicLeafletMap 
+              latitude={latitude}
+              longitude={longitude}
+              title={title}
+              address={address}
+              fullscreen={true}
+            />
           </div>
         </div>
       )}
