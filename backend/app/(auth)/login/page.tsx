@@ -1,12 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
-import { setUser } from '@/lib/auth/session';
+import { setUser, isAuthenticated } from '@/lib/auth/session';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,10 +14,59 @@ export default function LoginPage() {
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
   const [formData, setFormData] = useState({
     identifier: '',
     password: '',
   });
+
+  // Check if user already has a valid session (e.g. logged in from frontend)
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      // If localStorage says authenticated, go straight to dashboard
+      if (isAuthenticated()) {
+        window.location.href = '/dashboard';
+        return;
+      }
+
+      // Check if there's a valid session cookie from the frontend login
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/auth/profile`,
+          {
+            method: 'GET',
+            credentials: 'include',
+          }
+        );
+
+        if (response.ok) {
+          const result = await response.json();
+          const user = result.data || result;
+
+          if (user && user.id && (user.role === 'ADMIN' || user.role === 'admin')) {
+            // Valid admin session — save to localStorage and redirect
+            setUser({
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            });
+            window.location.href = '/dashboard';
+            return;
+          }
+        }
+      } catch {
+        // No valid session
+      }
+
+      // If no session, redirect to frontend login (primary login location)
+      // This backend login page is only a fallback for direct access
+      const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3001';
+      window.location.href = `${frontendUrl}/login`;
+    };
+
+    checkExistingSession();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -84,7 +133,9 @@ export default function LoginPage() {
       } else if (data.user.role === 'ADMIN') {
         window.location.href = '/dashboard';
       } else {
-        window.location.href = '/user/reservations';
+        // Non-admin users: redirect to frontend (front office)
+        const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3001';
+        window.location.href = frontendUrl;
       }
     } catch (error: any) {
       showToast(error.message || 'Erreur de connexion', 'error');
@@ -92,6 +143,18 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  // Show loading while checking existing session
+  if (!sessionChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-gray-500">Vérification...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

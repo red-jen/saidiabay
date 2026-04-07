@@ -64,7 +64,9 @@ export const logout = async (): Promise<void> => {
     removeAuthToken();
     removeUser();
     if (typeof window !== 'undefined') {
-      window.location.href = '/login';
+      // Redirect to the frontend login page (front office), not the admin login
+      const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3001';
+      window.location.href = `${frontendUrl}/login`;
     }
   }
 };

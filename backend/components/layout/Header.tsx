@@ -13,8 +13,8 @@ export const Header: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
+    // logout() clears local storage and redirects to frontend login
     logout();
-    router.push('/login');
   };
 
   return (

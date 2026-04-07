@@ -116,7 +116,7 @@ const Footer = () => {
               </div>
             </Link>
             
-            <p className="text-white/80 mb-10 max-w-sm leading-relaxed text-base">
+            <p className="text-white mb-10 max-w-sm leading-relaxed text-base">
               Votre partenaire de confiance pour l'immobilier de prestige à Saidia Bay, 
               la perle de la Méditerranée marocaine.
             </p>

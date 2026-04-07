@@ -7,16 +7,17 @@ import { useRouter, usePathname } from 'next/navigation';
 import { FiMenu, FiX, FiUser, FiHeart, FiBarChart2, FiLogOut, FiSettings, FiPhone, FiMail, FiMapPin, FiSearch, FiHome, FiChevronDown, FiChevronUp, FiCalendar, FiLayers } from 'react-icons/fi';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import Dropdown from '@/components/ui/Dropdown';
 import { useAuthStore } from '@/store/authStore';
 import { useFavoritesStore } from '@/store/favoritesStore';
 import { useComparisonStore } from '@/store/comparisonStore';
-import { citiesApi } from '@/lib/api';
+import { citiesApi, authApi } from '@/lib/api';
 import { City } from '@/types';
 
 const propertyTypes = [
-  { id: 'all', label: 'Tous types' },
-  { id: 'VILLA', label: 'Villas' },
-  { id: 'APPARTEMENT', label: 'Appartements' },
+  { value: 'all', label: 'Tous types' },
+  { value: 'VILLA', label: 'Villas' },
+  { value: 'APPARTEMENT', label: 'Appartements' },
 ];
 
 const Header = () => {
@@ -148,12 +149,18 @@ const Header = () => {
     { href: '/contact', label: 'Contact' },
   ];
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      // Call backend API to clear the httpOnly session cookie
+      await authApi.logout();
+    } catch (error) {
+      console.error('Logout API error:', error);
+    }
+    // Clear user data from zustand store
     logout();
-    // Also clear localStorage
-    localStorage.removeItem('user');
+    localStorage.removeItem('auth-storage');
     setIsUserMenuOpen(false);
-    router.push('/');
+    router.push('/login');
   };
 
   return (
@@ -490,22 +497,14 @@ const Header = () => {
                   </div>
 
                   {/* Property Type */}
-                  <div className="flex-1 relative border-r border-secondary-200 min-w-0">
-                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary-50/50 transition-colors min-w-0">
-                      <FiHome className="w-4 h-4 text-secondary-500 flex-shrink-0" />
-                      <select
-                        value={activeType}
-                        onChange={(e) => setActiveType(e.target.value)}
-                        className="flex-1 bg-transparent text-sm text-primary-900 focus:outline-none appearance-none cursor-pointer min-w-0"
-                      >
-                        {propertyTypes.map((type) => (
-                          <option key={type.id} value={type.id}>
-                            {type.label}
-                          </option>
-                        ))}
-                      </select>
-                      <FiChevronDown className="w-4 h-4 text-secondary-400 flex-shrink-0 pointer-events-none" />
-                    </div>
+                  <div className="flex-1 border-r border-secondary-200 min-w-0 flex items-center px-2">
+                    <Dropdown
+                      options={propertyTypes}
+                      value={activeType}
+                      onChange={(value) => setActiveType(value)}
+                      placeholder="Type de propriété"
+                      className="w-full"
+                    />
                   </div>
 
                   {/* Date Range - Only for Rentals */}

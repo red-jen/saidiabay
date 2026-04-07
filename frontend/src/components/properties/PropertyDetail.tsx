@@ -15,7 +15,11 @@ import {
   FiChevronRight,
   FiWifi,
   FiShare2,
-  FiHeart
+  FiHeart,
+  FiPlay,
+  FiX,
+  FiGrid,
+  FiImage
 } from 'react-icons/fi';
 import { IoBedOutline } from 'react-icons/io5';
 import { LuBath, LuWaves, LuSnowflake, LuTv, LuChefHat } from 'react-icons/lu';
@@ -24,6 +28,42 @@ import { propertiesApi } from '@/lib/api';
 import { Property } from '@/types';
 import ReservationForm from './ReservationForm';
 import BuyRequestForm from './BuyRequestForm';
+import dynamic from 'next/dynamic';
+import 'leaflet/dist/leaflet.css';
+
+// Dynamic import to avoid SSR issues
+const PropertyMap = dynamic(() => import('./PropertyMap'), { 
+  ssr: false,
+  loading: () => (
+    <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-elegant border border-secondary-100/80 mb-8">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-8 h-px bg-accent-500" />
+        <h2 className="text-accent-600 text-[11px] font-bold tracking-[0.25em] uppercase font-sans">Localisation</h2>
+      </div>
+      <div className="h-[400px] rounded-2xl bg-secondary-100 animate-pulse flex items-center justify-center">
+        <span className="text-sm text-secondary-400">Chargement de la carte...</span>
+      </div>
+    </div>
+  ),
+});
+
+// Helper to extract YouTube embed URL
+const getYoutubeEmbedUrl = (url: string): string | null => {
+  if (!url) return null;
+  // Handle various YouTube URL formats including Shorts
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/,
+    /(?:youtu\.be\/)([a-zA-Z0-9_-]+)/,
+    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/,
+    /(?:youtube\.com\/v\/)([a-zA-Z0-9_-]+)/,
+    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]+)/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return `https://www.youtube.com/embed/${match[1]}`;
+  }
+  return null;
+};
 
 interface PropertyDetailProps {
   slug: string;
@@ -34,6 +74,8 @@ const PropertyDetail = ({ slug }: PropertyDetailProps) => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [showAllPhotos, setShowAllPhotos] = useState(false);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -41,6 +83,7 @@ const PropertyDetail = ({ slug }: PropertyDetailProps) => {
         setLoading(true);
         const data = await propertiesApi.getById(slug);
         if (data && typeof data === 'object') {
+          console.log('📹 Property videoUrl:', data.videoUrl);
           setProperty(data);
         } else {
           setProperty(null);
@@ -71,12 +114,24 @@ const PropertyDetail = ({ slug }: PropertyDetailProps) => {
         setSelectedImage((prev) => (prev === property.images.length - 1 ? 0 : prev + 1));
       } else if (e.key === 'Escape') {
         setIsFullscreen(false);
+        setIsVideoOpen(false);
+        setShowAllPhotos(false);
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [property?.images]);
+
+  // Manage body scroll for modals
+  useEffect(() => {
+    if (isFullscreen || isVideoOpen || showAllPhotos) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isFullscreen, isVideoOpen, showAllPhotos]);
 
   // Loading skeleton
   if (loading) {
@@ -186,165 +241,333 @@ const PropertyDetail = ({ slug }: PropertyDetailProps) => {
 
   return (
     <>
-      {/* Fullscreen Image Modal */}
+      {/* ===== FULLSCREEN GALLERY MODAL ===== */}
       {isFullscreen && property.images && property.images.length > 0 && (
-        <div className="fixed inset-0 z-[9999] bg-primary-950/95 backdrop-blur-xl flex items-center justify-center" onClick={() => setIsFullscreen(false)}>
-          <button 
-            onClick={() => setIsFullscreen(false)} 
-            className="absolute top-6 right-6 z-50 w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all"
-          >
-            ✕
-          </button>
-          <div className="relative w-full h-full max-w-7xl max-h-[90vh] mx-4" onClick={(e) => e.stopPropagation()}>
-            <Image
-              src={property.images[selectedImage]}
-              alt={property.title}
-              fill
-              className="object-contain"
-            />
-          </div>
-          {property.images.length > 1 && (
-            <>
-              <button
-                onClick={(e) => { e.stopPropagation(); setSelectedImage((prev) => (prev === 0 ? property.images.length - 1 : prev - 1)); }}
-                className="absolute left-6 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all"
-              >
-                <FiChevronLeft className="w-6 h-6" />
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setSelectedImage((prev) => (prev === property.images.length - 1 ? 0 : prev + 1)); }}
-                className="absolute right-6 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all"
-              >
-                <FiChevronRight className="w-6 h-6" />
-              </button>
-            </>
-          )}
-          {/* Bottom thumbnails in fullscreen */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-            {property.images.map((_, index) => (
-              <button
-                key={index}
-                onClick={(e) => { e.stopPropagation(); setSelectedImage(index); }}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${selectedImage === index ? 'bg-accent-500 scale-125' : 'bg-white/40 hover:bg-white/60'}`}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="animate-fade-in">
-        {/* ===== HERO IMAGE GALLERY ===== */}
-        <div className="relative">
-          {/* Back Button - Floating */}
-          <div className="absolute top-6 left-6 z-30">
-            <Link
-              href="/properties"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/90 backdrop-blur-md rounded-full text-primary-900 hover:bg-white transition-all shadow-elegant-lg text-sm font-medium group border border-white/50"
+        <div className="fixed inset-0 z-[9999] bg-primary-950 flex flex-col">
+          {/* Fullscreen Header */}
+          <div className="flex items-center justify-between px-6 py-4 bg-primary-950/95 border-b border-white/10">
+            <span className="text-white/70 text-sm font-medium tracking-wide">
+              {selectedImage + 1} / {property.images.length}
+            </span>
+            <h3 className="text-white font-serif text-lg hidden sm:block">{property.title}</h3>
+            <button 
+              onClick={() => setIsFullscreen(false)} 
+              className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all"
             >
-              <FiArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              <span>Retour</span>
-            </Link>
-          </div>
-
-          {/* Action Buttons - Floating */}
-          <div className="absolute top-6 right-6 z-30 flex items-center gap-3">
-            <button className="w-11 h-11 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-primary-900 hover:bg-white hover:text-accent-600 transition-all shadow-elegant-lg border border-white/50">
-              <FiShare2 className="w-4 h-4" />
-            </button>
-            <button className="w-11 h-11 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-primary-900 hover:bg-white hover:text-red-500 transition-all shadow-elegant-lg border border-white/50">
-              <FiHeart className="w-4 h-4" />
+              <FiX className="w-5 h-5" />
             </button>
           </div>
 
           {/* Main Image */}
-          <div 
-            className="relative h-[50vh] lg:h-[70vh] overflow-hidden cursor-pointer"
-            onClick={() => property.images && property.images.length > 0 && setIsFullscreen(true)}
-          >
-            {property.images && property.images.length > 0 ? (
+          <div className="flex-1 relative flex items-center justify-center p-4 lg:p-8" onClick={() => setIsFullscreen(false)}>
+            <div className="relative w-full h-full max-w-7xl" onClick={(e) => e.stopPropagation()}>
               <Image
                 src={property.images[selectedImage]}
                 alt={property.title}
                 fill
-                className="object-cover transition-transform duration-1000 hover:scale-[1.02]"
+                className="object-contain"
+                sizes="100vw"
+                quality={100}
                 priority
               />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-secondary-200 via-secondary-100 to-secondary-50 flex items-center justify-center">
-                <FiMapPin className="text-secondary-300" size={80} />
-              </div>
-            )}
-            
-            {/* Gradient overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-primary-950/70 via-primary-950/10 to-primary-950/20 pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-950/20 via-transparent to-primary-950/20 pointer-events-none" />
-
-            {/* Badges */}
-            <div className="absolute bottom-8 left-8 z-20 flex flex-wrap items-center gap-3">
-              <span className={`px-5 py-2 rounded-full text-xs font-bold tracking-[0.15em] uppercase shadow-lg backdrop-blur-sm ${
-                isRental ? 'bg-primary-900/90 text-white border border-white/20' : 'bg-accent-500/90 text-white border border-accent-400/30'
-              }`}>
-                {isRental ? 'Location' : 'Vente'}
-              </span>
-              <span className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase bg-white/90 backdrop-blur-sm text-primary-900 shadow-lg border border-white/50">
-                <span className={`w-2 h-2 rounded-full ${getStatusColor(property.status)} animate-pulse`} />
-                {getStatusLabel(property.status)}
-              </span>
-              {property.propertyCategory && (
-                <span className="px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-bold tracking-wider uppercase text-primary-900 shadow-lg border border-white/50">
-                  {property.propertyCategory === 'VILLA' ? 'Villa' : 'Appartement'}
-                </span>
-              )}
             </div>
 
-            {/* Image counter */}
-            {property.images && property.images.length > 1 && (
-              <div className="absolute bottom-8 right-8 z-20">
-                <span className="px-4 py-2 bg-black/50 backdrop-blur-md rounded-full text-white text-xs font-medium tracking-wide border border-white/10">
-                  {selectedImage + 1} / {property.images.length}
-                </span>
-              </div>
-            )}
-
-            {/* Navigation Arrows */}
-            {property.images && property.images.length > 1 && (
+            {/* Navigation */}
+            {property.images.length > 1 && (
               <>
                 <button
                   onClick={(e) => { e.stopPropagation(); setSelectedImage((prev) => (prev === 0 ? property.images.length - 1 : prev - 1)); }}
-                  className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition-all border border-white/20"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/25 transition-all"
                 >
-                  <FiChevronLeft className="w-5 h-5" />
+                  <FiChevronLeft className="w-6 h-6" />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); setSelectedImage((prev) => (prev === property.images.length - 1 ? 0 : prev + 1)); }}
-                  className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition-all border border-white/20"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/25 transition-all"
                 >
-                  <FiChevronRight className="w-5 h-5" />
+                  <FiChevronRight className="w-6 h-6" />
                 </button>
               </>
             )}
           </div>
 
           {/* Thumbnail Strip */}
-          {property.images && property.images.length > 1 && (
-            <div className="bg-primary-950/95 backdrop-blur-xl border-t border-white/5">
-              <div className="container mx-auto px-4 lg:px-8">
-                <div className="flex items-center gap-2 py-4 overflow-x-auto scrollbar-hide">
-                  {property.images.map((image, index) => (
+          <div className="bg-primary-950/95 border-t border-white/10 px-4 py-3">
+            <div className="flex items-center justify-center gap-2 overflow-x-auto scrollbar-hide">
+              {property.images.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(index)}
+                  className={`relative flex-shrink-0 h-14 w-20 lg:h-16 lg:w-24 rounded-lg overflow-hidden transition-all duration-300 ${
+                    selectedImage === index 
+                      ? 'ring-2 ring-accent-500 ring-offset-2 ring-offset-primary-950 opacity-100' 
+                      : 'opacity-40 hover:opacity-70'
+                  }`}
+                >
+                  <Image src={image} alt={`Vue ${index + 1}`} fill className="object-cover" sizes="96px" quality={60} />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== ALL PHOTOS GRID MODAL ===== */}
+      {showAllPhotos && property.images && property.images.length > 0 && (
+        <div className="fixed inset-0 z-[9999] bg-white overflow-y-auto">
+          <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-secondary-200">
+            <div className="container mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
+              <h3 className="font-serif text-xl text-primary-900">
+                Toutes les photos · <span className="text-secondary-500">{property.images.length}</span>
+              </h3>
+              <button 
+                onClick={() => setShowAllPhotos(false)} 
+                className="flex items-center gap-2 px-4 py-2 bg-primary-900 text-white rounded-full text-sm font-medium hover:bg-primary-800 transition-all"
+              >
+                <FiX className="w-4 h-4" />
+                Fermer
+              </button>
+            </div>
+          </div>
+          <div className="container mx-auto px-4 lg:px-8 py-8">
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+              {property.images.map((image, index) => (
+                <div 
+                  key={index} 
+                  className="break-inside-avoid cursor-pointer group"
+                  onClick={() => { setSelectedImage(index); setShowAllPhotos(false); setIsFullscreen(true); }}
+                >
+                  <div className="relative rounded-xl overflow-hidden">
+                    <Image 
+                      src={image} 
+                      alt={`${property.title} - Photo ${index + 1}`} 
+                      width={800}
+                      height={600}
+                      className="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform duration-500" 
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      quality={90}
+                    />
+                    <div className="absolute inset-0 bg-primary-950/0 group-hover:bg-primary-950/10 transition-all duration-300" />
+                    <span className="absolute bottom-3 right-3 px-3 py-1 bg-black/50 backdrop-blur-sm text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-all">
+                      {index + 1} / {property.images.length}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== VIDEO MODAL ===== */}
+      {isVideoOpen && property.videoUrl && getYoutubeEmbedUrl(property.videoUrl) && (
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={() => setIsVideoOpen(false)}
+        >
+          <div className="relative w-full max-w-5xl mx-4">
+            <button
+              onClick={() => setIsVideoOpen(false)}
+              className="absolute -top-12 right-0 w-10 h-10 flex items-center justify-center text-white hover:text-accent-500 transition-colors rounded-full hover:bg-white/10"
+              aria-label="Close video"
+            >
+              <FiX className="w-6 h-6" />
+            </button>
+            <div 
+              className="relative w-full bg-black rounded-2xl overflow-hidden shadow-2xl"
+              style={{ paddingBottom: '56.25%' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src={`${getYoutubeEmbedUrl(property.videoUrl)}?autoplay=1&rel=0`}
+                title="Property Video Tour"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
+            </div>
+            <p className="text-center text-white/60 text-sm mt-4">
+              Appuyez sur <kbd className="px-2 py-1 bg-white/10 rounded">Échap</kbd> pour fermer
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="animate-fade-in pt-24 lg:pt-28">
+        {/* ===== MOSAIC IMAGE GALLERY (Sotheby's / Airbnb Style) ===== */}
+        <div className="relative">
+          {/* Back Button */}
+          <div className="absolute top-6 left-6 z-30">
+            <Link
+              href="/properties"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/95 backdrop-blur-md rounded-full text-primary-900 hover:bg-white transition-all shadow-lg text-sm font-medium group"
+            >
+              <FiArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              <span>Retour</span>
+            </Link>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="absolute top-6 right-6 z-30 flex items-center gap-2">
+            <button className="w-10 h-10 bg-white/95 backdrop-blur-md rounded-full flex items-center justify-center text-primary-900 hover:bg-white hover:text-accent-600 transition-all shadow-lg">
+              <FiShare2 className="w-4 h-4" />
+            </button>
+            <button className="w-10 h-10 bg-white/95 backdrop-blur-md rounded-full flex items-center justify-center text-primary-900 hover:bg-white hover:text-red-500 transition-all shadow-lg">
+              <FiHeart className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* MOSAIC GALLERY */}
+          {property.images && property.images.length > 0 ? (
+            <div className="relative">
+              {/* Desktop: Mosaic Grid */}
+              <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 h-[70vh] max-h-[650px]">
+                {/* Main large image */}
+                <div 
+                  className="col-span-2 row-span-2 relative cursor-pointer group overflow-hidden"
+                  onClick={() => { setSelectedImage(0); setIsFullscreen(true); }}
+                >
+                  <Image
+                    src={property.images[0]}
+                    alt={property.title}
+                    fill
+                    className="object-cover group-hover:scale-[1.03] transition-transform duration-700"
+                    sizes="50vw"
+                    quality={90}
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-primary-950/0 group-hover:bg-primary-950/10 transition-all duration-500" />
+                </div>
+
+                {/* Secondary images */}
+                {[1, 2, 3, 4].map((i) => (
+                  <div 
+                    key={i}
+                    className={`relative cursor-pointer group overflow-hidden ${!property.images[i] ? 'bg-secondary-100' : ''}`}
+                    onClick={() => { if (property.images[i]) { setSelectedImage(i); setIsFullscreen(true); } }}
+                  >
+                    {property.images[i] ? (
+                      <>
+                        <Image
+                          src={property.images[i]}
+                          alt={`${property.title} - Vue ${i + 1}`}
+                          fill
+                          className="object-cover group-hover:scale-[1.05] transition-transform duration-700"
+                          sizes="25vw"
+                          quality={85}
+                        />
+                        <div className="absolute inset-0 bg-primary-950/0 group-hover:bg-primary-950/10 transition-all duration-500" />
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <FiImage className="text-secondary-300 w-8 h-8" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* "Show all photos" overlay on last visible image */}
+                {property.images.length > 5 && (
+                  <button
+                    onClick={() => setShowAllPhotos(true)}
+                    className="absolute bottom-4 right-4 z-20 flex items-center gap-2 px-5 py-2.5 bg-white text-primary-900 rounded-full text-sm font-semibold hover:bg-secondary-50 transition-all shadow-lg"
+                  >
+                    <FiGrid className="w-4 h-4" />
+                    Voir les {property.images.length} photos
+                  </button>
+                )}
+              </div>
+
+              {/* Mobile: Single image with swipe */}
+              <div 
+                className="md:hidden relative h-[45vh] cursor-pointer"
+                onClick={() => setIsFullscreen(true)}
+              >
+                <Image
+                  src={property.images[selectedImage]}
+                  alt={property.title}
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                  quality={85}
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary-950/60 via-transparent to-primary-950/10 pointer-events-none" />
+
+                {/* Mobile Navigation */}
+                {property.images.length > 1 && (
+                  <>
                     <button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className={`relative flex-shrink-0 h-16 w-24 lg:h-20 lg:w-28 rounded-lg overflow-hidden transition-all duration-300 ${
-                        selectedImage === index 
-                          ? 'ring-2 ring-accent-500 ring-offset-2 ring-offset-primary-950 opacity-100 scale-105' 
-                          : 'opacity-50 hover:opacity-80 hover:scale-105'
-                      }`}
+                      onClick={(e) => { e.stopPropagation(); setSelectedImage((prev) => (prev === 0 ? property.images.length - 1 : prev - 1)); }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white"
                     >
-                      <Image src={image} alt={`Vue ${index + 1}`} fill className="object-cover" />
+                      <FiChevronLeft className="w-5 h-5" />
                     </button>
-                  ))}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setSelectedImage((prev) => (prev === property.images.length - 1 ? 0 : prev + 1)); }}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white"
+                    >
+                      <FiChevronRight className="w-5 h-5" />
+                    </button>
+                    <span className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 px-4 py-1.5 bg-black/50 backdrop-blur-md rounded-full text-white text-xs font-medium">
+                      {selectedImage + 1} / {property.images.length}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {/* Badges & Video Button Bar */}
+              <div className="bg-white border-b border-secondary-100">
+                <div className="container mx-auto px-4 lg:px-8">
+                  <div className="flex items-center justify-between py-3">
+                    {/* Badges */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.1em] uppercase ${
+                        isRental ? 'bg-primary-900 text-white' : 'bg-accent-500 text-white'
+                      }`}>
+                        {isRental ? 'Location' : 'Vente'}
+                      </span>
+                      <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-secondary-100 text-primary-900">
+                        <span className={`w-1.5 h-1.5 rounded-full ${getStatusColor(property.status)}`} />
+                        {getStatusLabel(property.status)}
+                      </span>
+                      {property.propertyCategory && (
+                        <span className="px-3 py-1.5 bg-secondary-100 rounded-full text-xs font-semibold tracking-wide uppercase text-primary-900">
+                          {property.propertyCategory === 'VILLA' ? 'Villa' : 'Appartement'}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Video & Gallery Buttons */}
+                    <div className="flex items-center gap-2">
+                      {property.videoUrl && getYoutubeEmbedUrl(property.videoUrl) && (
+                        <button
+                          onClick={() => setIsVideoOpen(true)}
+                          className="flex items-center gap-2 px-4 py-2 bg-primary-900 text-white rounded-full text-xs font-semibold hover:bg-primary-800 transition-all group"
+                        >
+                          <FiPlay className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                          <span className="hidden sm:inline">Visite Vidéo</span>
+                        </button>
+                      )}
+                      {property.images.length > 5 && (
+                        <button
+                          onClick={() => setShowAllPhotos(true)}
+                          className="hidden md:flex items-center gap-2 px-4 py-2 border border-secondary-300 text-primary-900 rounded-full text-xs font-semibold hover:bg-secondary-50 transition-all"
+                        >
+                          <FiGrid className="w-3.5 h-3.5" />
+                          {property.images.length} photos
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+          ) : (
+            <div className="h-[40vh] bg-gradient-to-br from-secondary-200 via-secondary-100 to-secondary-50 flex items-center justify-center">
+              <FiImage className="text-secondary-300" size={80} />
             </div>
           )}
         </div>
@@ -424,6 +647,50 @@ const PropertyDetail = ({ slug }: PropertyDetailProps) => {
                   </div>
                 )}
 
+                {/* ===== VIDEO TOUR SECTION ===== */}
+                {property.videoUrl && getYoutubeEmbedUrl(property.videoUrl) && (
+                  <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-elegant border border-secondary-100/80 mb-8">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-px bg-accent-500" />
+                      <h2 className="text-accent-600 text-[11px] font-bold tracking-[0.25em] uppercase font-sans">
+                        Visite Vidéo
+                      </h2>
+                    </div>
+                    <p className="text-secondary-400 text-sm font-light mb-6 ml-11">
+                      Découvrez cette propriété en vidéo
+                    </p>
+                    
+                    {/* Video Thumbnail / Play Button */}
+                    <div 
+                      className="relative rounded-2xl overflow-hidden cursor-pointer group aspect-video bg-primary-950"
+                      onClick={() => setIsVideoOpen(true)}
+                    >
+                      {/* Use first image as thumbnail */}
+                      {property.images && property.images.length > 0 && (
+                        <Image
+                          src={property.images[0]}
+                          alt="Video thumbnail"
+                          fill
+                          className="object-cover opacity-70 group-hover:opacity-50 group-hover:scale-[1.03] transition-all duration-500"
+                          sizes="(max-width: 1024px) 100vw, 66vw"
+                          quality={80}
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary-950/60 via-primary-950/20 to-primary-950/30" />
+                      
+                      {/* Play Button */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <div className="w-20 h-20 bg-white/95 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300 mb-4">
+                          <FiPlay className="w-8 h-8 text-primary-900 ml-1" />
+                        </div>
+                        <span className="text-white/90 text-sm font-semibold tracking-wider uppercase">
+                          Lancer la visite
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* ===== AMENITIES ===== */}
                 {amenities.length > 0 && (
                   <div className="bg-white rounded-3xl p-8 lg:p-12 shadow-elegant border border-secondary-100/80 mb-8">
@@ -473,6 +740,16 @@ const PropertyDetail = ({ slug }: PropertyDetailProps) => {
                       ))}
                     </div>
                   </div>
+                )}
+
+                {/* ===== LOCATION MAP ===== */}
+                {property.latitude && property.longitude && (
+                  <PropertyMap
+                    latitude={property.latitude}
+                    longitude={property.longitude}
+                    title={property.title}
+                    address={property.address || location}
+                  />
                 )}
               </div>
 

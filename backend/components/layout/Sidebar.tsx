@@ -143,12 +143,16 @@ export function Sidebar() {
         </nav>
 
         <div className="mt-8 pt-8 border-t border-gray-200">
-          <Link href="/" target="_blank">
+          <a
+            href={process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3001'}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Button variant="ghost" className="w-full justify-start">
               <span className="mr-3">🌐</span>
               Voir le site
             </Button>
-          </Link>
+          </a>
 
           <Button
             onClick={() => logout()}
